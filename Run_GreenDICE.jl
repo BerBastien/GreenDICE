@@ -30,9 +30,9 @@ using CSV
     uncertainty_analysis_utility = false
 
     #Different estimations of  the role of natural capital in production
-    # ALL Adjusted_tfp_i = [1.0203639621,0.9565217391,1.006993007,1,1.1052631579,1,1.0090909091,0.96,1,1,1,1.0555555556,1.0070422535,1,1,1,1.0526315789,0.8644067797,0.9705882353,1,1,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #26 elasticities
-    Adjusted_tfp_i = [1.0203639621,0.9565217391,1.006993007,1,1.1052631579,1.0090909091,0.96,1.0555555556,1.0070422535,1.0526315789,0.8644067797,0.9705882353,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #removing repeated 1's, 17 elasticities
-    # only positive numbers Adjusted_tfp_i = [1.0203639621,1.006993007,1,1.1052631579,1.0090909091,1.0555555556,1.0070422535,1.0526315789,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #removing repeated 1's, 17 elasticities
+    # ALL Adjusted_tfp_i = [1.01144,0.9565217391,1.006993007,1,1.1052631579,1,1.0090909091,0.96,1,1,1,1.0555555556,1.0070422535,1,1,1,1.0526315789,0.8644067797,0.9705882353,1,1,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #26 elasticities
+    Adjusted_tfp_i = [1.01144,0.9565217391,1.006993007,1,1.1052631579,1.0090909091,0.96,1.0555555556,1.0070422535,1.0526315789,0.8644067797,0.9705882353,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #removing repeated 1's, 17 elasticities
+    # only positive numbers Adjusted_tfp_i = [1.01144,1.006993007,1,1.1052631579,1.0090909091,1.0555555556,1.0070422535,1.0526315789,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #removing repeated 1's, 17 elasticities
 
     k_nc_i = [44760/15841, 1967/6421, 6531/6949, 28527/18960, 59096/80104, 195929/19525] #Ref: Changing Wealth of Naitons, World Bank 2018, Appendix B
     #[world, low-income, lower-middle income, upper/middle income, high income non/OECD, high income OECD]
@@ -129,7 +129,7 @@ using CSV
                     end
                     A = join(A,scc, on= :time)
                     prtp = round((1/GreenDICE[:welfare, :rr][2])^(1/5)-1,digits = 4)
-                    df = DataFrame(time = A.time, gama3 = ones(60).*GreenDICE[:grosseconomy, :gama3], ratioKNC = ones(60).*GreenDICE[:grosseconomy,:ratioNC],XX = ones(60).*0,theta1 = ones(60).*GreenDICE[:welfare,:theta],share1 = ones(60).*GreenDICE[:welfare,:share],climsen = ones(60).*GreenDICE[:climatedynamics,:t2xco2],prtp = ones(60)*prtp,share2 = ones(60).*GreenDICE[:welfare,:share2],theta2 = ones(60).*GreenDICE[:welfare,:theta2],YGreen = GreenDICE[:neteconomy,:YGreen],C = GreenDICE[:neteconomy,:C],damageNC = ones(60).*GreenDICE[:damages,:a4])
+                    df = DataFrame(time = A.time, gama3 = ones(60).*GreenDICE[:grosseconomy, :gama3], ratioKNC = ones(60).*GreenDICE[:grosseconomy,:ratioNC],g4 = ones(60).*GreenDICE[:green_naturalcapital,:g4],theta1 = ones(60).*GreenDICE[:welfare,:theta],share1 = ones(60).*GreenDICE[:welfare,:share],climsen = ones(60).*GreenDICE[:climatedynamics,:t2xco2],prtp = ones(60)*prtp,share2 = ones(60).*GreenDICE[:welfare,:share2],theta2 = ones(60).*GreenDICE[:welfare,:theta2],YGreen = GreenDICE[:neteconomy,:YGreen],C = GreenDICE[:neteconomy,:C],damageNC = ones(60).*GreenDICE[:damages,:a4])
                     A = join(A,df, on= :time)
         return A
     end
@@ -151,16 +151,6 @@ using CSV
         set_param!(DICE,:neteconomy,:S,s)
         run(DICE)
         return -DICE[:welfare, :UTILITY]
-    end
-
-    function eval_dice_multi(x)
-        m = x[1:60]
-        s = x[61:120]
-        set_param!(GreenDICE,:emissions,:MIU,m)
-        set_param!(GreenDICE,:neteconomy,:S,s)
-        run(GreenDICE)
-        
-        return (-GreenDICE[:neteconomy,:C][19],-GreenDICE[:green_naturalcapital,:ES][19])
     end
 
     function eval_dice_inv(x)
@@ -194,9 +184,116 @@ using CSV
     end
 #defining functions (end)
 
+# Finding damage parameters (start)
+    function damage_params(x)
+        a4 = x[1]
+        #Natural capital parameters
+        r = GreenDICE[:grosseconomy,:ratioNC] 
+        g3 = GreenDICE[:grosseconomy,:gama3]
+        g2 = 0.3 - g3
+        g4 = GreenDICE[:green_naturalcapital,:g4]
+        #Stock
+        C = GreenDICE[:neteconomy, :CPC][1]
+        ES = GreenDICE[:neteconomy, :ES][1]
+        K = GreenDICE[:grosseconomy, :K][1]
+        L = GreenDICE[:grosseconomy, :l][1]
+        tfp = GreenDICE[:grosseconomy, :al][1]
+        #Utility parameters
+        eta = 1.45
+        #Consumption
+        C0 = tfp * L ^ 0.7 + K ^ g2 + (r*K)^g3
+        theta = GreenDICE[:welfare,:theta]
+        theta2 = GreenDICE[:welfare,:theta2]
+        share = GreenDICE[:welfare,:share]
+        share2 = GreenDICE[:welfare,:share2]
+        a_d = GreenDICE[:damages,:a_d]  #0.0026686075 #Damage parameter in Nordhaus and Sztorc (2013)
+        a_k = GreenDICE[:damages,:a2]
+        T=2.5
+        C0_d = C0 * (1/(1+a_d * T^2)) #Damaged consumption according to DICE 
+        U_aggregated = ((((1.0).*((1.0 - share).* C0_d .^ theta) + (share .* (C0 * r^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K)^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        #a = (((1 + a_k * T^2)(r/(1+a4 * T^2))^g3) / T^2)
+        #U_explicit = ((((1.0).*((1.0 - share).* ((1/(1+a*T^2))*C0*(r/(1+a4*T^2))^g3) .^ theta) + (share .* (C0*(r/(1+a4*T^2))^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K/(1+a4*T^2))^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        U_explicit = ((((1.0).*((1.0 - share).* ((1/(1+a_k*T^2))*C0*(r/(1+a4*T^2))^g3) .^ theta) + (share .* (C0*(r/(1+a4*T^2))^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K/(1+a4*T^2))^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        #U_explicit = ((((1.0).*((1.0 - share).* ((1/(1+(((1 + a_k * T^2)*(r/(1+a4 * T^2))^g3) / T^2)*T^2))*C0*(r/(1+a4*T^2))^g3) .^ theta) + (share .* (C0*(r/(1+a4*T^2))^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K/(1+a4*T^2))^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        dif_U = abs(U_aggregated - U_explicit)
+        
+        return dif_U
+    end
+
+    function damage_params_usevalues(x)
+        a4 = x[1]
+        #Natural capital parameters
+        r = GreenDICE[:grosseconomy,:ratioNC] 
+        g3 = GreenDICE[:grosseconomy,:gama3]
+        g2 = 0.3 - g3
+        g4 = GreenDICE[:green_naturalcapital,:g4]
+        #Stock
+        C = GreenDICE[:neteconomy, :CPC][1]
+        ES = GreenDICE[:neteconomy, :ES][1]
+        K = GreenDICE[:grosseconomy, :K][1]
+        L = GreenDICE[:grosseconomy, :l][1]
+        tfp = GreenDICE[:grosseconomy, :al][1]
+        #Utility parameters
+        eta = 1.45
+        #Consumption
+        C0 = tfp * L ^ 0.7 + K ^ g2 + (r*K)^g3
+        theta = GreenDICE[:welfare,:theta]
+        theta2 = GreenDICE[:welfare,:theta2]
+        share = GreenDICE[:welfare,:share]
+        share2 = GreenDICE[:welfare,:share2]      
+        a_k = GreenDICE[:damages,:a2] #0.000708454 From Howard and Sterner (2017) or 
+        a_d =  GreenDICE[:damages,:ad] 
+        0.0026686075 #Damage parameter in Nordhaus and Sztorc (2013)
+        T=3
+        C0_d = C0 * (1/(1+a_d * T^2)) #Damaged consumption according to DICE 
+        U_aggregated = ((((1.0).*((1.0 - share).* C0_d .^ theta) + (share .* (C0 * r^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((0)^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        #a = (((1 + a_k * T^2)(r/(1+a4 * T^2))^g3) / T^2)
+        #U_explicit = ((((1.0).*((1.0 - share).* ((1/(1+a*T^2))*C0*(r/(1+a4*T^2))^g3) .^ theta) + (share .* (C0*(r/(1+a4*T^2))^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K/(1+a4*T^2))^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        U_explicit = ((((1.0).*((1.0 - share).* ((1/(1+a_k*T^2))*C0*(r/(1+a4*T^2))^g3) .^ theta) + (share .* (C0*(r/(1+a4*T^2))^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((0/(1+a4*T^2))^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        #U_explicit = ((((1.0).*((1.0 - share).* ((1/(1+(((1 + a_k * T^2)*(r/(1+a4 * T^2))^g3) / T^2)*T^2))*C0*(r/(1+a4*T^2))^g3) .^ theta) + (share .* (C0*(r/(1+a4*T^2))^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K/(1+a4*T^2))^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        dif_U = abs(U_aggregated - U_explicit)
+        
+        return dif_U
+    end
+
+    function damage_params_market(x)
+        a4 = x[1]
+        #Natural capital parameters
+        r = GreenDICE[:grosseconomy,:ratioNC] 
+        g3 = GreenDICE[:grosseconomy,:gama3]
+        g2 = 0.3 - g3
+        g4 = GreenDICE[:green_naturalcapital,:g4]
+        #Stock
+        C = GreenDICE[:neteconomy, :CPC][1]
+        ES = GreenDICE[:neteconomy, :ES][1]
+        K = GreenDICE[:grosseconomy, :K][1]
+        L = GreenDICE[:grosseconomy, :l][1]
+        tfp = GreenDICE[:grosseconomy, :al][1]
+        #Utility parameters
+        eta = 1.45
+        #Consumption
+        C0 = tfp * L ^ 0.7 + K ^ g2 + (r*K)^g3
+        theta = GreenDICE[:welfare,:theta]
+        theta2 = GreenDICE[:welfare,:theta2]
+        share = GreenDICE[:welfare,:share]
+        share2 = GreenDICE[:welfare,:share2]      
+        a_k = GreenDICE[:damages,:a2] #0.000708454 From Howard and Sterner (2017) or 
+        a_d = 0.0026686075 #Damage parameter in Nordhaus and Sztorc (2013)
+        T=3
+        C0_d = C0 * (1/(1+a_d * T^2)) #Damaged consumption according to DICE 
+        U_aggregated = ((((1.0).*((1.0 - share).* C0_d .^ theta) + (share .* (0 * r^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((0)^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        #a = (((1 + a_k * T^2)(r/(1+a4 * T^2))^g3) / T^2)
+        #U_explicit = ((((1.0).*((1.0 - share).* ((1/(1+a*T^2))*C0*(r/(1+a4*T^2))^g3) .^ theta) + (share .* (C0*(r/(1+a4*T^2))^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K/(1+a4*T^2))^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        U_explicit = ((((1.0).*((1.0 - share).* ((1/(1+a_k*T^2))*C0*(r/(1+a4*T^2))^g3) .^ theta) + (share .* (0*(r/(1+a4*T^2))^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((0/(1+a4*T^2))^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        #U_explicit = ((((1.0).*((1.0 - share).* ((1/(1+(((1 + a_k * T^2)*(r/(1+a4 * T^2))^g3) / T^2)*T^2))*C0*(r/(1+a4*T^2))^g3) .^ theta) + (share .* (C0*(r/(1+a4*T^2))^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K/(1+a4*T^2))^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        dif_U = abs(U_aggregated - U_explicit)
+        
+        return dif_U
+    end
+# Finding damage parameters (end)
 
 #Vectors of estimations (start)
-    Adjusted_tfp_i = [1.0203639621,0.9565217391,1.006993007,1,1.1052631579,1.0090909091,0.96,1.0555555556,1.0070422535,1.0526315789,0.8644067797,0.9705882353,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #removing repeated 1's, 17 elasticities
+    Adjusted_tfp_i = [1.01144,0.9565217391,1.006993007,1,1.1052631579,1.0090909091,0.96,1.0555555556,1.0070422535,1.0526315789,0.8644067797,0.9705882353,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #removing repeated 1's, 17 elasticities
     k_nc_i = [44760/15841, 1967/6421, 6531/6949, 28527/18960, 59096/80104, 195929/19525] #Ref: Changing Wealth of Naitons, World Bank 2018, Appendix B
     latfp = log.(Adjusted_tfp_i)
     lknc = log.(k_nc_i)
@@ -209,15 +306,23 @@ using CSV
     share2_i = [0.05, 0.1, 0.15] #invented 
     theta1_i = [0.74,0.86,0.68,0.69,0.78,0.32,0.62,0.27,0.58,-0.16,0.41,-0.1,0.73,0.79,0.76,0.80]
     theta2_i = [0.63,0.78,0.62,0.27]
-    damage_i = [0.00480515,0.01604]#0 damages in NC; 0.00181 25% of market damages; 0.01604 according to S&P
+    damagek_i = [1,2,3]
+    damaged_i = [0.0026686075,0.0026686075, (0.0026686075/1.25)*2]
     prtp_i = [0.001,0.015,0.03]
+    damagek3 = 0.624 #From Nordhaus 1994 Survey
 #Vectors of estimations (end)
 
 #Distributions (start)
     cs_lnd = LogNormal(log(3.2), 0.12) #based on Roe and Baker 2007, using the mean of Nordhaus
     prtp_ud = Uniform(0.001, 0.03) 
-    gama3_nd = Normal(log(1.0203639621)/log(44760/15841), std(gama3_i)) #normal distributions
-    k_nc_nd = Normal(44760/15841,std(k_nc_i))
+    tfp_param = Normal(1.01144,0.000192385) #based on wighted adjusted TFP by country GDP (see gamma3_computation.R)
+    gama3_nd = Normal(log(1.01144)/log(44760/15841), std(gama3_i)) #normal distributions
+    k_nc_nd = Normal(3.87,2.11)
+    damagek1_nd = Normal(0.151, 0.147) #From regression using Howard and Sterner (2017) data
+    damagek2_ud = Uniform(0.3,0.5) #From Howard and Sylvan (2015)
+    atfp_nd = Normal(1.0144,0.0324) #From Brandt et al (2017) weighted mean and standard deviation
+    gamma4_ud = Uniform(0.6,1)
+    
 #Distributions (end) 
 
 
@@ -254,12 +359,12 @@ using CSV
     # Other possibilities - Rich countries: 28/3; Poor countries: 11/10 Ref: Changing Wealth of Nations World Bank, Table 2.2
     # Other possibilities: [world, low-income, lower-middle income, upper/middle income, high income non/OECD, high income OECD]
     # K_NC = [44760/15841, 1967/6421, 6531/6949, 28527/18960, 59096/80104, 195929/19525] #Ref: Changing Wealth of Naitons, World Bank 2018, Appendix B
-    #Adjusted_tfp = 1.0203639621
+    #Adjusted_tfp = 1.01144
     #Adjusted TFP once NC is explicitely in the production function
-    # Default value (Weighted average of estimates): 1.0203639621
+    # Default value (Weighted average of estimates): 1.01144
     # Other posssibilities (individual countries): [0.9565217391,1.006993007,1,1.1052631579,1,1.0090909091,...
     #    0.96,1,1,1,1.0555555556,1.0070422535,1,1,1,1.0526315789,0.8644067797,...
-    #    0.9705882353,1,1,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716,1.0203639621,1.0203639621];
+    #    0.9705882353,1,1,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716,1.01144,1.01144];
     #set_param!(GreenDICE,:grosseconomy,:atfp,Adjusted_tfp)             # Elasticity of YGROSS to NC
     #elasticity_nc = log(Adjusted_tfp)/log(K_NC)
     #set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)             # Elasticity of YGROSS to NC
@@ -279,51 +384,113 @@ using CSV
         set_param!(GreenDICE,:welfare,:sigma_subs,1/(1-0.57)) 
         set_param!(GreenDICE,:welfare,:theta,mean(theta1_i)) 
         set_param!(GreenDICE,:welfare,:theta2,mean(theta2_i))
-        set_param!(GreenDICE,:damages,:a4,0.00480515)
-        set_param!(GreenDICE,:neteconomy,:a4,0.00480515)
         set_param!(GreenDICE,:damages,:a5,0)
-        set_param!(GreenDICE,:damages,:a2,0.00181) 
-        K_NC = 44760/15841
+        K_NC = 3.088595171
         set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
         set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
-        Adjusted_tfp = 1.0203639621
+        Adjusted_tfp = 1.01144
         elasticity_nc = log(Adjusted_tfp)/log(K_NC)
         set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
+        set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
+       
+        
+        # option 1
+        a_d = 0.0026686075 #Corresponding to total aggregated damages Norhaus and Sztorc (2013)
+        k_perc = 0.31  #Percentage Corresponding to market damages only, Howard and Sterner (2017)
+        mortality_perc = 0.2 #Percentage corresponding to mortality damages
+        a_k = a_d * (k_perc + mortality_perc)
+        # # option 2
+        # a_k = 0.0026686075/1.25 #Corresponding to market damages only, 25% of Norduas and Sztorc (2013)
+        # a_d = 0.0026686075 #Corresponding to total aggregated damages Norhaus and Sztorc (2013)
+        # # option 3
+        # a_k = 0.0026686075/1.25 #Corresponding to market damages only, 25% of Norduas and Sztorc (2013)
+        # a_d = (0.0026686075/1.25)*2 #Corresponding to total aggregated damages, which account for another 100% according to Stern Review
+        
+        set_param!(GreenDICE,:damages,:a2,a_k)
+        set_param!(GreenDICE,:damages,:a_d,a_d) 
+        set_param!(GreenDICE,:damages,:a4,0)
+        set_param!(GreenDICE,:neteconomy,:a4,0)
+
+        # r_nk = 15841 / (15841+44760)
+        # r_kn = 44760 / (15841+44760)
+        # set_param!(GreenDICE,:grosseconomy,:r_kn,r_kn)
+        # set_param!(GreenDICE,:green_naturalcapital,:r_nk,r_nk)
+        # r_nk = 0.1
+        # g3 = -log(1/((1-r_nk)^0.3))/(log(1-r_nk)-log(r_nk))
+        # ((1-r_nk)^(0.3-g3)) * r_nk^(g3)
+        # k_in_K = 1
+        # set_param!(GreenDICE,:grosseconomy,:k_in_K,k_in_K)
+        # set_param!(GreenDICE,:green_naturalcapital,:k_in_K,k_in_K)
+        # if k_in_K ==1
+        # set_param!(GreenDICE,:grosseconomy,:gama3,g3)
+        # set_param!(GreenDICE,:neteconomy,:gama3,g3)
+        # else
+            # set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
+            # set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
+        # end
+        g4 = 0.8
+        set_param!(GreenDICE,:green_naturalcapital,:g4,g4) #gamma4
         run(GreenDICE)
+
+        #Finding the damage parameters (start)
+            Resd = bboptimize(damage_params;SearchRange=(0.,1.), NumDimensions=1, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=3000)
+            a_4 = best_candidate(Resd) #
+            set_param!(GreenDICE,:damages,:a4,a_4[1])
+            set_param!(GreenDICE,:neteconomy,:a4,a_4[1])
+        #Finding the damage parameters (end)
     #set parameters of specification (end)
 
-    if welf_opt == true
-        Res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+
+        Res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
         best_candidate(Res) # optimal vector of miu emissions trajectories
         set_param!(GreenDICE,:emissions,:MIU,best_candidate(Res)[1:60])
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(Res)[61:120])
         run(GreenDICE)
         results = foo()
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVnonUV.csv",results)
-    end
+        CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV.csv",results)
+
 
 
     if spread_combined_mcs_opt==true
-        mc_max = 100
+        mc_max = 2000
         
         global Results_spread_combined_mcs_opt = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
         global mc = 0
         while mc < mc_max
 
 
-            #Draw 7 parameters (start)
-                Damage = choice(damage_i)
+            #Draw 8 parameters (start)
+                D_d = choice(damaged_i)
+                D_k = choice(damagek_i)
                 K_NC = rand(k_nc_nd)
                 Share = choice(share1_i)
                 Share2 = choice(share2_i)
+                gamma4 = rand(gamma4_ud)
                 Theta = choice(theta1_i)
                 Theta2 = choice(theta2_i)
-                elasticity_nc = choice(gama3_i)
-            #Draw 7 parameters (end)
+                atfp = rand(atfp_nd)
+            #Draw 8 parameters (end)
+
+            #choose damage parameters (start)
+                if D_k == 1
+                    perck = rand(damagek1_nd)/0.222 #Percentage of damages corresponding to market impacts
+                end
+                if D_k == 2
+                    perck = rand(damagek2_ud)
+                end
+                if D_k == 3
+                    perck = damagek3
+                end
+                a_k = perck * D_d
+            #choose damage parameters (end)
 
                 if K_NC < 0
                     continue
                 end
+                if atfp < 1
+                    continue
+                end
+                elasticity_nc = log(atfp) / log(K_NC)
                 if elasticity_nc < 0
                     continue #skip to the next step in the for loop
                 end
@@ -337,15 +504,22 @@ using CSV
                 set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)    
                 set_param!(GreenDICE,:welfare,:share,Share)  
                 set_param!(GreenDICE,:welfare,:share2,Share2)   
+                set_param!(GreenDICE,:green_naturalcapital,:g4,gamma4)   
                 set_param!(GreenDICE,:welfare,:theta,Theta)    
                 set_param!(GreenDICE,:welfare,:theta2,Theta2)          
                 set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)   
-                set_param!(GreenDICE,:damages,:a4,Damage)  
+                set_param!(GreenDICE,:damages,:a_d,D_d)
+                set_param!(GreenDICE,:damages,:a2,a_k)
+                run(GreenDICE)
+                Resd = bboptimize(damage_params;SearchRange=(0.,1.), NumDimensions=1, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=3000)
+                a_4 = best_candidate(Resd) 
+                set_param!(GreenDICE,:damages,:a4,a_4[1])
+                set_param!(GreenDICE,:neteconomy,:a4,a_4[1]) 
             #set parameters (end)
             
             run(GreenDICE)
             #optimize
-                res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+                res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
             #optimize
 
             #get results (start)
@@ -358,29 +532,73 @@ using CSV
                 global mc = mc + 1
             #get results (end)
         end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVnonUV_spread_mcs_opt.csv",Results_spread_combined_mcs_opt)
-        set_param!(GreenDICE,:damages,:a4,0.00480515)
-        set_param!(GreenDICE,:grosseconomy,:ratioNC,44760/15841)   # Ratio of NC to K0 
-        set_param!(GreenDICE,:green_naturalcapital,:ratioNC,44760/15841)   # Ratio of NC to K0
-        set_param!(GreenDICE,:grosseconomy,:gama3,log(1.0203639621)/log(44760/15841))             # Elasticity of YGROSS to NC
-        set_param!(GreenDICE,:welfare,:share,0.1)   
-        set_param!(GreenDICE,:welfare,:share2,0) 
-        set_param!(GreenDICE,:welfare,:theta,mean(theta1_i))  
-        set_param!(GreenDICE,:welfare,:theta2,mean(theta2_i))  
+        CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_spread_mcs_opt.csv",Results_spread_combined_mcs_opt)
+        #going back to preferred specification (start)
+            set_param!(GreenDICE,:welfare,:utility_path,1)
+            set_param!(GreenDICE,:damages,:path,1)        
+            set_param!(GreenDICE,:grosseconomy,:greenGDP,1) 
+            set_param!(GreenDICE,:welfare,:share,0.1)
+            set_param!(GreenDICE,:welfare,:share2,0.1)
+            set_param!(GreenDICE,:grosseconomy,:share,0.1) 
+            set_param!(GreenDICE,:welfare,:sigma_subs,1/(1-0.57)) 
+            set_param!(GreenDICE,:welfare,:theta,mean(theta1_i)) 
+            set_param!(GreenDICE,:welfare,:theta2,mean(theta2_i))
+            set_param!(GreenDICE,:damages,:a5,0)
+            K_NC = 3.088595171
+            set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
+            set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
+            Adjusted_tfp = 1.01144
+            elasticity_nc = log(Adjusted_tfp)/log(K_NC)
+            set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
+            set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
+            a_d = 0.0026686075 #Corresponding to total aggregated damages Norhaus and Sztorc (2013)
+            k_perc = 0.31  #Percentage Corresponding to market damages only, Howard and Sterner (2017)
+            mortality_perc = 0.2 #Percentage corresponding to mortality damages
+            a_k = a_d * (k_perc + mortality_perc)
+            set_param!(GreenDICE,:damages,:a2,a_k)
+            set_param!(GreenDICE,:damages,:a_d,a_d) 
+            set_param!(GreenDICE,:damages,:a4,0)
+            set_param!(GreenDICE,:neteconomy,:a4,0)
+            g4 = 0.8
+            set_param!(GreenDICE,:green_naturalcapital,:g4,g4) #gamma4
+            run(GreenDICE)
+            Resd = bboptimize(damage_params;SearchRange=(0.,1.), NumDimensions=1, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=3000)
+            a_4 = best_candidate(Resd) #
+            set_param!(GreenDICE,:damages,:a4,a_4[1])
+            set_param!(GreenDICE,:neteconomy,:a4,a_4[1])
+        #going back to preferred specification (end)
         run(GreenDICE)
     end
 
     combination_NC_tfp = true
     if combination_NC_tfp == true
         global Results_combination_NC_tfp = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        for knci in (1:size(k_nc_i)[1])
-            for gama3i in (1:size(gama3_i)[1])
-                K_NC = k_nc_i[knci]
+        mc_max = 20
+        global mc = 0
+        while mc < mc_max
+                K_NC = rand(k_nc_nd)
+                atfp = rand(atfp_nd)
+
+                if K_NC < 0
+                    continue
+                end
+                if atfp < 1
+                    continue
+                end
+                elasticity_nc = log(atfp) / log(K_NC)
+                if elasticity_nc < 0
+                    continue #skip to the next step in the for loop
+                end
+                if elasticity_nc > 0.2999999
+                    continue #skip to the next step in the for loop
+                end
+                            
                 set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC)   # Ratio of NC to K0 
                 set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)   # Ratio of NC to K0 
-                Gama3 = gama3_i[gama3i]
-                set_param!(GreenDICE,:grosseconomy,:gama3,Gama3)             # Elasticity of YGROSS to NC
-                res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+                set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
+                set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
+                run(GreenDICE)
+                res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
                 best_candidate(res)
                 set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
                 set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
@@ -388,24 +606,46 @@ using CSV
                 results = foo()
                 global Results_combination_NC_tfp = join(Results_combination_NC_tfp,results,on= :time, makeunique = true)
             end
-        end
         results = Results_combination_NC_tfp
         #back to standard for future runs
-        set_param!(GreenDICE,:grosseconomy,:ratioNC,44760/15841)   # Ratio of NC to K0 
-        set_param!(GreenDICE,:green_naturalcapital,:ratioNC,44760/15841)   # Ratio of NC to K0
-        set_param!(GreenDICE,:grosseconomy,:gama3,log(1.0203639621)/log(44760/15841))             # Elasticity of YGROSS to NC
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVnonUV_combination_NC_tfp.csv",results)
+        K_NC = 3.088595171
+        set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
+        set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
+        Adjusted_tfp = 1.01144
+        elasticity_nc = log(Adjusted_tfp)/log(K_NC)
+        set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
+        set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
+        CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_combination_NC_tfp.csv",results)
         run(GreenDICE)
     end
 
     sensitivity_per_parameter_opt = true
     if sensitivity_per_parameter_opt == true
-        mc_max = 10
+        mc_max = 20
         
         global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        for Damagei in (1:size(damage_i)[1])
-            Damage = damage_i[Damagei]
-            set_param!(GreenDICE,:damages,:a4,Damage)   
+        global mc = 0
+        mc_max = 20
+        while mc < mc_max
+            D_d = choice(damaged_i)
+            D_k = choice(damagek_i)
+            if D_k == 1
+                perck = rand(damagek1_nd)/0.222 #Percentage of damages corresponding to market impacts
+            end
+            if D_k == 2
+                perck = rand(damagek2_ud)
+            end
+            if D_k == 3
+                perck = damagek3
+            end
+            a_k = perck * D_d
+            set_param!(GreenDICE,:damages,:a_d,D_d)
+            set_param!(GreenDICE,:damages,:a2,a_k)
+            run(GreenDICE)
+            Resd = bboptimize(damage_params;SearchRange=(0.,1.), NumDimensions=1, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=3000)
+            a_4 = best_candidate(Resd) 
+            set_param!(GreenDICE,:damages,:a4,a_4[1])
+            set_param!(GreenDICE,:neteconomy,:a4,a_4[1]) 
             res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
             best_candidate(res) # optimal vector of miu emissions trajectories
             set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
@@ -414,8 +654,8 @@ using CSV
             results = foo()
             global Results_uncertainty_damage = join(Results_uncertainty_damage,results,on= :time, makeunique = true)
         end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_damage.csv",Results_uncertainty_damage)
-        set_param!(GreenDICE,:damages,:a4,0.00480515)
+        CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_damage.csv",Results_uncertainty_damage)
+        set_param!(GreenDICE,:damages,:a4,0.050642536)
         run(GreenDICE)
         
         global Results_uncertainty_prtp = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
@@ -431,14 +671,14 @@ using CSV
             results = foo()
             global Results_uncertainty_prtp = join(Results_uncertainty_prtp,results,on= :time, makeunique = true)
         end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_prtp.csv",Results_uncertainty_prtp)
+        CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_prtp.csv",Results_uncertainty_prtp)
         RR = [1/(1+0.015)^(t*5) for t in 0:59]
         set_param!(GreenDICE,:welfare,:rr,RR)   # Ratio of NC to K0 
         run(GreenDICE)
 
         global Results_uncertainty_cs = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
         global mc = 0
-        mc_max = 10
+        mc_max = 20
         while mc < mc_max
             cs = rand(cs_lnd)
             if cs < 0.01
@@ -456,13 +696,19 @@ using CSV
         end
         set_param!(GreenDICE,:climatedynamics,:t2xco2,3.2) 
         run(GreenDICE)
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_cs.csv",Results_uncertainty_cs)
+        CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_cs.csv",Results_uncertainty_cs)
 
         global Results_uncertainty_gama3 = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
         global mc = 0
-        for gama3i in (1:size(gama3_i)[1])
-            elasticity_nc = gama3_i[gama3i]
-            set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)      
+        mc_max = 20
+        while mc < mc_max              
+            tfpi = rand(tfp_param)
+            if atfp < 1
+                continue
+            end
+            elasticity_nc = log(atfp) / log(K_NC)
+            set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
+            set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc) 
             res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
             best_candidate(res) # optimal vector of miu emissions trajectories
             set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
@@ -471,11 +717,35 @@ using CSV
             results = foo()
             global Results_uncertainty_gama3 = join(Results_uncertainty_gama3,results,on= :time, makeunique = true)
         end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_gama3.csv",Results_uncertainty_gama3)
-        set_param!(GreenDICE,:grosseconomy,:gama3,log(1.0203639621)/log(44760/15841)) 
+        CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_gama3.csv",Results_uncertainty_gama3)
+        K_NC = 3.088595171
+        set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
+        set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
+        Adjusted_tfp = 1.01144
+        elasticity_nc = log(Adjusted_tfp)/log(K_NC)
+        set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
+        set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
         run(GreenDICE)
 
         
+        global Results_uncertainty_gama4 = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
+        global mc = 0
+        global mc = 0
+        mc_max = 20
+        while mc < mc_max
+            g4 = gamma4_ud
+            set_param!(GreenDICE,:green_naturalcapital,:g4,g4) #gamma4
+            res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+            best_candidate(res) # optimal vector of miu emissions trajectories
+            set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
+            set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])       
+            run(GreenDICE)
+            results = foo()
+            global Results_uncertainty_gama4 = join(Results_uncertainty_gama4,results,on= :time, makeunique = true)
+        end
+        CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_gama4.csv",Results_uncertainty_gama4)
+        set_param!(GreenDICE,:green_naturalcapital,:g4,0.8) #gamma4
+        run(GreenDICE)
             
         global Results_uncertainty_share2 = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
         for sharei in (1:size(share2_i)[1])
@@ -489,17 +759,22 @@ using CSV
             results = foo()
             global Results_uncertainty_share2 = join(Results_uncertainty_share2,results,on= :time, makeunique = true)
         end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_share2.csv",Results_uncertainty_share2)
+        CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_share2.csv",Results_uncertainty_share2)
         set_param!(GreenDICE,:welfare,:share2,0.1)
         run(GreenDICE)
         
 
 
         global Results_uncertainty_nc = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        for knci in (1:size(k_nc_i)[1])
-            K_NC = k_nc_i[knci]
+        global mc = 0
+        mc_max = 20
+        while mc < mc_max
+            K_NC = rand(k_nc_nd)
             set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC)   # Ratio of NC to K0 
             set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)   # Ratio of NC to K0    
+            elasticity_nc = log(atfp) / log(K_NC)
+            set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
+            set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc) 
             res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
             best_candidate(res) # optimal vector of miu emissions trajectories
             set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
@@ -508,9 +783,14 @@ using CSV
             results = foo()
             global Results_uncertainty_nc = join(Results_uncertainty_nc,results,on= :time, makeunique = true)
         end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_ratio.csv",Results_uncertainty_nc)
-        set_param!(GreenDICE,:grosseconomy,:ratioNC,44760/15841)   # Ratio of NC to K0 
-        set_param!(GreenDICE,:green_naturalcapital,:ratioNC,44760/15841)   # Ratio of NC to K0 
+        K_NC = 3.088595171
+        set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
+        set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
+        Adjusted_tfp = 1.01144
+        elasticity_nc = log(Adjusted_tfp)/log(K_NC)
+        set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
+        set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)    
+        CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_ratio.csv",Results_uncertainty_nc)
         run(GreenDICE)
         
 
@@ -527,7 +807,7 @@ using CSV
             results = foo()
             global Results_uncertainty_share = join(Results_uncertainty_share,results,on= :time, makeunique = true)
         end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_share1.csv",Results_uncertainty_share)
+        CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_share1.csv",Results_uncertainty_share)
         set_param!(GreenDICE,:welfare,:share,0.1)
         run(GreenDICE)
         
@@ -544,7 +824,7 @@ using CSV
             results = foo()
             global Results_uncertainty_theta2 = join(Results_uncertainty_theta2,results,on= :time, makeunique = true)
         end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_theta2.csv",Results_uncertainty_theta2)
+        CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_theta2.csv",Results_uncertainty_theta2)
         set_param!(GreenDICE,:welfare,:theta2,mean(theta2_i))
         run(GreenDICE)
 
@@ -560,7 +840,7 @@ using CSV
             results = foo()
             global Results_uncertainty_theta = join(Results_uncertainty_theta,results,on= :time, makeunique = true)
         end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_theta.csv",Results_uncertainty_theta)
+        CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_theta.csv",Results_uncertainty_theta)
         set_param!(GreenDICE,:welfare,:theta,mean(theta1_i))
         run(GreenDICE)
 
@@ -583,162 +863,25 @@ using CSV
     set_param!(GreenDICE,:welfare,:sigma_subs,1/(1-mean(theta1_i))) 
     set_param!(GreenDICE,:welfare,:theta,mean(theta1_i)) 
     set_param!(GreenDICE,:welfare,:theta2,1)
-    set_param!(GreenDICE,:damages,:a4,0.00480515)
-    set_param!(GreenDICE,:damages,:a5,0)
-    set_param!(GreenDICE,:damages,:a2,0.00181) 
-    K_NC = 44760/15841
-    set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
-    set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
-    Adjusted_tfp = 1.0203639621
-    elasticity_nc = log(Adjusted_tfp)/log(K_NC)
-    set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
 
-
-    if welf_opt == true
-        Res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+    # #Finding the damage parameters (start)
+    # run(GreenDICE)
+    # Res = bboptimize(damage_params;SearchRange=(0.,1.), NumDimensions=1, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=3000)
+    # a_4 = best_candidate(Res) #
+    # set_param!(GreenDICE,:damages,:a4,a_4[1])
+    # set_param!(GreenDICE,:neteconomy,:a4,a_4[1])
+    # set_param!(GreenDICE,:damages,:a2,a_k) 
+    # #Finding the damage parameters (end)
+        run(GreenDICE)
+        Res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=39999)
         best_candidate(Res) # optimal vector of miu emissions trajectories
         set_param!(GreenDICE,:emissions,:MIU,best_candidate(Res)[1:60])
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(Res)[61:120])
-    end
+
     run(GreenDICE)
     results = foo()
-    CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UV.csv",results)
+    CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UV.csv",results)
 
-
-
-    sensitivity_per_parameter_opt = true
-    if sensitivity_per_parameter_opt == true
-        mc_max = 20
-        
-        global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        for Damagei in (1:size(damage_i)[1])
-            Damage = damage_i[Damagei]
-            set_param!(GreenDICE,:damages,:a4,Damage)   
-            res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-            best_candidate(res) # optimal vector of miu emissions trajectories
-            set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
-            set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
-            run(GreenDICE)
-            results = foo()
-            global Results_uncertainty_damage = join(Results_uncertainty_damage,results,on= :time, makeunique = true)
-        end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UV_sens_opt_damage.csv",Results_uncertainty_damage)
-        set_param!(GreenDICE,:damages,:a4,0.00480515)
-        run(GreenDICE)
-        
-        global Results_uncertainty_prtp = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        for prtpi in (1:size(prtp_i)[1])
-            prtp = prtp_i[prtpi]
-            RR = [1/(1+prtp)^(t*5) for t in 0:59]
-            set_param!(GreenDICE,:welfare,:rr,RR)   # Ratio of NC to K0 
-            res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-            best_candidate(res) # optimal vector of miu emissions trajectories
-            set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
-            set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
-            run(GreenDICE)
-            results = foo()
-            global Results_uncertainty_prtp = join(Results_uncertainty_prtp,results,on= :time, makeunique = true)
-        end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UV_sens_opt_prtp.csv",Results_uncertainty_prtp)
-        RR = [1/(1+0.015)^(t*5) for t in 0:59]
-        set_param!(GreenDICE,:welfare,:rr,RR)   # Ratio of NC to K0 
-        run(GreenDICE)
-
-        global Results_uncertainty_cs = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        global mc = 0
-        while mc < mc_max
-            cs = rand(cs_lnd)
-            if cs < 0.01
-                cs = 3.2
-            end
-            set_param!(GreenDICE,:climatedynamics,:t2xco2,cs) 
-            res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-            best_candidate(res) # optimal vector of miu emissions trajectories
-            set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
-            set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
-            run(GreenDICE)
-            results = foo()
-            global Results_uncertainty_cs = join(Results_uncertainty_cs,results,on= :time, makeunique = true)
-            global mc = mc + 1
-        end
-        set_param!(GreenDICE,:climatedynamics,:t2xco2,3.2) 
-        run(GreenDICE)
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UV_sens_opt_cs.csv",Results_uncertainty_cs)
-
-        global Results_uncertainty_gama3 = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        global mc = 0
-        for gama3i in (1:size(gama3_i)[1])
-            elasticity_nc = gama3_i[gama3i]
-            set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)      
-            res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-            best_candidate(res) # optimal vector of miu emissions trajectories
-            set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
-            set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])       
-            run(GreenDICE)
-            results = foo()
-            global Results_uncertainty_gama3 = join(Results_uncertainty_gama3,results,on= :time, makeunique = true)
-        end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UV_sens_opt_gama3.csv",Results_uncertainty_gama3)
-        set_param!(GreenDICE,:grosseconomy,:gama3,log(1.0203639621)/log(44760/15841)) 
-        run(GreenDICE)
-
-        global Results_uncertainty_nc = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        for knci in (1:size(k_nc_i)[1])
-            K_NC = k_nc_i[knci]
-            set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC)   # Ratio of NC to K0 
-            set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)   # Ratio of NC to K0    
-            res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-            best_candidate(res) # optimal vector of miu emissions trajectories
-            set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
-            set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])   
-            run(GreenDICE)
-            results = foo()
-            global Results_uncertainty_nc = join(Results_uncertainty_nc,results,on= :time, makeunique = true)
-        end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UV_sens_opt_ratio.csv",Results_uncertainty_nc)
-        set_param!(GreenDICE,:grosseconomy,:ratioNC,44760/15841)   # Ratio of NC to K0 
-        set_param!(GreenDICE,:green_naturalcapital,:ratioNC,44760/15841)   # Ratio of NC to K0 
-        run(GreenDICE)
-        
-
-
-        global Results_uncertainty_share = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        for sharei in (1:size(share1_i))
-            Share = share1_i[sharei]
-            set_param!(GreenDICE,:welfare,:share,Share)   
-            res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-            best_candidate(res) # optimal vector of miu emissions trajectories
-            set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
-            set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
-            run(GreenDICE)
-            results = foo()
-            global Results_uncertainty_share = join(Results_uncertainty_share,results,on= :time, makeunique = true)
-        end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UV_sens_opt_share1.csv",Results_uncertainty_share)
-        set_param!(GreenDICE,:welfare,:share,0.1)
-        run(GreenDICE)
-        
-
-
-        global Results_uncertainty_theta = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        for theta1i in (1:size(theta1_i)[1])
-            Theta1 = theta1_i[theta1i]
-            set_param!(GreenDICE,:welfare,:theta,Theta1)   
-            res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-            best_candidate(res) # optimal vector of miu emissions trajectories
-            set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
-            set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
-            run(GreenDICE)
-            results = foo()
-            global Results_uncertainty_theta = join(Results_uncertainty_theta,results,on= :time, makeunique = true)
-        end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UV_sens_opt_theta.csv",Results_uncertainty_theta)
-        set_param!(GreenDICE,:welfare,:theta,mean(theta1_i))
-        run(GreenDICE)
-
-
-        
-    end
 
 ##
 ## 
@@ -757,149 +900,52 @@ using CSV
     set_param!(GreenDICE,:welfare,:sigma_subs,10^10) 
     set_param!(GreenDICE,:welfare,:theta,1) 
     set_param!(GreenDICE,:welfare,:theta2,1)
-    set_param!(GreenDICE,:damages,:a4,0.00480515)
+    set_param!(GreenDICE,:damages,:a4,a4[1])
     set_param!(GreenDICE,:damages,:a5,0)
-    set_param!(GreenDICE,:damages,:a2,0.00181) 
-    K_NC = 44760/15841
-    set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
-    set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
-    Adjusted_tfp = 1.0203639621
-    set_param!(GreenDICE,:grosseconomy,:atfp,Adjusted_tfp)
-    elasticity_nc = log(Adjusted_tfp)/log(K_NC)
-    set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
+    
+    # #Finding the damage parameters (start)
+    #  run(GreenDICE)
+    # Res = bboptimize(damage_params_market;SearchRange=(0.,1.), NumDimensions=1, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=3000)
+    # a_4 = best_candidate(Res) #
+    # set_param!(GreenDICE,:damages,:a4,a_4[1])
+    # set_param!(GreenDICE,:neteconomy,:a4,a_4[1])
+    # set_param!(GreenDICE,:damages,:a2,a_k) 
+    # #Finding the damage parameters (end)
 
-
-    if welf_opt == true
-        Res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+        Res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=39999)
         best_candidate(Res) # optimal vector of miu emissions trajectories
         set_param!(GreenDICE,:emissions,:MIU,best_candidate(Res)[1:60])
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(Res)[61:120])
-    end
     run(GreenDICE)
     results = foo()
-    CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVmkt.csv",results)
+    CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVmkt.csv",results)
 
-    ###Experiment
-        set_param!(GreenDICE,:damages,:a4,0)
-        Res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-        best_candidate(Res) # optimal vector of miu emissions trajectories
-        set_param!(GreenDICE,:emissions,:MIU,best_candidate(Res)[1:60])
-        set_param!(GreenDICE,:neteconomy,:S,best_candidate(Res)[61:120])
-        run(GreenDICE)
-        results = foo()
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/Experiment/GreenDICE_Mkt_noclimate.csv",results)
-
-        function eval_dice_s(x)
-            s = x[1:end]
-            set_param!(GreenDICE,:neteconomy,:S,s)
-            run(GreenDICE)
-            return -GreenDICE[:welfare, :UTILITY]
-        end
-        set_param!(GreenDICE,:damages,:a4,0.00480515)
-        Res = bboptimize(eval_dice_s;SearchRange=(0.,1.), NumDimensions=60, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-        best_candidate(Res) # optimal vector of miu emissions trajectories
-        set_param!(GreenDICE,:neteconomy,:S,best_candidate(Res)[1:60])
-        run(GreenDICE)
-        results = foo()
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/Experiment/GreenDICE_Mkt_climateeffect.csv",results)
-
-    ###Experiment
-    sensitivity_per_parameter_opt = true
-    if sensitivity_per_parameter_opt == true
-        mc_max = 20
-        
-        global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        for Damagei in (1:size(damage_i)[1])
-            Damage = damage_i[Damagei]
-            set_param!(GreenDICE,:damages,:a4,Damage)   
-            res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-            best_candidate(res) # optimal vector of miu emissions trajectories
-            set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
-            set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
-            run(GreenDICE)
-            results = foo()
-            global Results_uncertainty_damage = join(Results_uncertainty_damage,results,on= :time, makeunique = true)
-        end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVmkt_sens_opt_damage.csv",Results_uncertainty_damage)
-        set_param!(GreenDICE,:damages,:a4,0.00480515)
-        run(GreenDICE)
-        
-        global Results_uncertainty_prtp = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        for prtpi in (1:size(prtp_i)[1])
-            prtp = prtp_i[prtpi]
-            RR = [1/(1+prtp)^(t*5) for t in 0:59]
-            set_param!(GreenDICE,:welfare,:rr,RR)   # Ratio of NC to K0 
-            res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-            best_candidate(res) # optimal vector of miu emissions trajectories
-            set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
-            set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
-            run(GreenDICE)
-            results = foo()
-            global Results_uncertainty_prtp = join(Results_uncertainty_prtp,results,on= :time, makeunique = true)
-        end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVmkt_sens_opt_prtp.csv",Results_uncertainty_prtp)
-        RR = [1/(1+0.015)^(t*5) for t in 0:59]
-        set_param!(GreenDICE,:welfare,:rr,RR)   # Ratio of NC to K0 
-        run(GreenDICE)
-
-        global Results_uncertainty_cs = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        global mc = 0
-        while mc < mc_max
-            cs = rand(cs_lnd)
-            if cs < 0.01
-                cs = 3.2
-            end
-            set_param!(GreenDICE,:climatedynamics,:t2xco2,cs) 
-            res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-            best_candidate(res) # optimal vector of miu emissions trajectories
-            set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
-            set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
-            run(GreenDICE)
-            results = foo()
-            global Results_uncertainty_cs = join(Results_uncertainty_cs,results,on= :time, makeunique = true)
-            global mc = mc + 1
-        end
-        set_param!(GreenDICE,:climatedynamics,:t2xco2,3.2) 
-        run(GreenDICE)
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVmkt_sens_opt_cs.csv",Results_uncertainty_cs)
-
-        global Results_uncertainty_gama3 = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        global mc = 0
-        for gama3i in (1:size(gama3_i)[1])
-            elasticity_nc = gama3_i[gama3i]
-            set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)      
-            res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-            best_candidate(res) # optimal vector of miu emissions trajectories
-            set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
-            set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])       
-            run(GreenDICE)
-            results = foo()
-            global Results_uncertainty_gama3 = join(Results_uncertainty_gama3,results,on= :time, makeunique = true)
-        end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVmkt_sens_opt_gama3.csv",Results_uncertainty_gama3)
-        set_param!(GreenDICE,:grosseconomy,:gama3,log(1.0203639621)/log(44760/15841)) 
-        run(GreenDICE)
-
-        global Results_uncertainty_nc = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-        for knci in (1:size(k_nc_i)[1])
-            K_NC = k_nc_i[knci]
-            set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC)   # Ratio of NC to K0 
-            set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)   # Ratio of NC to K0    
-            res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-            best_candidate(res) # optimal vector of miu emissions trajectories
-            set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
-            set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])   
-            run(GreenDICE)
-            results = foo()
-            global Results_uncertainty_nc = join(Results_uncertainty_nc,results,on= :time, makeunique = true)
-        end
-        CSV.write("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/GreenDICE_UVmkt_sens_opt_ratio.csv",Results_uncertainty_nc)
-        set_param!(GreenDICE,:grosseconomy,:ratioNC,44760/15841)   # Ratio of NC to K0 
-        set_param!(GreenDICE,:green_naturalcapital,:ratioNC,44760/15841)   # Ratio of NC to K0 
-        run(GreenDICE)
-
-        
-    end
 
 ##
 ## Market only specification (END)
+
+
+##DICE
+
+set_param!(GreenDICE,:welfare,:utility_path,0)
+set_param!(GreenDICE,:damages,:path,1)        
+set_param!(GreenDICE,:grosseconomy,:greenGDP,0) 
+set_param!(GreenDICE,:welfare,:share,0.)
+set_param!(GreenDICE,:welfare,:share2,0.)
+set_param!(GreenDICE,:grosseconomy,:share,0.) 
+set_param!(GreenDICE,:welfare,:sigma_subs,10^10) 
+set_param!(GreenDICE,:welfare,:theta,1) 
+set_param!(GreenDICE,:welfare,:theta2,1)
+set_param!(GreenDICE,:damages,:a4,0)
+set_param!(GreenDICE,:damages,:a5,0)
+a_all = 0.0026686075 #All damages,Nordhaus and Sztorc (2013)
+set_param!(GreenDICE,:damages,:a2,a_all) 
+
+    Res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+    best_candidate(Res) # optimal vector of miu emissions trajectories
+    set_param!(GreenDICE,:emissions,:MIU,best_candidate(Res)[1:60])
+    set_param!(GreenDICE,:neteconomy,:S,best_candidate(Res)[61:120])
+run(GreenDICE)
+results = foo()
+CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/DICE.csv",results)
+

@@ -49,113 +49,113 @@
     ##### READING FILES (START)
     #####
     #####
-    #Reading simple runs of GeenDICE (start)
-        setwd("C:/Users/bastien/Documents/IAMs/GreenDICE/Results")
-        files <- list.files(pattern = "\\.csv$")
-        for (i in 1:length(files)){
-        results_i <- read.csv(file=files[i], header=TRUE, sep=",")
-        exp_code = substr(files[i],13,nchar(files[i])-4) #getting the name of the experiment
-        names = colnames(results_i)
-        colnames(results_i) = paste(names,exp_code, sep = "_")
-        if (i ==1) {
-        results = results_i
-        } else {
-            results = cbind(results,results_i)
-        }
-        }
-        num_exp = length(files)
-    #Reading simple runs of GeenDICE (end)
+        #Reading simple runs of GeenDICE (start)
+            setwd("C:/Users/bastien/Documents/GitHub/GreenDICE/Results")
+            files <- list.files(pattern = "\\.csv$")
+            for (i in 1:length(files)){
+            results_i <- read.csv(file=files[i], header=TRUE, sep=",")
+            exp_code = substr(files[i],11,nchar(files[i])-4) #getting the name of the experiment
+            names = colnames(results_i)
+            colnames(results_i) = paste(names,exp_code, sep = "_")
+            if (i ==1) {
+            results = results_i
+            } else {
+                results = cbind(results,results_i)
+            }
+            }
+            num_exp = length(files)
+        #Reading simple runs of GeenDICE (end)
 
-    #Reading spread of GeenDICE (start)
+        #Reading spread of GeenDICE (start)
 
-        setwd("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/spread")
-        files <- list.files(pattern = "\\.csv$")
-        Results_i <- read.csv(file=files[1], header=TRUE, sep=",")
-        exp_code = substr(files[1],13,nchar(files[1])-4) #getting the name of the experiment
-        names = colnames(Results_i)
-        colnames(Results_i) = paste(names,exp_code, sep = "_")
-        Results = Results_i
+            setwd("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/spread")
+            files <- list.files(pattern = "\\.csv$")
+            Results_i <- read.csv(file=files[1], header=TRUE, sep=",")
+            exp_code = substr(files[1],13,nchar(files[1])-4) #getting the name of the experiment
+            names = colnames(Results_i)
+            colnames(Results_i) = paste(names,exp_code, sep = "_")
+            Results = Results_i
 
-    #Reading spread of GeenDICE (end)
+        #Reading spread of GeenDICE (end)
 
 
-    #Reading NC_gama3 (start)
-        setwd("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/NCtfp")
-        files <- list.files(pattern = "\\.csv$")
-        for (i in 1:length(files)){
-        Results_nc_i <- read.csv(file=files[i], header=TRUE, sep=",")
-        exp_code = substr(files[i],11,nchar(files[i])-4) #getting the name of the experiment
-        names = colnames(Results_nc_i)
-        colnames(Results_nc_i) = paste(names,exp_code, sep = "_")
-        if (i ==1) {
-        Results_nc = Results_nc_i
-        num_cols = length(names)
-        sens = substr(names[1],19,nchar(names))
-        } else {
-            Results_nc = cbind(Results_nc,Results_nc_i)
+        #Reading NC_gama3 (start)
+            setwd("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/NCtfp")
+            files <- list.files(pattern = "\\.csv$")
+            for (i in 1:length(files)){
+            Results_nc_i <- read.csv(file=files[i], header=TRUE, sep=",")
+            exp_code = substr(files[i],11,nchar(files[i])-4) #getting the name of the experiment
+            names = colnames(Results_nc_i)
+            colnames(Results_nc_i) = paste(names,exp_code, sep = "_")
+            if (i ==1) {
+            Results_nc = Results_nc_i
+            num_cols = length(names)
+            sens = substr(names[1],19,nchar(names))
+            } else {
+                Results_nc = cbind(Results_nc,Results_nc_i)
+                num_cols = cbind(num_cols, length(names))
+                sens = cbind(sens,substr(names[1],19,nchar(names)))
+            }
+            }
+            num_exp_s = length(files)
+        #Reading NC_gama3 (end)
+
+        
+            #Reading investment (start)
+                setwd("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/investment/AssetInvestment")
+                files <- list.files(pattern = "\\.csv$")
+                for (i in 1:length(files)){
+                Results_inv1_i <- read.csv(file=files[i], header=TRUE, sep=",")
+                exp_code = substr(files[i],11,nchar(files[i])-4) #getting the name of the experiment
+                names = colnames(Results_inv1_i)
+                colnames(Results_inv1_i) = paste(names,exp_code, sep = "_")
+                if (i ==1) {
+                    Results_inv1 = Results_inv1_i
+                } else {
+                    Results_inv1 = cbind(Results_inv1,Results_inv1_i)
+                }
+                num_cols = length(names)
+                sens = substr(names[1],19,nchar(names))
+                }
+                Results_AssetInv = Results_inv1
+
+
+                setwd("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/investment/ReducedDamages")
+                files <- list.files(pattern = "\\.csv$")
+                for (i in 1:length(files)){
+                Results_inv_i <- read.csv(file=files[i], header=TRUE, sep=",")
+                exp_code = substr(files[i],11,nchar(files[i])-4) #getting the name of the experiment
+                names = colnames(Results_inv_i)
+                colnames(Results_inv_i) = paste(names,exp_code, sep = "_")
+                Results_inv = Results_inv_i
+                num_cols = length(names)
+                sens = substr(names[1],19,nchar(names))
+                }
+                Results_ReducedDamages = Results_inv
+            #Reading investment (end)
+
+
+        # Read parametric sensitivity GreenDICE (START)
+            setwd("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/sensitivity")
+            files <- list.files(pattern = "\\.csv$")
+            for (i in 1:length(files)){
+            Results_s_i <- read.csv(file=files[i], header=TRUE, sep=",")
+            exp_code = substr(files[i],11,nchar(files[i])-4) #getting the name of the experiment
+            names = colnames(Results_s_i)
+            colnames(Results_s_i) = paste(names,exp_code, sep = "_")
+            if (i ==1) {
+            Results_s = Results_s_i
+            num_cols = length(names)
+            sens = substr(names[1],19,nchar(names))
+            } else {
+                Results_s = cbind(Results_s,Results_s_i)
             num_cols = cbind(num_cols, length(names))
             sens = cbind(sens,substr(names[1],19,nchar(names)))
-        }
-        }
-        num_exp_s = length(files)
-    #Reading NC_gama3 (end)
-
-    
-        #Reading investment (start)
-            setwd("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/investment/AssetInvestment")
-            files <- list.files(pattern = "\\.csv$")
-            for (i in 1:length(files)){
-            Results_inv1_i <- read.csv(file=files[i], header=TRUE, sep=",")
-            exp_code = substr(files[i],11,nchar(files[i])-4) #getting the name of the experiment
-            names = colnames(Results_inv1_i)
-            colnames(Results_inv1_i) = paste(names,exp_code, sep = "_")
-            if (i ==1) {
-                Results_inv1 = Results_inv1_i
-            } else {
-                Results_inv1 = cbind(Results_inv1,Results_inv1_i)
             }
-            num_cols = length(names)
-            sens = substr(names[1],19,nchar(names))
-            }
-            Results_AssetInv = Results_inv1
-
-
-            setwd("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/investment/ReducedDamages")
-            files <- list.files(pattern = "\\.csv$")
-            for (i in 1:length(files)){
-            Results_inv_i <- read.csv(file=files[i], header=TRUE, sep=",")
-            exp_code = substr(files[i],11,nchar(files[i])-4) #getting the name of the experiment
-            names = colnames(Results_inv_i)
-            colnames(Results_inv_i) = paste(names,exp_code, sep = "_")
-            Results_inv = Results_inv_i
-            num_cols = length(names)
-            sens = substr(names[1],19,nchar(names))
-            }
-            Results_ReducedDamages = Results_inv
-        #Reading investment (end)
-
-
-    # Read parametric sensitivity GreenDICE (START)
-        setwd("C:/Users/bastien/Documents/IAMs/GreenDICE/Results/sensitivity")
-        files <- list.files(pattern = "\\.csv$")
-        for (i in 1:length(files)){
-        Results_s_i <- read.csv(file=files[i], header=TRUE, sep=",")
-        exp_code = substr(files[i],11,nchar(files[i])-4) #getting the name of the experiment
-        names = colnames(Results_s_i)
-        colnames(Results_s_i) = paste(names,exp_code, sep = "_")
-        if (i ==1) {
-        Results_s = Results_s_i
-        num_cols = length(names)
-        sens = substr(names[1],19,nchar(names))
-        } else {
-            Results_s = cbind(Results_s,Results_s_i)
-        num_cols = cbind(num_cols, length(names))
-        sens = cbind(sens,substr(names[1],19,nchar(names)))
-        }
-        } 
-        num_exp_s = length(files)
-    #Read parametric sensitivity UVnonUV (END)
-    
+            } 
+            num_exp_s = length(files)
+        #Read parametric sensitivity UVnonUV (END)
+        
     #####
     #####
     ##### READING FILES (END)
@@ -170,617 +170,617 @@
 
 
 
-    #arrange plain runs of specifications (start)
-        results[1]
-        num_vars = 26
-        num_exp = 4
-        r_t  <- results %>%
-        select(names(results)[c(1,num_vars*(0:(num_exp-1))+2)]) %>%
-        gather(key = "variable", value = "value_t", -1)
-        names(r_t)[1] = "years"
-
-        r_e  <- results %>%
-        select(names(results)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
-        gather(key = "variable", value = "value_e", -1)
-        names(r_e)[1] = "years"
-
-        r_scc  <- results %>%
-        select(names(results)[c(1,num_vars*(0:(num_exp-1))+14)]) %>%
-        gather(key = "variable", value = "value_scc", -1)
-        names(r_scc)[1] = "years"
-
-        r_nc  <- results %>%
-        select(names(results)[c(1,num_vars*(0:(num_exp-1))+5)]) %>%
-        gather(key = "variable", value = "value_nc", -1)
-        names(r_scc)[1] = "years"
-        r_inv <- results %>%
-        select(names(results)[c(1,num_vars*(0:(num_exp-1))+9)]) %>%
-        gather(key = "variable", value = "value_inv", -1)
-        
-        r_YGreen <- results %>%
-        select(names(results)[c(1,num_vars*(0:(num_exp-1))+25)]) %>%
-        gather(key = "variable_YGreen", value = "value_YGreen", -1)
-
-        r_YGross <- results %>%
-        select(names(results)[c(1,num_vars*(0:(num_exp-1))+7)]) %>%
-        gather(key = "variable_YGross", value = "value_YGross", -1)
-        
-        r_NC <- results %>%
-        select(names(results)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
-        gather(key = "variable_nc", value = "value_nc", -1)
-
-        r_k <- results %>%
-        select(names(results)[c(1,num_vars*(0:(num_exp-1))+13)]) %>%
-        gather(key = "variable_k", value = "value_k", -1)
-
-
-        r_S <- results %>%
-        select(names(results)[c(1,num_vars*(0:(num_exp-1))+8)]) %>%
-        gather(key = "variable_s", value = "value_s", -1)
-
-        r_inv <- results %>%
-        select(names(results)[c(1,num_vars*(0:(num_exp-1))+9)]) %>%
-        gather(key = "variable", value = "value_inv", -1)
-
-        r_miu <- results %>%
-        select(names(results)[c(1,num_vars*(0:(num_exp-1))+10)]) %>%
-        gather(key = "variable_miu", value = "value_miu", -1)
-
-
-
-        
-        r_nc_perc <- r_NC[3] / (r_NC[3] + r_k[3])
-
-        
-
-        df_r <- cbind(r_t,r_e[3],r_scc[3]*1.18,r_YGreen[3],
-        r_NC[3],r_S[3],r_inv[3],r_miu[3],r_k[3],r_YGross[3],r_nc_perc) #multiplied by 1.18 to pass from 2010 usd to 2019 usd
-        names(df_r)[1] = "years"
-        names(df_r)[dim(df_r)[2]] = "r_nc_perc"
-
-    #arrange plain runs of specifications (end)
-
-
-    ###Arrange sensitivity data (START)
-        sens = c("cs","damage","gama3","prtp","ratio","share1","share2","theta1","theta2")
-        num_exp_ss = c(10,2,41,3,6,3,3,16,4)
-        10+2+41+3+6+3+3+16+4
-        for (num_exp_s_i in 1:9){
-        initial = sum(num_cols[0:(num_exp_s_i-1)])
-        final = sum(num_cols[0:num_exp_s_i])
-        Results_s_i = Results_s[,(initial+1):final]
-        num_vars = 25
-
-        #num_exp = (num_cols[num_exp_s_i]-2)/num_vars
-        num_exp = num_exp_ss[num_exp_s_i]
-        df_t <- Results_s_i %>%
-        select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
-        gather(key = "variable", value = "value_t", -1)
-
-        df_e <- Results_s_i %>%
-        select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
-        gather(key = "variable_e", value = "value_e", -1)
-
-        df_scc <- Results_s_i %>%
-        select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
-        gather(key = "variable_scc", value = "value_scc", -1)
-        df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
-
-
-        df_gama <- Results_s_i %>%
-        select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
-        gather(key = "variable_gama3", value = "value_gama3", -1)
-
-        df_ratio <- Results_s_i %>%
-        select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
-        gather(key = "variable_ratio", value = "value_ratio", -1)
-
-
-
-        df_theta1 <- Results_s_i %>%
-        select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
-        gather(key = "variable_theta1", value = "value_theta1", -1)
-
-        df_share <- Results_s_i %>%
-        select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
-        gather(key = "variable_share1", value = "value_share1", -1)
-
-
-        df_cs <- Results_s_i %>%
-        select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
-        gather(key = "variable_cs", value = "value_cs", -1)
-
-        df_prtp <- Results_s_i %>%
-        select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%  
-        gather(key = "variable_ratio", value = "value_prtp", -1)
-
-        df_share2 <- Results_s_i %>%
-        select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+23)]) %>%
-        gather(key = "variable_share2", value = "value_share2", -1)
-
-        df_theta2 <- Results_s_i %>%
-        select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+24)]) %>%
-        gather(key = "variable_theta2", value = "value_theta2", -1)
-
-
-        df_damage <- Results_s_i %>%
-        select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+27)]) %>%
-        gather(key = "variable_damage", value = "value_damage", -1)
-
-
-        
-
-        id = rep((1+(num_exp_s_i-1)*num_exp):((num_exp_s_i)*num_exp), each = dim(df_t)[1]/num_exp)
-        df_id = data.frame("id" = id)
-
-        df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_share[3],df_theta1[3],df_prtp[3],df_cs[3],df_share2[3],df_theta2[3],df_damage[3],df_id)
-        df$sensitivity = sens[num_exp_s_i]
-
-        names(df)[1] = "years"
-        if (num_exp_s_i  == 1) {
-        DF = df }
-        else {
-        DF = rbind(DF,df)
-        }
-        }
-    ####Arrange sensitivity data (END)
-
-    ###Arrange UV sensitivity data (START)
-        sens = c("cs","damage","prtp","ratio","share","tfp","theta1")
-        for (num_exp_s_i in 1:num_exp_s){
-        initial = sum(num_cols[0:(num_exp_s_i-1)])
-        final = sum(num_cols[0:num_exp_s_i])
-        Results_s_UV_i = Results_s_UV[,(initial+1):final]
-        num_vars = 24
-
-        num_exp = (num_cols[num_exp_s_i]-2)/num_vars
-
-        df_t <- Results_s_UV_i %>%
-        select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
-        gather(key = "variable", value = "value_t", -1)
-
-        df_e <- Results_s_UV_i %>%
-        select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
-        gather(key = "variable_e", value = "value_e", -1)
-
-        df_scc <- Results_s_UV_i %>%
-        select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
-        gather(key = "variable_scc", value = "value_scc", -1)
-        df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
-
-
-        df_gama <- Results_s_UV_i %>%
-        select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
-        gather(key = "variable_gama3", value = "value_gama3", -1)
-
-        df_ratio <- Results_s_UV_i %>%
-        select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
-        gather(key = "variable_ratio", value = "value_ratio", -1)
-
-        df_atfp <- Results_s_UV_i %>%
-        select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+18)]) %>%
-        gather(key = "variable_ratio", value = "value_atfp", -1)
-
-        df_subs <- Results_s_UV_i %>%
-        select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
-        gather(key = "variable_ratio", value = "value_subs", -1)
-
-        df_share <- Results_s_UV_i %>%
-        select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
-        gather(key = "variable_ratio", value = "value_share", -1)
-
-
-        df_cs <- Results_s_UV_i %>%
-        select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
-        gather(key = "variable_ratio", value = "value_cs", -1)
-
-        df_prtp <- Results_s_UV_i %>%
-        select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%  
-        gather(key = "variable_ratio", value = "value_prtp", -1)
-    
-
-        id = rep((1+(num_exp_s_i-1)*num_exp):((num_exp_s_i)*num_exp), each = dim(df_t)[1]/num_exp)
-        df_id = data.frame("id" = id)
-
-        df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_atfp[3],df_share[3],df_subs[3],df_prtp[3],df_cs[3],df_id)
-        df$sensitivity = sens[num_exp_s_i]
-
-        names(df)[1] = "years"
-        if (num_exp_s_i  == 1) {
-        DF_UV = df }
-        else {
-        DF_UV = rbind(DF_UV,df)
-        }
-        }
-    ####Arrange UV sensitivity data (END)
-
-    ###Arrange UVmkt sensitivity data (START)
-        sens = c("cs","damage","prtp","ratio","tfp")
-        for (num_exp_s_i in 1:num_exp_s){
-        initial = sum(num_cols[0:(num_exp_s_i-1)])
-        final = sum(num_cols[0:num_exp_s_i])
-        Results_s_UVmkt_i = Results_s_UVmkt[,(initial+1):final]
-        num_vars = 24
-
-        num_exp = (num_cols[num_exp_s_i]-2)/num_vars
-
-        df_t <- Results_s_UVmkt_i %>%
-        select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
-        gather(key = "variable", value = "value_t", -1)
-
-        df_e <- Results_s_UVmkt_i %>%
-        select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
-        gather(key = "variable_e", value = "value_e", -1)
-
-        df_scc <- Results_s_UVmkt_i %>%
-        select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
-        gather(key = "variable_scc", value = "value_scc", -1)
-        df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
-
-
-        df_gama <- Results_s_UVmkt_i %>%
-        select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
-        gather(key = "variable_gama3", value = "value_gama3", -1)
-
-        df_ratio <- Results_s_UVmkt_i %>%
-        select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
-        gather(key = "variable_ratio", value = "value_ratio", -1)
-
-        df_atfp <- Results_s_UVmkt_i %>%
-        select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+18)]) %>%
-        gather(key = "variable_ratio", value = "value_atfp", -1)
-
-        df_subs <- Results_s_UVmkt_i %>%
-        select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
-        gather(key = "variable_ratio", value = "value_subs", -1)
-
-        df_share <- Results_s_UVmkt_i %>%
-        select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
-        gather(key = "variable_ratio", value = "value_share", -1)
-
-
-        df_cs <- Results_s_UVmkt_i %>%
-        select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
-        gather(key = "variable_ratio", value = "value_cs", -1)
-
-        df_prtp <- Results_s_UVmkt_i %>%
-        select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%  
-        gather(key = "variable_ratio", value = "value_prtp", -1)
-    
-
-        id = rep((1+(num_exp_s_i-1)*num_exp):((num_exp_s_i)*num_exp), each = dim(df_t)[1]/num_exp)
-        df_id = data.frame("id" = id)
-
-        df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_atfp[3],df_share[3],df_subs[3],df_prtp[3],df_cs[3],df_id)
-        df$sensitivity = sens[num_exp_s_i]
-
-        names(df)[1] = "years"
-        if (num_exp_s_i  == 1) {
-        DF_UVmkt = df }
-        else {
-        DF_UVmkt = rbind(DF_UVmkt,df)
-        }
-        }
-    ####Arrange UVmkt sensitivity data (END)
-
-    ###Arrange nonUV sensitivity data (START)
-        sens = c("cs","damage","prtp","ratio","share2","tfp","theta2")
-        for (num_exp_s_i in 1:num_exp_s){
-        initial = sum(num_cols[0:(num_exp_s_i-1)])
-        final = sum(num_cols[0:num_exp_s_i])
-        Results_s_nonUV_i = Results_s_nonUV[,(initial+1):final]
-        num_vars = 24
-
-        num_exp = (num_cols[num_exp_s_i]-2)/num_vars
-
-        df_t <- Results_s_nonUV_i %>%
-        select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
-        gather(key = "variable", value = "value_t", -1)
-
-        df_e <- Results_s_nonUV_i %>%
-        select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
-        gather(key = "variable_e", value = "value_e", -1)
-
-        df_scc <- Results_s_nonUV_i %>%
-        select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
-        gather(key = "variable_scc", value = "value_scc", -1)
-        df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
-
-
-        df_gama <- Results_s_nonUV_i %>%
-        select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
-        gather(key = "variable_gama3", value = "value_gama3", -1)
-
-        df_ratio <- Results_s_nonUV_i %>%
-        select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
-        gather(key = "variable_ratio", value = "value_ratio", -1)
-
-        df_atfp <- Results_s_nonUV_i %>%
-        select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+18)]) %>%
-        gather(key = "variable_ratio", value = "value_atfp", -1)
-
-        df_subs <- Results_s_nonUV_i %>%
-        select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
-        gather(key = "variable_ratio", value = "value_subs", -1)
-
-        df_share <- Results_s_nonUV_i %>%
-        select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
-        gather(key = "variable_ratio", value = "value_share", -1)
-
-
-        df_cs <- Results_s_nonUV_i %>%
-        select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
-        gather(key = "variable_ratio", value = "value_cs", -1)
-
-        df_prtp <- Results_s_nonUV_i %>%
-        select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%  
-        gather(key = "variable_ratio", value = "value_prtp", -1)
-    
-
-        id = rep((1+(num_exp_s_i-1)*num_exp):((num_exp_s_i)*num_exp), each = dim(df_t)[1]/num_exp)
-        df_id = data.frame("id" = id)
-
-        df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_atfp[3],df_share[3],df_subs[3],df_prtp[3],df_cs[3],df_id)
-        df$sensitivity = sens[num_exp_s_i]
-
-        names(df)[1] = "years"
-        if (num_exp_s_i  == 1) {
-        DF_nonUV = df }
-        else {
-        DF_nonUV = rbind(DF_nonUV,df)
-        }
-        }
-    ####Arrange nonUV sensitivity data (END)
-
-
-    # arrange combination NC_TFP of UVnonUV montecarlo simulation optimized (start)
-        num_vars = 25
-        num_exp = (dim(Results_nc)[2]-2)/(num_vars)
-
-        df_t <- Results_nc %>%
-        select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
-        gather(key = "variable", value = "value_t", -1)
-
-        df_e <- Results_nc %>%
-        select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
-        gather(key = "variable_e", value = "value_e", -1)
-
-        df_scc <- Results_nc %>%
-        select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
-        gather(key = "variable_scc", value = "value_scc", -1)
-        df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
-
-
-
-        df_gama <- Results_nc %>%
-        select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
-        gather(key = "variable_gama3", value = "value_gama3", -1)
-
-        df_ratio <- Results_nc %>%
-        select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
-        gather(key = "variable_ratio", value = "value_ratio", -1)
-
-        df_atfp <- Results_nc %>%
-        select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+18)]) %>%
-        gather(key = "variable_ratio", value = "value_atfp", -1)
-
-        df_subs <- Results_nc %>%
-        select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
-        gather(key = "variable_ratio", value = "value_subs", -1)
-
-        df_share <- Results_nc %>%
-        select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
-        gather(key = "variable_ratio", value = "value_share", -1)
-
-
-        df_cs <- Results_nc %>%
-        select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
-        gather(key = "variable_ratio", value = "value_cs", -1)
-
-        df_prtp <- Results_nc %>%
-        select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%
-        gather(key = "variable_ratio", value = "value_prtp", -1)
-
-        df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_atfp[3],df_share[3],df_subs[3],df_prtp[3],df_cs[3])
-        df_nc <- df
-    # arrange  combination NC_TFP of UVnonUV montecarlo simulation optimized (end)
-
-    # arrange spread of UVnonUV montecarlo simulation optimized (start)
-        num_vars = 25
-        num_exp = (dim(Results)[2]-2)/(num_vars)
-        num_exp = 100
-        df_t <- Results %>%
-        select(names(Results)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
-        gather(key = "variable", value = "value_t", -1)
-
-        df_e <- Results %>%
-        select(names(Results)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
-        gather(key = "variable_e", value = "value_e", -1)
-
-        df_scc <- Results %>%
-        select(names(Results)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
-        gather(key = "variable_scc", value = "value_scc", -1)
-        df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
-
-
-        df_gama <- Results %>%
-        select(names(Results)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
-        gather(key = "variable_gama3", value = "value_gama3", -1)
-
-        df_ratio <- Results %>%
-        select(names(Results)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
-        gather(key = "variable_ratio", value = "value_ratio", -1)
-
-        df_theta1 <- Results %>%
-        select(names(Results)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
-        gather(key = "variable_theta1", value = "value_theta1", -1)
-
-        df_share1 <- Results %>%
-        select(names(Results)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
-        gather(key = "variable_share1", value = "value_share1", -1)
-
-        df_cs <- Results %>%
-        select(names(Results)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
-        gather(key = "variable_cs", value = "value_cs", -1)
-
-        df_prtp <- Results %>%
-        select(names(Results)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%
-        gather(key = "variable_prtp", value = "value_prtp", -1)
-
-        df_share2 <- Results %>%
-        select(names(Results)[c(1,num_vars*(0:(num_exp-1))+23)]) %>%
-        gather(key = "variable_ratio", value = "value_share2", -1)
-
-        df_theta2 <- Results %>%
-        select(names(Results)[c(1,num_vars*(0:(num_exp-1))+24)]) %>%
-        gather(key = "variable_ratio", value = "value_theta2", -1)
-
-
-        df_damage <- Results %>%
-        select(names(Results)[c(1,num_vars*(0:(num_exp-1))+27)]) %>%
-        gather(key = "variable_damage", value = "value_damage", -1)
-
-        df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_damage[3],df_share1[3],df_share2[3],df_theta2[3],df_theta1[3],df_prtp[3],df_cs[3])
-        df_mcs <- df
-    # arrange spread of UVnonUV montecarlo simulation optimized (end)
-
-
-    # arrange iterations of GreenDICE + Asset investment (start)
-        num_vars = 26
-        num_exp = (dim(Results_AssetInv)[2]-2)/(num_vars)
-
-        df_t_inv <- Results_AssetInv %>%
-        select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
-        gather(key = "variable", value = "value_t", -1)
-        df_e_inv <- Results_AssetInv %>%
-        select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
-        gather(key = "variable_e", value = "value_e", -1)
-        df_scc_inv <- Results_AssetInv %>%
-        select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
-        gather(key = "variable_scc", value = "value_scc", -1)
-        df_scc_inv[3] <- df_scc_inv[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
-        df_inv_inv <- Results_AssetInv %>%
-        select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+10)]) %>%
-        gather(key = "variable_inv", value = "value_inv", -1)
-        
-        df_YGreen <- Results_AssetInv %>%
-        select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+25)]) %>%
-        gather(key = "variable_YGreen", value = "value_YGreen", -1)
-        
-        df_Y_inv = cbind(df_inv_inv[,1:2],df_inv_inv[3] * df_YGreen[3] *1.18*10^3)  #multiplied by 1.18 to pass from 2010usd to 2019 usd, multiplied by 10^3 to pass from trillion to billion
-        names(df_Y_inv) = c("time_UVnonUV_inv","variable","value_Y")
-        
-        df_price_inv <- Results_AssetInv %>%
-        select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+28)]) %>%
-        gather(key = "variable_price", value = "value_price", -1)
-
-        df_NC_inv <- Results_AssetInv %>%
-        select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+5)]) %>%
-        gather(key = "variable_nc", value = "value_nc", -1)
-
-
-        
-        df_YGross_inv <- Results_AssetInv %>%
-        select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+8)]) %>%
-        gather(key = "variable_YGross", value = "value_YGross", -1)
-
-        df_k_inv <- Results_AssetInv %>%
-        select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+14)]) %>%
-        gather(key = "variable_k", value = "value_k", -1)
-
-
-        df_S_inv <- Results_AssetInv %>%
-        select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+9)]) %>%
-        gather(key = "variable_s", value = "value_s", -1)
-
-        df_inv_inv <- Results_AssetInv %>%
-        select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+10)]) %>%
-        gather(key = "variable_inv", value = "value_inv", -1)
-
-        df_miu_inv <- Results_AssetInv %>%
-        select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+10)]) %>%
-        gather(key = "variable_miu", value = "value_miu", -1)
-
-        id_var = rep(1:num_exp, each=60)
-
-    
-    df_nc_perc = df_NC_inv[3] / (df_NC_inv[3] + df_k_inv[3])
-        df_inv <- cbind(df_t_inv,df_e_inv[3],df_scc_inv[3],df_YGreen[3],df_Y_inv[3],
-        df_price_inv[3]*1.18,df_NC_inv[3],df_S_inv[3],df_inv_inv[3],df_miu_inv[3],df_k_inv[3],df_YGross_inv[3],df_nc_perc,id_var)
-
-        names(df_inv)[1]="years"
-        names(df_inv)[dim(df_inv)[2]-1] = "nc_perc"
-
-        df_inv<- cbind(df_inv[1:60,2],aggregate(df_inv[,3:16], list(df_inv$years), mean))
-        names(df_inv)[1:2] <- c("variable","years")
-        
-        
-    # arrange iterations of GreenDICE + Asset investment (end)
-
-    #arrange plain results with ReducedDamages (start)
-        num_vars=25
-        num_exp = 19
-        df_t_inv <- Results_ReducedDamages %>%
-            select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+2)]) %>%
+        #arrange plain runs of specifications (start)
+            results[1]
+            num_vars = 26
+            num_exp = 4
+            r_t  <- results %>%
+            select(names(results)[c(1,num_vars*(0:(num_exp-1))+2)]) %>%
             gather(key = "variable", value = "value_t", -1)
-        df_e_inv <- Results_ReducedDamages %>%
-            select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
+            names(r_t)[1] = "years"
+
+            r_e  <- results %>%
+            select(names(results)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
+            gather(key = "variable", value = "value_e", -1)
+            names(r_e)[1] = "years"
+
+            r_scc  <- results %>%
+            select(names(results)[c(1,num_vars*(0:(num_exp-1))+14)]) %>%
+            gather(key = "variable", value = "value_scc", -1)
+            names(r_scc)[1] = "years"
+
+            r_nc  <- results %>%
+            select(names(results)[c(1,num_vars*(0:(num_exp-1))+5)]) %>%
+            gather(key = "variable", value = "value_nc", -1)
+            names(r_scc)[1] = "years"
+            r_inv <- results %>%
+            select(names(results)[c(1,num_vars*(0:(num_exp-1))+9)]) %>%
+            gather(key = "variable", value = "value_inv", -1)
+            
+            r_YGreen <- results %>%
+            select(names(results)[c(1,num_vars*(0:(num_exp-1))+25)]) %>%
+            gather(key = "variable_YGreen", value = "value_YGreen", -1)
+
+            r_YGross <- results %>%
+            select(names(results)[c(1,num_vars*(0:(num_exp-1))+7)]) %>%
+            gather(key = "variable_YGross", value = "value_YGross", -1)
+            
+            r_NC <- results %>%
+            select(names(results)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
+            gather(key = "variable_nc", value = "value_nc", -1)
+
+            r_k <- results %>%
+            select(names(results)[c(1,num_vars*(0:(num_exp-1))+13)]) %>%
+            gather(key = "variable_k", value = "value_k", -1)
+
+
+            r_S <- results %>%
+            select(names(results)[c(1,num_vars*(0:(num_exp-1))+8)]) %>%
+            gather(key = "variable_s", value = "value_s", -1)
+
+            r_inv <- results %>%
+            select(names(results)[c(1,num_vars*(0:(num_exp-1))+9)]) %>%
+            gather(key = "variable", value = "value_inv", -1)
+
+            r_miu <- results %>%
+            select(names(results)[c(1,num_vars*(0:(num_exp-1))+10)]) %>%
+            gather(key = "variable_miu", value = "value_miu", -1)
+
+
+
+            
+            r_nc_perc <- r_NC[3] / (r_NC[3] + r_k[3])
+
+            
+
+            df_r <- cbind(r_t,r_e[3],r_scc[3]*1.18,r_YGreen[3],
+            r_NC[3],r_S[3],r_inv[3],r_miu[3],r_k[3],r_YGross[3],r_nc_perc) #multiplied by 1.18 to pass from 2010 usd to 2019 usd
+            names(df_r)[1] = "years"
+            names(df_r)[dim(df_r)[2]] = "r_nc_perc"
+
+        #arrange plain runs of specifications (end)
+
+
+        ###Arrange sensitivity data (START)
+            sens = c("cs","damage","gama3","prtp","ratio","share1","share2","theta1","theta2")
+            num_exp_ss = c(10,2,41,3,6,3,3,16,4)
+            10+2+41+3+6+3+3+16+4
+            for (num_exp_s_i in 1:9){
+            initial = sum(num_cols[0:(num_exp_s_i-1)])
+            final = sum(num_cols[0:num_exp_s_i])
+            Results_s_i = Results_s[,(initial+1):final]
+            num_vars = 25
+
+            #num_exp = (num_cols[num_exp_s_i]-2)/num_vars
+            num_exp = num_exp_ss[num_exp_s_i]
+            df_t <- Results_s_i %>%
+            select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
+            gather(key = "variable", value = "value_t", -1)
+
+            df_e <- Results_s_i %>%
+            select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
             gather(key = "variable_e", value = "value_e", -1)
-        df_scc_inv <- Results_ReducedDamages %>%
-        select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+14)]) %>%
-        gather(key = "variable_scc", value = "value_scc", -1)
-        df_scc_inv[3] <- df_scc_inv[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
-        df_inv_inv <- Results_ReducedDamages %>%
-        select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+9)]) %>%
-        gather(key = "variable_inv", value = "value_inv", -1)
+
+            df_scc <- Results_s_i %>%
+            select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
+            gather(key = "variable_scc", value = "value_scc", -1)
+            df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
+
+
+            df_gama <- Results_s_i %>%
+            select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
+            gather(key = "variable_gama3", value = "value_gama3", -1)
+
+            df_ratio <- Results_s_i %>%
+            select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
+            gather(key = "variable_ratio", value = "value_ratio", -1)
+
+
+
+            df_theta1 <- Results_s_i %>%
+            select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
+            gather(key = "variable_theta1", value = "value_theta1", -1)
+
+            df_share <- Results_s_i %>%
+            select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
+            gather(key = "variable_share1", value = "value_share1", -1)
+
+
+            df_cs <- Results_s_i %>%
+            select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
+            gather(key = "variable_cs", value = "value_cs", -1)
+
+            df_prtp <- Results_s_i %>%
+            select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%  
+            gather(key = "variable_ratio", value = "value_prtp", -1)
+
+            df_share2 <- Results_s_i %>%
+            select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+23)]) %>%
+            gather(key = "variable_share2", value = "value_share2", -1)
+
+            df_theta2 <- Results_s_i %>%
+            select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+24)]) %>%
+            gather(key = "variable_theta2", value = "value_theta2", -1)
+
+
+            df_damage <- Results_s_i %>%
+            select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+27)]) %>%
+            gather(key = "variable_damage", value = "value_damage", -1)
+
+
+            
+
+            id = rep((1+(num_exp_s_i-1)*num_exp):((num_exp_s_i)*num_exp), each = dim(df_t)[1]/num_exp)
+            df_id = data.frame("id" = id)
+
+            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_share[3],df_theta1[3],df_prtp[3],df_cs[3],df_share2[3],df_theta2[3],df_damage[3],df_id)
+            df$sensitivity = sens[num_exp_s_i]
+
+            names(df)[1] = "years"
+            if (num_exp_s_i  == 1) {
+            DF = df }
+            else {
+            DF = rbind(DF,df)
+            }
+            }
+        ####Arrange sensitivity data (END)
+
+        ###Arrange UV sensitivity data (START)
+            sens = c("cs","damage","prtp","ratio","share","tfp","theta1")
+            for (num_exp_s_i in 1:num_exp_s){
+            initial = sum(num_cols[0:(num_exp_s_i-1)])
+            final = sum(num_cols[0:num_exp_s_i])
+            Results_s_UV_i = Results_s_UV[,(initial+1):final]
+            num_vars = 24
+
+            num_exp = (num_cols[num_exp_s_i]-2)/num_vars
+
+            df_t <- Results_s_UV_i %>%
+            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
+            gather(key = "variable", value = "value_t", -1)
+
+            df_e <- Results_s_UV_i %>%
+            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
+            gather(key = "variable_e", value = "value_e", -1)
+
+            df_scc <- Results_s_UV_i %>%
+            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
+            gather(key = "variable_scc", value = "value_scc", -1)
+            df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
+
+
+            df_gama <- Results_s_UV_i %>%
+            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
+            gather(key = "variable_gama3", value = "value_gama3", -1)
+
+            df_ratio <- Results_s_UV_i %>%
+            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
+            gather(key = "variable_ratio", value = "value_ratio", -1)
+
+            df_atfp <- Results_s_UV_i %>%
+            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+18)]) %>%
+            gather(key = "variable_ratio", value = "value_atfp", -1)
+
+            df_subs <- Results_s_UV_i %>%
+            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
+            gather(key = "variable_ratio", value = "value_subs", -1)
+
+            df_share <- Results_s_UV_i %>%
+            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
+            gather(key = "variable_ratio", value = "value_share", -1)
+
+
+            df_cs <- Results_s_UV_i %>%
+            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
+            gather(key = "variable_ratio", value = "value_cs", -1)
+
+            df_prtp <- Results_s_UV_i %>%
+            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%  
+            gather(key = "variable_ratio", value = "value_prtp", -1)
         
-        df_YGreen <- Results_ReducedDamages %>%
-        select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+24)]) %>%
-        gather(key = "variable_YGreen", value = "value_YGreen", -1)
+
+            id = rep((1+(num_exp_s_i-1)*num_exp):((num_exp_s_i)*num_exp), each = dim(df_t)[1]/num_exp)
+            df_id = data.frame("id" = id)
+
+            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_atfp[3],df_share[3],df_subs[3],df_prtp[3],df_cs[3],df_id)
+            df$sensitivity = sens[num_exp_s_i]
+
+            names(df)[1] = "years"
+            if (num_exp_s_i  == 1) {
+            DF_UV = df }
+            else {
+            DF_UV = rbind(DF_UV,df)
+            }
+            }
+        ####Arrange UV sensitivity data (END)
+
+        ###Arrange UVmkt sensitivity data (START)
+            sens = c("cs","damage","prtp","ratio","tfp")
+            for (num_exp_s_i in 1:num_exp_s){
+            initial = sum(num_cols[0:(num_exp_s_i-1)])
+            final = sum(num_cols[0:num_exp_s_i])
+            Results_s_UVmkt_i = Results_s_UVmkt[,(initial+1):final]
+            num_vars = 24
+
+            num_exp = (num_cols[num_exp_s_i]-2)/num_vars
+
+            df_t <- Results_s_UVmkt_i %>%
+            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
+            gather(key = "variable", value = "value_t", -1)
+
+            df_e <- Results_s_UVmkt_i %>%
+            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
+            gather(key = "variable_e", value = "value_e", -1)
+
+            df_scc <- Results_s_UVmkt_i %>%
+            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
+            gather(key = "variable_scc", value = "value_scc", -1)
+            df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
+
+
+            df_gama <- Results_s_UVmkt_i %>%
+            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
+            gather(key = "variable_gama3", value = "value_gama3", -1)
+
+            df_ratio <- Results_s_UVmkt_i %>%
+            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
+            gather(key = "variable_ratio", value = "value_ratio", -1)
+
+            df_atfp <- Results_s_UVmkt_i %>%
+            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+18)]) %>%
+            gather(key = "variable_ratio", value = "value_atfp", -1)
+
+            df_subs <- Results_s_UVmkt_i %>%
+            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
+            gather(key = "variable_ratio", value = "value_subs", -1)
+
+            df_share <- Results_s_UVmkt_i %>%
+            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
+            gather(key = "variable_ratio", value = "value_share", -1)
+
+
+            df_cs <- Results_s_UVmkt_i %>%
+            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
+            gather(key = "variable_ratio", value = "value_cs", -1)
+
+            df_prtp <- Results_s_UVmkt_i %>%
+            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%  
+            gather(key = "variable_ratio", value = "value_prtp", -1)
         
-        df_Y_inv = cbind(df_inv_inv[,1:2],df_inv_inv[3] * df_YGreen[3] *1.18*10^3)  #multiplied by 1.18 to pass from 2010usd to 2019 usd, multiplied by 10^3 to pass from trillion to billion
-        names(df_Y_inv) = c("time_UVnonUV_inv","variable","value_Y")
+
+            id = rep((1+(num_exp_s_i-1)*num_exp):((num_exp_s_i)*num_exp), each = dim(df_t)[1]/num_exp)
+            df_id = data.frame("id" = id)
+
+            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_atfp[3],df_share[3],df_subs[3],df_prtp[3],df_cs[3],df_id)
+            df$sensitivity = sens[num_exp_s_i]
+
+            names(df)[1] = "years"
+            if (num_exp_s_i  == 1) {
+            DF_UVmkt = df }
+            else {
+            DF_UVmkt = rbind(DF_UVmkt,df)
+            }
+            }
+        ####Arrange UVmkt sensitivity data (END)
+
+        ###Arrange nonUV sensitivity data (START)
+            sens = c("cs","damage","prtp","ratio","share2","tfp","theta2")
+            for (num_exp_s_i in 1:num_exp_s){
+            initial = sum(num_cols[0:(num_exp_s_i-1)])
+            final = sum(num_cols[0:num_exp_s_i])
+            Results_s_nonUV_i = Results_s_nonUV[,(initial+1):final]
+            num_vars = 24
+
+            num_exp = (num_cols[num_exp_s_i]-2)/num_vars
+
+            df_t <- Results_s_nonUV_i %>%
+            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
+            gather(key = "variable", value = "value_t", -1)
+
+            df_e <- Results_s_nonUV_i %>%
+            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
+            gather(key = "variable_e", value = "value_e", -1)
+
+            df_scc <- Results_s_nonUV_i %>%
+            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
+            gather(key = "variable_scc", value = "value_scc", -1)
+            df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
+
+
+            df_gama <- Results_s_nonUV_i %>%
+            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
+            gather(key = "variable_gama3", value = "value_gama3", -1)
+
+            df_ratio <- Results_s_nonUV_i %>%
+            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
+            gather(key = "variable_ratio", value = "value_ratio", -1)
+
+            df_atfp <- Results_s_nonUV_i %>%
+            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+18)]) %>%
+            gather(key = "variable_ratio", value = "value_atfp", -1)
+
+            df_subs <- Results_s_nonUV_i %>%
+            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
+            gather(key = "variable_ratio", value = "value_subs", -1)
+
+            df_share <- Results_s_nonUV_i %>%
+            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
+            gather(key = "variable_ratio", value = "value_share", -1)
+
+
+            df_cs <- Results_s_nonUV_i %>%
+            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
+            gather(key = "variable_ratio", value = "value_cs", -1)
+
+            df_prtp <- Results_s_nonUV_i %>%
+            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%  
+            gather(key = "variable_ratio", value = "value_prtp", -1)
         
 
-        df_NC_inv <- Results_ReducedDamages %>%
-        select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
-        gather(key = "variable_nc", value = "value_nc", -1)
+            id = rep((1+(num_exp_s_i-1)*num_exp):((num_exp_s_i)*num_exp), each = dim(df_t)[1]/num_exp)
+            df_id = data.frame("id" = id)
 
-            df_YGross <- Results_ReducedDamages %>%
-        select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+7)]) %>%
-        gather(key = "variable_YGross", value = "value_YGross", -1)
+            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_atfp[3],df_share[3],df_subs[3],df_prtp[3],df_cs[3],df_id)
+            df$sensitivity = sens[num_exp_s_i]
 
-
-        df_k_inv <- Results_ReducedDamages %>%
-        select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+13)]) %>%
-        gather(key = "variable_k", value = "value_k", -1)
-
-
-        df_S_inv <- Results_ReducedDamages %>%
-        select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+8)]) %>%
-        gather(key = "variable_s", value = "value_s", -1)
-
-        df_inv_inv <- Results_ReducedDamages %>%
-        select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+9)]) %>%
-        gather(key = "variable_inv", value = "value_inv", -1)
-
-        df_miu_inv <- Results_ReducedDamages %>%
-        select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+10)]) %>%
-        gather(key = "variable_miu", value = "value_miu", -1)
+            names(df)[1] = "years"
+            if (num_exp_s_i  == 1) {
+            DF_nonUV = df }
+            else {
+            DF_nonUV = rbind(DF_nonUV,df)
+            }
+            }
+        ####Arrange nonUV sensitivity data (END)
 
 
+        # arrange combination NC_TFP of UVnonUV montecarlo simulation optimized (start)
+            num_vars = 25
+            num_exp = (dim(Results_nc)[2]-2)/(num_vars)
 
+            df_t <- Results_nc %>%
+            select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
+            gather(key = "variable", value = "value_t", -1)
+
+            df_e <- Results_nc %>%
+            select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
+            gather(key = "variable_e", value = "value_e", -1)
+
+            df_scc <- Results_nc %>%
+            select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
+            gather(key = "variable_scc", value = "value_scc", -1)
+            df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
+
+
+
+            df_gama <- Results_nc %>%
+            select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
+            gather(key = "variable_gama3", value = "value_gama3", -1)
+
+            df_ratio <- Results_nc %>%
+            select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
+            gather(key = "variable_ratio", value = "value_ratio", -1)
+
+            df_atfp <- Results_nc %>%
+            select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+18)]) %>%
+            gather(key = "variable_ratio", value = "value_atfp", -1)
+
+            df_subs <- Results_nc %>%
+            select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
+            gather(key = "variable_ratio", value = "value_subs", -1)
+
+            df_share <- Results_nc %>%
+            select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
+            gather(key = "variable_ratio", value = "value_share", -1)
+
+
+            df_cs <- Results_nc %>%
+            select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
+            gather(key = "variable_ratio", value = "value_cs", -1)
+
+            df_prtp <- Results_nc %>%
+            select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%
+            gather(key = "variable_ratio", value = "value_prtp", -1)
+
+            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_atfp[3],df_share[3],df_subs[3],df_prtp[3],df_cs[3])
+            df_nc <- df
+        # arrange  combination NC_TFP of UVnonUV montecarlo simulation optimized (end)
+
+        # arrange spread of UVnonUV montecarlo simulation optimized (start)
+            num_vars = 25
+            num_exp = (dim(Results)[2]-2)/(num_vars)
+            num_exp = 4
+            df_t <- Results %>%
+            select(names(Results)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
+            gather(key = "variable", value = "value_t", -1)
+
+            df_e <- Results %>%
+            select(names(Results)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
+            gather(key = "variable_e", value = "value_e", -1)
+
+            df_scc <- Results %>%
+            select(names(Results)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
+            gather(key = "variable_scc", value = "value_scc", -1)
+            df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
+
+
+            df_gama <- Results %>%
+            select(names(Results)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
+            gather(key = "variable_gama3", value = "value_gama3", -1)
+
+            df_ratio <- Results %>%
+            select(names(Results)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
+            gather(key = "variable_ratio", value = "value_ratio", -1)
+
+            df_theta1 <- Results %>%
+            select(names(Results)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
+            gather(key = "variable_theta1", value = "value_theta1", -1)
+
+            df_share1 <- Results %>%
+            select(names(Results)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
+            gather(key = "variable_share1", value = "value_share1", -1)
+
+            df_cs <- Results %>%
+            select(names(Results)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
+            gather(key = "variable_cs", value = "value_cs", -1)
+
+            df_prtp <- Results %>%
+            select(names(Results)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%
+            gather(key = "variable_prtp", value = "value_prtp", -1)
+
+            df_share2 <- Results %>%
+            select(names(Results)[c(1,num_vars*(0:(num_exp-1))+23)]) %>%
+            gather(key = "variable_ratio", value = "value_share2", -1)
+
+            df_theta2 <- Results %>%
+            select(names(Results)[c(1,num_vars*(0:(num_exp-1))+24)]) %>%
+            gather(key = "variable_ratio", value = "value_theta2", -1)
+
+
+            df_damage <- Results %>%
+            select(names(Results)[c(1,num_vars*(0:(num_exp-1))+27)]) %>%
+            gather(key = "variable_damage", value = "value_damage", -1)
+
+            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_damage[3],df_share1[3],df_share2[3],df_theta2[3],df_theta1[3],df_prtp[3],df_cs[3])
+            df_mcs <- df
+        # arrange spread of UVnonUV montecarlo simulation optimized (end)
+
+
+        # arrange iterations of GreenDICE + Asset investment (start)
+            num_vars = 26
+            num_exp = (dim(Results_AssetInv)[2]-2)/(num_vars)
+
+            df_t_inv <- Results_AssetInv %>%
+            select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
+            gather(key = "variable", value = "value_t", -1)
+            df_e_inv <- Results_AssetInv %>%
+            select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
+            gather(key = "variable_e", value = "value_e", -1)
+            df_scc_inv <- Results_AssetInv %>%
+            select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
+            gather(key = "variable_scc", value = "value_scc", -1)
+            df_scc_inv[3] <- df_scc_inv[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
+            df_inv_inv <- Results_AssetInv %>%
+            select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+10)]) %>%
+            gather(key = "variable_inv", value = "value_inv", -1)
+            
+            df_YGreen <- Results_AssetInv %>%
+            select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+25)]) %>%
+            gather(key = "variable_YGreen", value = "value_YGreen", -1)
+            
+            df_Y_inv = cbind(df_inv_inv[,1:2],df_inv_inv[3] * df_YGreen[3] *1.18*10^3)  #multiplied by 1.18 to pass from 2010usd to 2019 usd, multiplied by 10^3 to pass from trillion to billion
+            names(df_Y_inv) = c("time_UVnonUV_inv","variable","value_Y")
+            
+            df_price_inv <- Results_AssetInv %>%
+            select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+28)]) %>%
+            gather(key = "variable_price", value = "value_price", -1)
+
+            df_NC_inv <- Results_AssetInv %>%
+            select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+5)]) %>%
+            gather(key = "variable_nc", value = "value_nc", -1)
+
+
+            
+            df_YGross_inv <- Results_AssetInv %>%
+            select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+8)]) %>%
+            gather(key = "variable_YGross", value = "value_YGross", -1)
+
+            df_k_inv <- Results_AssetInv %>%
+            select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+14)]) %>%
+            gather(key = "variable_k", value = "value_k", -1)
+
+
+            df_S_inv <- Results_AssetInv %>%
+            select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+9)]) %>%
+            gather(key = "variable_s", value = "value_s", -1)
+
+            df_inv_inv <- Results_AssetInv %>%
+            select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+10)]) %>%
+            gather(key = "variable_inv", value = "value_inv", -1)
+
+            df_miu_inv <- Results_AssetInv %>%
+            select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+10)]) %>%
+            gather(key = "variable_miu", value = "value_miu", -1)
+
+            id_var = rep(1:num_exp, each=60)
+
+        
         df_nc_perc = df_NC_inv[3] / (df_NC_inv[3] + df_k_inv[3])
-        
-        df_inv_reduceddamages <- cbind(df_t_inv,df_e_inv[3],df_scc_inv[3],df_YGreen[3],df_Y_inv[3],
-            df_NC_inv[3],df_S_inv[3],df_inv_inv[3],df_miu_inv[3],df_k_inv[3],df_YGross[3],df_nc_perc)
+            df_inv <- cbind(df_t_inv,df_e_inv[3],df_scc_inv[3],df_YGreen[3],df_Y_inv[3],
+            df_price_inv[3]*1.18,df_NC_inv[3],df_S_inv[3],df_inv_inv[3],df_miu_inv[3],df_k_inv[3],df_YGross_inv[3],df_nc_perc,id_var)
 
-            names(df_inv_reduceddamages)[1]="years"
-            names(df_inv_reduceddamages)[dim(df_inv_reduceddamages)[2]]="nc_perc"
+            names(df_inv)[1]="years"
+            names(df_inv)[dim(df_inv)[2]-1] = "nc_perc"
 
-        df_inv_reduceddamages <- cbind(df_inv_reduceddamages[1:60,2],aggregate(df_inv_reduceddamages[,3:14], list(df_inv_reduceddamages$years), mean))
-        names(df_inv_reduceddamages)[1:2] <- c("variable","years")
-        
+            df_inv<- cbind(df_inv[1:60,2],aggregate(df_inv[,3:16], list(df_inv$years), mean))
+            names(df_inv)[1:2] <- c("variable","years")
+            
+            
+        # arrange iterations of GreenDICE + Asset investment (end)
+
+        #arrange plain results with ReducedDamages (start)
+            num_vars=25
+            num_exp = 19
+            df_t_inv <- Results_ReducedDamages %>%
+                select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+2)]) %>%
+                gather(key = "variable", value = "value_t", -1)
+            df_e_inv <- Results_ReducedDamages %>%
+                select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
+                gather(key = "variable_e", value = "value_e", -1)
+            df_scc_inv <- Results_ReducedDamages %>%
+            select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+14)]) %>%
+            gather(key = "variable_scc", value = "value_scc", -1)
+            df_scc_inv[3] <- df_scc_inv[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
+            df_inv_inv <- Results_ReducedDamages %>%
+            select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+9)]) %>%
+            gather(key = "variable_inv", value = "value_inv", -1)
+            
+            df_YGreen <- Results_ReducedDamages %>%
+            select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+24)]) %>%
+            gather(key = "variable_YGreen", value = "value_YGreen", -1)
+            
+            df_Y_inv = cbind(df_inv_inv[,1:2],df_inv_inv[3] * df_YGreen[3] *1.18*10^3)  #multiplied by 1.18 to pass from 2010usd to 2019 usd, multiplied by 10^3 to pass from trillion to billion
+            names(df_Y_inv) = c("time_UVnonUV_inv","variable","value_Y")
+            
+
+            df_NC_inv <- Results_ReducedDamages %>%
+            select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
+            gather(key = "variable_nc", value = "value_nc", -1)
+
+                df_YGross <- Results_ReducedDamages %>%
+            select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+7)]) %>%
+            gather(key = "variable_YGross", value = "value_YGross", -1)
+
+
+            df_k_inv <- Results_ReducedDamages %>%
+            select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+13)]) %>%
+            gather(key = "variable_k", value = "value_k", -1)
+
+
+            df_S_inv <- Results_ReducedDamages %>%
+            select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+8)]) %>%
+            gather(key = "variable_s", value = "value_s", -1)
+
+            df_inv_inv <- Results_ReducedDamages %>%
+            select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+9)]) %>%
+            gather(key = "variable_inv", value = "value_inv", -1)
+
+            df_miu_inv <- Results_ReducedDamages %>%
+            select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+10)]) %>%
+            gather(key = "variable_miu", value = "value_miu", -1)
+
+
+
+            df_nc_perc = df_NC_inv[3] / (df_NC_inv[3] + df_k_inv[3])
+            
+            df_inv_reduceddamages <- cbind(df_t_inv,df_e_inv[3],df_scc_inv[3],df_YGreen[3],df_Y_inv[3],
+                df_NC_inv[3],df_S_inv[3],df_inv_inv[3],df_miu_inv[3],df_k_inv[3],df_YGross[3],df_nc_perc)
+
+                names(df_inv_reduceddamages)[1]="years"
+                names(df_inv_reduceddamages)[dim(df_inv_reduceddamages)[2]]="nc_perc"
+
+            df_inv_reduceddamages <- cbind(df_inv_reduceddamages[1:60,2],aggregate(df_inv_reduceddamages[,3:14], list(df_inv_reduceddamages$years), mean))
+            names(df_inv_reduceddamages)[1:2] <- c("variable","years")
+            
         #arrange plain results with ReducedDamages (end)
 
 
@@ -796,93 +796,93 @@
     ##### GETTING QUANTILES (START)
     #####
     ##### quantiles spread
-        df_t <- df_t[df_prtp$value==0.015,]
-        df_t <- df_t[df_damage$value==0.00480515,]
-        qs_t = data.frame(
-        do.call(
-            rbind,
-            tapply(
-                df_t$value, df_t[1] , function(i){quantile(i)})),
-        t=1:60)
-        qs_t$t = df_t[1:60,1]
+            df_t <- df_t[df_prtp$value==0.015,]
+            #df_t <- df_t[df_damage$value==0.00480515,]
+            qs_t = data.frame(
+            do.call(
+                rbind,
+                tapply(
+                    df_t$value, df_t[1] , function(i){quantile(i)})),
+            t=1:60)
+            qs_t$t = df_t[1:60,1]
 
 
-        df_e <- df_e[df_prtp$value==0.015,]
-        df_e <- df_e[df_damage$value==0.00480515,]
-        qs_e = data.frame(
-        do.call(
-            rbind,
-            tapply(
-                df_e$value, df_e[1], function(i){quantile(i)})),
-        t=1:60)
-        qs_e$t = df_t[1:60,1]
+            df_e <- df_e[df_prtp$value==0.015,]
+            #df_e <- df_e[df_damage$value==0.00480515,]
+            qs_e = data.frame(
+            do.call(
+                rbind,
+                tapply(
+                    df_e$value, df_e[1], function(i){quantile(i)})),
+            t=1:60)
+            qs_e$t = df_t[1:60,1]
 
-        df_scc <- df_scc[df_prtp$value==0.015,]
-        df_scc <- df_scc[!is.infinite(df_scc$value),]
-        df_scc <- df_scc[!is.nan(df_scc$value),]
-        df_scc <- df_scc[df_damage$value==0.00480515,]
-        qs_scc = data.frame(
-        do.call(
-            rbind,
-            tapply(
-                df_scc$value, df_scc[1] , function(i){quantile(i)})),
-        t=1:60)
-        qs_scc$t = df_t[1:60,1]
-    #
+            df_scc <- df_scc[df_prtp$value==0.015,]
+            df_scc <- df_scc[!is.infinite(df_scc$value),]
+            df_scc <- df_scc[!is.nan(df_scc$value),]
+            #df_scc <- df_scc[df_damage$value==0.00480515,]
+            qs_scc = data.frame(
+            do.call(
+                rbind,
+                tapply(
+                    df_scc$value, df_scc[1] , function(i){quantile(i)})),
+            t=1:60)
+            qs_scc$t = df_t[1:60,1]
+        #
 
-    #for investments
+        #for investments
 
-    
-    #df_t_inv <- df_t_inv[df_prtp$value==0.015,]
-    qs_t_inv = data.frame(
-        do.call(
-            rbind,
-            tapply(
-            df_t_inv$value, df_t_inv[1] , function(i){quantile(i)})),
-        t=1:60)
-    qs_t_inv$t = df_t_inv[1:60,1]
-
-
-    #df_e_inv <- df_e_inv[df_prtp$value==0.015,]
-    qs_e_inv = data.frame(
-        do.call(
-            rbind,
-            tapply(
-            df_e_inv$value, df_e_inv[1], function(i){quantile(i)})),
-        t=1:60)
-    qs_e_inv$t = df_t_inv[1:60,1]
+        
+        #df_t_inv <- df_t_inv[df_prtp$value==0.015,]
+        qs_t_inv = data.frame(
+            do.call(
+                rbind,
+                tapply(
+                df_t_inv$value, df_t_inv[1] , function(i){quantile(i)})),
+            t=1:60)
+        qs_t_inv$t = df_t_inv[1:60,1]
 
 
-
-    #df_Y_inv <- df_Y_inv[df_prtp$value==0.015,]
-    qs_Y_inv = data.frame(
-        do.call(
-            rbind,
-            tapply(
-            df_Y_inv$value, df_Y_inv[1], function(i){quantile(i)})),
-        t=1:60)
-    qs_Y_inv$t = df_t_inv[1:60,1]
+        #df_e_inv <- df_e_inv[df_prtp$value==0.015,]
+        qs_e_inv = data.frame(
+            do.call(
+                rbind,
+                tapply(
+                df_e_inv$value, df_e_inv[1], function(i){quantile(i)})),
+            t=1:60)
+        qs_e_inv$t = df_t_inv[1:60,1]
 
 
 
-    df_scc_inv <- df_scc_inv[df_prtp$value==0.015,]
-    df_scc_inv <- df_scc_inv[!is.infinite(df_scc_inv$value),]
-    df_scc_inv <- df_scc_inv[!is.nan(df_scc_inv$value),]
-    qs_scc_inv = data.frame(
-        do.call(
-            rbind,
-            tapply(
-            df_scc_inv$value, df_scc_inv[1] , function(i){quantile(i)})),
-        t=1:60)
-    qs_scc_inv$t = df_t_inv[1:60,1]
+        #df_Y_inv <- df_Y_inv[df_prtp$value==0.015,]
+        qs_Y_inv = data.frame(
+            do.call(
+                rbind,
+                tapply(
+                df_Y_inv$value, df_Y_inv[1], function(i){quantile(i)})),
+            t=1:60)
+        qs_Y_inv$t = df_t_inv[1:60,1]
 
-    qs_price_inv = data.frame(
-        do.call(
-            rbind,
-            tapply(
-            df_price_inv$value, df_scc_inv[1] , function(i){quantile(i)})),
-        t=1:60)
-    qs_price_inv$t = df_t_inv[1:60,1]
+
+
+        df_scc_inv <- df_scc_inv[df_prtp$value==0.015,]
+        df_scc_inv <- df_scc_inv[!is.infinite(df_scc_inv$value),]
+        df_scc_inv <- df_scc_inv[!is.nan(df_scc_inv$value),]
+        qs_scc_inv = data.frame(
+            do.call(
+                rbind,
+                tapply(
+                df_scc_inv$value, df_scc_inv[1] , function(i){quantile(i)})),
+            t=1:60)
+        qs_scc_inv$t = df_t_inv[1:60,1]
+
+        qs_price_inv = data.frame(
+            do.call(
+                rbind,
+                tapply(
+                df_price_inv$value, df_scc_inv[1] , function(i){quantile(i)})),
+            t=1:60)
+        qs_price_inv$t = df_t_inv[1:60,1]
 
     #####
     #####
@@ -912,8 +912,7 @@
 
   theme_set(theme_classic())
   p_t <- ggplot(data = df_r, aes(years)) +
-        geom_ribbon(data=qs_t, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
-        #geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
+        geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) +
         geom_line(data = df_r, aes(x=years, y=value_t, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="Temperature (Degrees C)", x = "years", color="") +
         coord_cartesian(xlim = c(2020, 2100),ylim=c(0.8,3.25)) +
@@ -954,8 +953,7 @@
 
 
   p_e <- ggplot(data = df_r, aes(years)) +
-        geom_ribbon(data=qs_e, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
-        #geom_ribbon(data=qs_e, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
+        #geom_ribbon(data=qs_e, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
         geom_line(data = df_r, aes(x=years, y=value_e, group =neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="Emissions (GtCO2)", x = "years", color="") +
         coord_cartesian(xlim = c(2020, 2100),ylim=c(0,50)) +
@@ -964,11 +962,10 @@
     p_e
 
   p_scc <- ggplot(data = df_r, aes(years)) +
-        geom_ribbon(data=qs_scc, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
-        #geom_ribbon(data=qs_scc, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
+        #geom_ribbon(data=qs_scc, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
         geom_line(data = df_r, aes(x=years, y=value_scc, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="SCC (2019USD/tCO2)", x = "years", color="") +
-        coord_cartesian(xlim = c(2020, 2100),ylim=c(10,1000)) +
+        coord_cartesian(xlim = c(2020, 2100),ylim=c(10,5000)) +
         scale_linetype_manual("", values=c(3,4,2,1), labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) +
         scale_colour_manual("",values=c("indianred","violet","blue","seagreen3"),labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) 
     p_scc
@@ -976,7 +973,7 @@
                       labels = c("b", "c"),
                       ncol = 2, legend = FALSE), labels = "a", nrow = 2, common.legend = TRUE, legend = "bottom")
   figure
-  #ggsave("T_E_SCC.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
+  ggsave("T_E_SCC.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
 
 #####
 #####
