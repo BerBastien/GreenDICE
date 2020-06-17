@@ -242,10 +242,10 @@
 
 
         ###Arrange sensitivity data (START)
-            sens = c("cs","damage","gama3","prtp","ratio","share1","share2","theta1","theta2")
-            num_exp_ss = c(10,2,41,3,6,3,3,16,4)
-            10+2+41+3+6+3+3+16+4
-            for (num_exp_s_i in 1:9){
+            sens = c("cs","damage","gama4","prtp","ratio","share1","share2","gama4","atfp","theta1","theta2")
+            num_exp_ss = c(20,20,20,3,20,3,3,20,16,4)
+            10+2+41+3+6+3+3+16+4+20
+            for (num_exp_s_i in 1:10){
             initial = sum(num_cols[0:(num_exp_s_i-1)])
             final = sum(num_cols[0:num_exp_s_i])
             Results_s_i = Results_s[,(initial+1):final]
@@ -274,6 +274,11 @@
             df_ratio <- Results_s_i %>%
             select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
             gather(key = "variable_ratio", value = "value_ratio", -1)
+
+            df_gama4 <- Results_s_i %>%
+            select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+18)]) %>%
+            gather(key = "variable_gama4", value = "value_gama4", -1)
+
 
 
 
@@ -313,7 +318,7 @@
             id = rep((1+(num_exp_s_i-1)*num_exp):((num_exp_s_i)*num_exp), each = dim(df_t)[1]/num_exp)
             df_id = data.frame("id" = id)
 
-            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_share[3],df_theta1[3],df_prtp[3],df_cs[3],df_share2[3],df_theta2[3],df_damage[3],df_id)
+            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_share[3],df_theta1[3],df_prtp[3],df_cs[3],df_share2[3],df_theta2[3],df_damage[3],df_gama4[3],df_id)
             df$sensitivity = sens[num_exp_s_i]
 
             names(df)[1] = "years"
@@ -324,213 +329,6 @@
             }
             }
         ####Arrange sensitivity data (END)
-
-        ###Arrange UV sensitivity data (START)
-            sens = c("cs","damage","prtp","ratio","share","tfp","theta1")
-            for (num_exp_s_i in 1:num_exp_s){
-            initial = sum(num_cols[0:(num_exp_s_i-1)])
-            final = sum(num_cols[0:num_exp_s_i])
-            Results_s_UV_i = Results_s_UV[,(initial+1):final]
-            num_vars = 24
-
-            num_exp = (num_cols[num_exp_s_i]-2)/num_vars
-
-            df_t <- Results_s_UV_i %>%
-            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
-            gather(key = "variable", value = "value_t", -1)
-
-            df_e <- Results_s_UV_i %>%
-            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
-            gather(key = "variable_e", value = "value_e", -1)
-
-            df_scc <- Results_s_UV_i %>%
-            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
-            gather(key = "variable_scc", value = "value_scc", -1)
-            df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
-
-
-            df_gama <- Results_s_UV_i %>%
-            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
-            gather(key = "variable_gama3", value = "value_gama3", -1)
-
-            df_ratio <- Results_s_UV_i %>%
-            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
-            gather(key = "variable_ratio", value = "value_ratio", -1)
-
-            df_atfp <- Results_s_UV_i %>%
-            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+18)]) %>%
-            gather(key = "variable_ratio", value = "value_atfp", -1)
-
-            df_subs <- Results_s_UV_i %>%
-            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
-            gather(key = "variable_ratio", value = "value_subs", -1)
-
-            df_share <- Results_s_UV_i %>%
-            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
-            gather(key = "variable_ratio", value = "value_share", -1)
-
-
-            df_cs <- Results_s_UV_i %>%
-            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
-            gather(key = "variable_ratio", value = "value_cs", -1)
-
-            df_prtp <- Results_s_UV_i %>%
-            select(names(Results_s_UV_i)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%  
-            gather(key = "variable_ratio", value = "value_prtp", -1)
-        
-
-            id = rep((1+(num_exp_s_i-1)*num_exp):((num_exp_s_i)*num_exp), each = dim(df_t)[1]/num_exp)
-            df_id = data.frame("id" = id)
-
-            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_atfp[3],df_share[3],df_subs[3],df_prtp[3],df_cs[3],df_id)
-            df$sensitivity = sens[num_exp_s_i]
-
-            names(df)[1] = "years"
-            if (num_exp_s_i  == 1) {
-            DF_UV = df }
-            else {
-            DF_UV = rbind(DF_UV,df)
-            }
-            }
-        ####Arrange UV sensitivity data (END)
-
-        ###Arrange UVmkt sensitivity data (START)
-            sens = c("cs","damage","prtp","ratio","tfp")
-            for (num_exp_s_i in 1:num_exp_s){
-            initial = sum(num_cols[0:(num_exp_s_i-1)])
-            final = sum(num_cols[0:num_exp_s_i])
-            Results_s_UVmkt_i = Results_s_UVmkt[,(initial+1):final]
-            num_vars = 24
-
-            num_exp = (num_cols[num_exp_s_i]-2)/num_vars
-
-            df_t <- Results_s_UVmkt_i %>%
-            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
-            gather(key = "variable", value = "value_t", -1)
-
-            df_e <- Results_s_UVmkt_i %>%
-            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
-            gather(key = "variable_e", value = "value_e", -1)
-
-            df_scc <- Results_s_UVmkt_i %>%
-            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
-            gather(key = "variable_scc", value = "value_scc", -1)
-            df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
-
-
-            df_gama <- Results_s_UVmkt_i %>%
-            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
-            gather(key = "variable_gama3", value = "value_gama3", -1)
-
-            df_ratio <- Results_s_UVmkt_i %>%
-            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
-            gather(key = "variable_ratio", value = "value_ratio", -1)
-
-            df_atfp <- Results_s_UVmkt_i %>%
-            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+18)]) %>%
-            gather(key = "variable_ratio", value = "value_atfp", -1)
-
-            df_subs <- Results_s_UVmkt_i %>%
-            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
-            gather(key = "variable_ratio", value = "value_subs", -1)
-
-            df_share <- Results_s_UVmkt_i %>%
-            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
-            gather(key = "variable_ratio", value = "value_share", -1)
-
-
-            df_cs <- Results_s_UVmkt_i %>%
-            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
-            gather(key = "variable_ratio", value = "value_cs", -1)
-
-            df_prtp <- Results_s_UVmkt_i %>%
-            select(names(Results_s_UVmkt_i)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%  
-            gather(key = "variable_ratio", value = "value_prtp", -1)
-        
-
-            id = rep((1+(num_exp_s_i-1)*num_exp):((num_exp_s_i)*num_exp), each = dim(df_t)[1]/num_exp)
-            df_id = data.frame("id" = id)
-
-            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_atfp[3],df_share[3],df_subs[3],df_prtp[3],df_cs[3],df_id)
-            df$sensitivity = sens[num_exp_s_i]
-
-            names(df)[1] = "years"
-            if (num_exp_s_i  == 1) {
-            DF_UVmkt = df }
-            else {
-            DF_UVmkt = rbind(DF_UVmkt,df)
-            }
-            }
-        ####Arrange UVmkt sensitivity data (END)
-
-        ###Arrange nonUV sensitivity data (START)
-            sens = c("cs","damage","prtp","ratio","share2","tfp","theta2")
-            for (num_exp_s_i in 1:num_exp_s){
-            initial = sum(num_cols[0:(num_exp_s_i-1)])
-            final = sum(num_cols[0:num_exp_s_i])
-            Results_s_nonUV_i = Results_s_nonUV[,(initial+1):final]
-            num_vars = 24
-
-            num_exp = (num_cols[num_exp_s_i]-2)/num_vars
-
-            df_t <- Results_s_nonUV_i %>%
-            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
-            gather(key = "variable", value = "value_t", -1)
-
-            df_e <- Results_s_nonUV_i %>%
-            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
-            gather(key = "variable_e", value = "value_e", -1)
-
-            df_scc <- Results_s_nonUV_i %>%
-            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
-            gather(key = "variable_scc", value = "value_scc", -1)
-            df_scc[3] <- df_scc[3]*1.18  #multiplied by 1.18 to pass from 2010usd to 2019 usd
-
-
-            df_gama <- Results_s_nonUV_i %>%
-            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
-            gather(key = "variable_gama3", value = "value_gama3", -1)
-
-            df_ratio <- Results_s_nonUV_i %>%
-            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
-            gather(key = "variable_ratio", value = "value_ratio", -1)
-
-            df_atfp <- Results_s_nonUV_i %>%
-            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+18)]) %>%
-            gather(key = "variable_ratio", value = "value_atfp", -1)
-
-            df_subs <- Results_s_nonUV_i %>%
-            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
-            gather(key = "variable_ratio", value = "value_subs", -1)
-
-            df_share <- Results_s_nonUV_i %>%
-            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+20)]) %>%
-            gather(key = "variable_ratio", value = "value_share", -1)
-
-
-            df_cs <- Results_s_nonUV_i %>%
-            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+21)]) %>%
-            gather(key = "variable_ratio", value = "value_cs", -1)
-
-            df_prtp <- Results_s_nonUV_i %>%
-            select(names(Results_s_nonUV_i)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%  
-            gather(key = "variable_ratio", value = "value_prtp", -1)
-        
-
-            id = rep((1+(num_exp_s_i-1)*num_exp):((num_exp_s_i)*num_exp), each = dim(df_t)[1]/num_exp)
-            df_id = data.frame("id" = id)
-
-            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_atfp[3],df_share[3],df_subs[3],df_prtp[3],df_cs[3],df_id)
-            df$sensitivity = sens[num_exp_s_i]
-
-            names(df)[1] = "years"
-            if (num_exp_s_i  == 1) {
-            DF_nonUV = df }
-            else {
-            DF_nonUV = rbind(DF_nonUV,df)
-            }
-            }
-        ####Arrange nonUV sensitivity data (END)
 
 
         # arrange combination NC_TFP of UVnonUV montecarlo simulation optimized (start)
@@ -704,7 +502,7 @@
             id_var = rep(1:num_exp, each=60)
 
         
-        df_nc_perc = df_NC_inv[3] / (df_NC_inv[3] + df_k_inv[3])
+            df_nc_perc = df_NC_inv[3] / (df_NC_inv[3] + df_k_inv[3])
             df_inv <- cbind(df_t_inv,df_e_inv[3],df_scc_inv[3],df_YGreen[3],df_Y_inv[3],
             df_price_inv[3]*1.18,df_NC_inv[3],df_S_inv[3],df_inv_inv[3],df_miu_inv[3],df_k_inv[3],df_YGross_inv[3],df_nc_perc,id_var)
 
@@ -925,7 +723,7 @@
 
   p_k <- ggplot(data = df_r, aes(years)) +
         #geom_ribbon(data=qs_t, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
-        #geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
+        geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
         geom_line(data = df_r, aes(x=years, y=value_k, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="Manufactured Capital (USD)", x = "years", color="") +
         coord_cartesian(xlim = c(2020, 2200),ylim=c(0,4000)) +
@@ -939,7 +737,7 @@
 
   p_s <- ggplot(data = df_r, aes(years)) +
         #geom_ribbon(data=qs_t, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
-        #geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
+        geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
         geom_line(data = df_r, aes(x=years, y=value_s, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="Fraction of Gross Output", x = "years", color="") +
         coord_cartesian(xlim = c(2020, 2200),ylim=c(0.2,0.3)) +
@@ -962,7 +760,7 @@
     p_e
 
   p_scc <- ggplot(data = df_r, aes(years)) +
-        #geom_ribbon(data=qs_scc, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
+        geom_ribbon(data=qs_scc, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) +
         geom_line(data = df_r, aes(x=years, y=value_scc, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="SCC (2019USD/tCO2)", x = "years", color="") +
         coord_cartesian(xlim = c(2020, 2100),ylim=c(10,5000)) +
@@ -994,15 +792,15 @@
   cum_e <- ddply(DF_20202100, "id", summarise, sum_e = sum(value_e))
   DF_2100 = merge(cum_e, DF_2100, by.x = "id", by.y = "id")
   #order sensitivity (start)
-    DF_2020$sensitivity <- factor(DF_2020$sensitivity, levels = c("prtp","cs","damage","gama3","ratio","share2","theta2","share1","theta1"))
-    type = cbind(c("reference","reference","production","production","production","utility","utility","utility","utility"),c("prtp","cs","damage","gama3","ratio","share2","theta2","share1","theta1"))
+    DF_2020$sensitivity <- factor(DF_2020$sensitivity, levels = c("prtp","cs","damage","gama4","atfp","ratio","share2","theta2","share1","theta1"))
+    type = cbind(c("reference","reference","production","production","production","production","utility","utility","utility","utility"),c("prtp","cs","damage","gama4","atfp","ratio","share2","theta2","share1","theta1"))
     type = data.frame(type)
     names(type)[2] = "sensitivity"
     DF_2020 <- merge(DF_2020, type, by="sensitivity")
     names(DF_2020)[17] = "type"
     head(DF_2020)
 
-    DF_2100$sensitivity <- factor(DF_2100$sensitivity, levels = c("prtp","cs","damage","gama3","ratio","share2","theta2","share1","theta1"))
+    DF_2100$sensitivity <- factor(DF_2100$sensitivity, levels = c("prtp","cs","damage","gama4","atfp","ratio","share2","theta2","share1","theta1"))
     DF_2100 <- merge(DF_2100, type, by="sensitivity")
     names(DF_2100)[18] = "type"
   #order sensitivity (*End)
@@ -1012,11 +810,11 @@
   #new names
   DF_2020$names <- DF_2020$sensitivity
   
-  DF_2020$names <- revalue(DF_2020$names, c("cs"="Climate sensitivity", "damage"="Damage to \n Natural Capital","gama3"="Production elasticity \n to Natural Capital", 
+  DF_2020$names <- revalue(DF_2020$names, c("cs"="Climate sensitivity", "damage"="Damage to \n Natural Capital","gama4","atfp"="Production elasticity \n to Natural Capital", 
     "prtp"="Pure rate of \n time preference","ratio"="Natural Capital \n initial stock", "share1"="Ecosystem services \n value","share2"="Non-use value", "theta1"="Substitutability between \n market and ES goods","theta2"="Substitutability between \n use and non-use values"))
 
   DF_2020$intensity <- numeric(88)  
-  variable = c("cs","damage","gama3","prtp","ratio","share1","share2","theta1","theta2")
+  variable = c("cs","damage","gama4","atfp","prtp","ratio","share1","share2","theta1","theta2")
   for (i in 1:length(variable)[1]) { #calculating how high is each value
     value_of_interest = variable[i]
     column_of_interest = DF_2020[names(DF_2020)==paste('value_',variable[i],sep="")]
@@ -1049,7 +847,7 @@
     #a <- a + scale_fill_manual(values = cbp1, labels=c("production","utilitys","reference"))
     a <- a + labs(fill="Relative value")
     DF_2100$intensity <- numeric(88)  
-  variable = c("cs","damage","gama3","prtp","ratio","share1","share2","theta1","theta2")
+  variable = c("cs","damage","gama4","atfp","prtp","ratio","share1","share2","theta1","theta2")
   for (i in 1:length(variable)[1]) { #calculating how high is each value
     value_of_interest = variable[i]
     column_of_interest = DF_2100[names(DF_2100)==paste('value_',variable[i],sep="")]
