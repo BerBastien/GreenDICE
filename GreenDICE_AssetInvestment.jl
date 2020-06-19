@@ -83,28 +83,25 @@ set_param!(GreenDICE,:grosseconomy,:ExtraK,fill(0.,60))
     damadj  = Parameter()               #Adjustment exponent in damage function
     usedamadj::Bool = Parameter()       # Only the Excel version uses the damadj parameter
     path    = Parameter()               #GreenDICE: PAth in which climate damage nature: 0 for none, 1 for NC, 2 for ES
-     
+    a_d = Parameter()                   #Total aggregated damages (meta paratameter, used to compute damage parameter a4, using damage_params function)
+    
     function run_timestep(p, v, d, t)
         #Define function for DAMFRAC
         v.DAMFRAC[t] = p.a1 * p.TATM[t] + p.a2 * p.TATM[t] ^ p.a3
-        #Equation above is as in DICE Matlab 2016
         v.DAMFRAC_NC[t] = (1 / (1 + 0. * p.TATM[t] ^ 2))
-        v.DAMFRAC_ES[t] = (1 / (1 + 0. * p.TATM[t] ^ 2))
-        if p.path == 1
+        
             if is_first(t)
-                v.DAMFRAC_NC[t] = (1 / (1 + (p.a4/1) * p.TATM[t] ^ 2))
+                v.DAMFRAC_NC[t] = (1 / (1 + p.a4 * p.TATM[t] ^ 2))
             else
-                v.DAMFRAC_NC[t] = (1 / (1 + (p.a4) * p.TATM[t] ^ 2))
+                v.DAMFRAC_NC[t] = 1 / (1 + (p.a4 * p.TATM[t] ^ 2)) #271.32 comes from McCarthy, investments in conservation
+                #v.DAMFRAC_NC[t] = (1 / (1 + (p.a4/(1+9.38 * p.invNCfrac[t-1] ^ 0.5)) * p.TATM[t] ^ 2)) #271.32 comes from McCarthy, investments in conservation
+                #v.DAMFRAC_NC[t] = (1 / (1 + (p.a4*(1-p.invNCfrac[t-1])) * p.TATM[t] ^ 2)) #271.32 comes from McCarthy, investments in conservation
+                #v.DAMFRAC_NC[t] = (1 / (1 + p.a4 * p.TATM[t] ^ 2)) * (1 / (1+ p.invparam * p.invNCfrac[t-1]^0.5) #271.32 comes from McCarthy, investments in conservation
             end 
-           
-        elseif p.path == 2
-           v.DAMFRAC_ES[t] = (1 / (1 + p.a5 * p.TATM[t] ^ 2))
-        end
     
 
         v.DAMAGES[t] = p.YGROSS[t] * v.DAMFRAC[t]
         v.DAMAGES_NC[t] = v.DAMFRAC_NC[t]
-        v.DAMAGES_ES[t] = v.DAMFRAC_ES[t]
     end
 end
 
@@ -121,23 +118,28 @@ replace_comp!(GreenDICE,green_damages,:damages)
     ratioNC    = Parameter()               #GreenDICE: ratio of NC to K0
     benefitsNC = Parameter(index=[time])   #GreenDICE: fraction of investment in NC
     ExtraN = Parameter(index=[time])          #GreenDICE: Year to add an extra asset of N, to compute investments 
-   
+    g4 = Parameter()                        #gamma4, elasticity of natural capital
+    invNC   = Parameter(index=[time])    #GreenDICE - investment control
+    
    
 
     function run_timestep(p, v, d, t)
         #Evolution of NC and ES 
 
         if is_first(t)
+            #if k_in_K==1
+            #    v.NC[t] = p.k0 * p.r_nk + p.ExtraN[1] #Matching world Bank global estimation of the ratio of NC to K
+            #    v.nonUV[t] = 47 #47 is the initial consumption, following Sterner and Persson
+            #else
             v.NC[t] = p.k0 / p.ratioNC + p.ExtraN[1] #Matching world Bank global estimation of the ratio of NC to K
             #v.ES[t] = 47 #changed from 80 to 47 because this is 2013 version instead of 2016. 47 is taken from original DICE 2013 parameters in the excel file within Mimi
             #v.NC[t] = 47
-            v.nonUV[t] = 47 #47 is the initial consumption, following Sterner and Persson
+            v.nonUV[t] = v.NC[t] ^ p.g4 #47 is the initial consumption, following Sterner and Persson
+            #end
         else
             #I can also include investment, growth, recovery, depreciation, inflation
-            v.NC[t] = v.NC[t-1] * p.DAMAGES_NC[t] + p.benefitsNC[t-1] + p.ExtraN[t]
-            #v.ES[t] = v.NC[t] * (47 / (p.k0 / p.ratioNC)) * p.DAMAGES_ES[t]
-            v.nonUV[t] = v.NC[t] * (47 / (p.k0 / p.ratioNC)) 
-            #v.ES[t] = v.NC[t] *  p.DAMAGES_ES[t]
+            v.NC[t] = (v.NC[t-1] - (v.NC[t-1] - v.NC[t-1] * p.DAMAGES_NC[t]) / (1 + (((p.invNC[t-1]*0.001) ^ 0.2)))) + p.benefitsNC[t-1] + p.ExtraN[t]
+            v.nonUV[t] = v.NC[t] ^ p.g4
         end
 
     end
@@ -151,6 +153,8 @@ connect_param!(GreenDICE, :damages, :NC, :green_naturalcapital, :NC)
 connect_param!(GreenDICE, :green_naturalcapital, :DAMAGES_NC, :damages, :DAMAGES_NC)
 #connect_param!(GreenDICE, :green_naturalcapital, :DAMAGES_ES, :damages, :DAMAGES_ES)
 set_param!(GreenDICE,:green_naturalcapital,:ExtraN,fill(0.,60))
+set_param!(GreenDICE,:green_naturalcapital,:invNC,fill(0.,60))
+set_param!(GreenDICE,:green_naturalcapital,:benefitsNC,fill(0.,60))
 
 
 @defcomp green_welfare begin
@@ -201,6 +205,7 @@ set_param!(GreenDICE,:green_naturalcapital,:ExtraN,fill(0.,60))
             v.PERIODU[t] = ((((1)*((1-p.share)*p.CPC[t]^p.theta)+(p.share*p.ESPC[t]^p.theta))^(p.theta2/p.theta)+p.share2*(p.nonUV[t])^p.theta2)^((1-p.elasmu)/p.theta2)-1)/(1-p.elasmu)-1 #nested utility function with constant elasticities of substiution
 
 
+
         # Define function for CEMUTOTPER
         v.CEMUTOTPER[t] = v.PERIODU[t] * p.l[t] * p.rr[t]
 
@@ -230,7 +235,9 @@ connect_param!(GreenDICE, :welfare, :nonUV, :green_naturalcapital, :nonUV)
     Y           = Variable(index=[time])    #Gross world product net of abatement and damages (trillions 2005 USD per year)
     YNET        = Variable(index=[time])    #Output net of damages equation (trillions 2005 USD per year)
     YGreen      = Variable(index=[time])    #GreenDICE: a middle step from gross economy to consumption, to subtract investments in NC
-
+    Y2       = Variable(index=[time])    
+    AssetNC       = Variable(index=[time])    
+    
     rr              = Parameter(index=[time])   #Average utility social discount rate
     cost1       = Parameter(index=[time])   #Abatement cost function coefficient
     DAMAGES     = Parameter(index=[time])   #Damages (Trillion $)
@@ -243,6 +250,7 @@ connect_param!(GreenDICE, :welfare, :nonUV, :green_naturalcapital, :nonUV)
     ES      = Parameter(index=[time])   #Gross world ES
     expcost2    = Parameter()               #Exponent of control cost function
     invNCfrac   = Parameter(index=[time])    #GreenDICE - investment control
+    AssetNCfrac   = Parameter(index=[time])    
     ExtraC      = Parameter(index=[time])    #GreenDICE: Year to add an extra aggregated consumption, to compute SCC
     a4      = Parameter()               #GreenDICE: Damage coefficient for NC
     gama3   = Parameter()               #GreenDICE: natural Capital elasticity in production function
@@ -270,24 +278,17 @@ connect_param!(GreenDICE, :welfare, :nonUV, :green_naturalcapital, :nonUV)
 
         v.Y[t] = v.YGreen[t] - v.InvNC[t]
 
-        #Define function for I
-        v.I[t] = p.S[t] * v.Y[t]
-        #v.I[t] = ( p.S[t] / ( 1 - v.InvNC[t])) * v.Y[t]
         
-        #GreenDICE
-        #Benefits of investment in Natural Capital
-        #v.benefitsNC[t] = 1 + ((1-0.01)/(0.01*(0.076/47))) * p.invNCfrac[t] #According to 
-        #v.benefitsNC[t] =  v.InvNC[t] / ((p.gama3/(0.3-p.gama3)) * (44760/15841)) #The investment is used to "buy" NC stock at price = ((p.gama3/(0.3-p.gama3)) * (151250/1836)), as given by  dY/dNC/dY/dK 
-        #v.benefitsNC[t] =  v.InvNC[t] / ( ((p.gama3/(0.3-p.gama3)) * (p.K[t]/p.NC[t])) * ((0.1+0.015)/(0.015)) )#The investment is used to "buy" NC stock at price = ((p.gama3/(0.3-p.gama3)) * (151250/1836)), as given by  dY/dNC/dY/dK 
-        #v.benefitsNC[t] =  v.InvNC[t] / ( ((p.gama3/(0.3-p.gama3)) * (44760/15841)) * ((0.1+0.015)/(0.015)) )#The investment is used to "buy" NC stock at price = ((p.gama3/(0.3-p.gama3)) * (151250/1836)), as given by  dY/dNC/dY/dK         #v.benefitsNC[t] =  v.InvNC[t] / ( ((p.gama3/(0.3-p.gama3)) * (44760/15841)) * (log(0.9/1.015)/(log(1/1.015))) )#The investment is used to "buy" NC stock at price = ((p.gama3/(0.3-p.gama3)) * (151250/1836)), as given by  dY/dNC/dY/dK 
-        v.benefitsNC[t] =  v.InvNC[t] / p.priceNC[t] #using exogenous price
-        #((p.rr[2])^(1/5)-1) is the prtp
-        #0.1 is the depreciation rate
-
-
+        v.AssetNC[t] = v.Y[t] * p.AssetNCfrac[t]
+        v.benefitsNC[t] =  v.AssetNC[t] / p.priceNC[t] #using exogenous price
+        
+        v.Y2[t] = v.Y[t] - v.AssetNC[t]
         #GreenDICE modification, include investments
+
+        v.I[t] = p.S[t] * v.Y2[t]
+        
         #Define function for C
-        v.C[t] = v.Y[t] - v.I[t] + p.ExtraC[t]
+        v.C[t] = v.Y2[t] - v.I[t] + p.ExtraC[t]
     
         #Define function for CPC
         v.CPC[t] = 1000 * v.C[t] / p.l[t]
@@ -300,11 +301,13 @@ connect_param!(GreenDICE, :welfare, :nonUV, :green_naturalcapital, :nonUV)
 end
 replace_comp!(GreenDICE,green_neteconomy,:neteconomy)
 connect_param!(GreenDICE, :green_naturalcapital, :benefitsNC, :neteconomy, :benefitsNC)
+connect_param!(GreenDICE, :green_naturalcapital, :invNC, :neteconomy, :InvNC)
 connect_param!(GreenDICE, :neteconomy, :ES, :grosseconomy, :ES)
 connect_param!(GreenDICE, :welfare, :ESPC, :neteconomy, :ESPC)
 connect_param!(GreenDICE, :neteconomy, :K, :grosseconomy, :K)
 connect_param!(GreenDICE, :neteconomy, :NC, :green_naturalcapital, :NC)
 set_param!(GreenDICE,:neteconomy,:invNCfrac,fill(0.,60))
+set_param!(GreenDICE,:neteconomy,:AssetNCfrac,fill(0.,60))
 set_param!(GreenDICE,:neteconomy,:ExtraC,fill(0.,60))
 set_param!(GreenDICE,:neteconomy,:priceNC,fill(10e100,60))
 RR = [1/(1+0.015)^(t*5) for t in 0:59]

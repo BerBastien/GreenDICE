@@ -17,6 +17,7 @@
     install.packages("rpart")
     library("ggExtra")
     library("gridExtra")
+    library(grid)
     library(wesanderson)
     library(rpart)
     library("ggridges")
@@ -242,15 +243,15 @@
 
 
         ###Arrange sensitivity data (START)
-            sens = c("cs","damage","gama4","prtp","ratio","share1","share2","gama4","atfp","theta1","theta2")
-            num_exp_ss = c(20,20,20,3,20,3,3,20,16,4)
+            sens = c("cs","damage","gama3","gama4","prtp","ratio","share1","share2","theta1","theta2")
+            num_exp_ss = c(20,20,20,20,3,4,3,3,16,4)
             10+2+41+3+6+3+3+16+4+20
             for (num_exp_s_i in 1:10){
             initial = sum(num_cols[0:(num_exp_s_i-1)])
             final = sum(num_cols[0:num_exp_s_i])
             Results_s_i = Results_s[,(initial+1):final]
             num_vars = 25
-
+            names(Results_s_i)
             #num_exp = (num_cols[num_exp_s_i]-2)/num_vars
             num_exp = num_exp_ss[num_exp_s_i]
             df_t <- Results_s_i %>%
@@ -323,8 +324,7 @@
 
             names(df)[1] = "years"
             if (num_exp_s_i  == 1) {
-            DF = df }
-            else {
+            DF = df } else {
             DF = rbind(DF,df)
             }
             }
@@ -333,7 +333,7 @@
 
         # arrange combination NC_TFP of UVnonUV montecarlo simulation optimized (start)
             num_vars = 25
-            num_exp = (dim(Results_nc)[2]-2)/(num_vars)
+            num_exp = 100
 
             df_t <- Results_nc %>%
             select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
@@ -386,7 +386,7 @@
         # arrange spread of UVnonUV montecarlo simulation optimized (start)
             num_vars = 25
             num_exp = (dim(Results)[2]-2)/(num_vars)
-            num_exp = 4
+            num_exp = 500
             df_t <- Results %>%
             select(names(Results)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
             gather(key = "variable", value = "value_t", -1)
@@ -405,9 +405,15 @@
             select(names(Results)[c(1,num_vars*(0:(num_exp-1))+16)]) %>%
             gather(key = "variable_gama3", value = "value_gama3", -1)
 
+            df_gama4 <- Results %>%
+            select(names(Results)[c(1,num_vars*(0:(num_exp-1))+18)]) %>%
+            gather(key = "variable_gama4", value = "value_gama4", -1)
+
             df_ratio <- Results %>%
             select(names(Results)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
             gather(key = "variable_ratio", value = "value_ratio", -1)
+
+            df_atfp <- df_ratio[3]^df_gama[3]
 
             df_theta1 <- Results %>%
             select(names(Results)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
@@ -438,13 +444,13 @@
             select(names(Results)[c(1,num_vars*(0:(num_exp-1))+27)]) %>%
             gather(key = "variable_damage", value = "value_damage", -1)
 
-            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_damage[3],df_share1[3],df_share2[3],df_theta2[3],df_theta1[3],df_prtp[3],df_cs[3])
+            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_damage[3],df_share1[3],df_share2[3],df_theta2[3],df_theta1[3],df_atfp,df_prtp[3],df_cs[3])
             df_mcs <- df
         # arrange spread of UVnonUV montecarlo simulation optimized (end)
 
 
         # arrange iterations of GreenDICE + Asset investment (start)
-            num_vars = 26
+            num_vars = 27
             num_exp = (dim(Results_AssetInv)[2]-2)/(num_vars)
 
             df_t_inv <- Results_AssetInv %>%
@@ -469,8 +475,13 @@
             names(df_Y_inv) = c("time_UVnonUV_inv","variable","value_Y")
             
             df_price_inv <- Results_AssetInv %>%
+            select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+29)]) %>%
+            gather(key = "variable_price", value = "value_price", -1)
+
+            df_inv_inv <- Results_AssetInv %>%
             select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+28)]) %>%
             gather(key = "variable_price", value = "value_price", -1)
+
 
             df_NC_inv <- Results_AssetInv %>%
             select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+5)]) %>%
@@ -516,8 +527,10 @@
         # arrange iterations of GreenDICE + Asset investment (end)
 
         #arrange plain results with ReducedDamages (start)
-            num_vars=25
-            num_exp = 19
+            num_vars=26
+            num_exp = (dim(Results_ReducedDamages)[2]-2)/(num_vars)
+            Results_ReducedDamages <- Results_ReducedDamages[,-2]
+            num_exp = 100
             df_t_inv <- Results_ReducedDamages %>%
                 select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+2)]) %>%
                 gather(key = "variable", value = "value_t", -1)
@@ -710,7 +723,7 @@
 
   theme_set(theme_classic())
   p_t <- ggplot(data = df_r, aes(years)) +
-        geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) +
+        geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
         geom_line(data = df_r, aes(x=years, y=value_t, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="Temperature (Degrees C)", x = "years", color="") +
         coord_cartesian(xlim = c(2020, 2100),ylim=c(0.8,3.25)) +
@@ -722,7 +735,7 @@
   p_t
 
   p_k <- ggplot(data = df_r, aes(years)) +
-        #geom_ribbon(data=qs_t, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
+        geom_ribbon(data=qs_t, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.8) +
         geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
         geom_line(data = df_r, aes(x=years, y=value_k, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="Manufactured Capital (USD)", x = "years", color="") +
@@ -751,7 +764,7 @@
 
 
   p_e <- ggplot(data = df_r, aes(years)) +
-        #geom_ribbon(data=qs_e, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
+        geom_ribbon(data=qs_e, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) +
         geom_line(data = df_r, aes(x=years, y=value_e, group =neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="Emissions (GtCO2)", x = "years", color="") +
         coord_cartesian(xlim = c(2020, 2100),ylim=c(0,50)) +
@@ -763,7 +776,7 @@
         geom_ribbon(data=qs_scc, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) +
         geom_line(data = df_r, aes(x=years, y=value_scc, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="SCC (2019USD/tCO2)", x = "years", color="") +
-        coord_cartesian(xlim = c(2020, 2100),ylim=c(10,5000)) +
+        coord_cartesian(xlim = c(2020, 2100),ylim=c(10,1500)) +
         scale_linetype_manual("", values=c(3,4,2,1), labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) +
         scale_colour_manual("",values=c("indianred","violet","blue","seagreen3"),labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) 
     p_scc
@@ -791,18 +804,19 @@
 
   cum_e <- ddply(DF_20202100, "id", summarise, sum_e = sum(value_e))
   DF_2100 = merge(cum_e, DF_2100, by.x = "id", by.y = "id")
+    glimpse(DF_2020)
   #order sensitivity (start)
     DF_2020$sensitivity <- factor(DF_2020$sensitivity, levels = c("prtp","cs","damage","gama4","atfp","ratio","share2","theta2","share1","theta1"))
     type = cbind(c("reference","reference","production","production","production","production","utility","utility","utility","utility"),c("prtp","cs","damage","gama4","atfp","ratio","share2","theta2","share1","theta1"))
     type = data.frame(type)
     names(type)[2] = "sensitivity"
     DF_2020 <- merge(DF_2020, type, by="sensitivity")
-    names(DF_2020)[17] = "type"
-    head(DF_2020)
+    names(DF_2020)[18] = "type"
+    head(DF_2100)
 
     DF_2100$sensitivity <- factor(DF_2100$sensitivity, levels = c("prtp","cs","damage","gama4","atfp","ratio","share2","theta2","share1","theta1"))
     DF_2100 <- merge(DF_2100, type, by="sensitivity")
-    names(DF_2100)[18] = "type"
+    names(DF_2100)[19] = "type"
   #order sensitivity (*End)
   
 
@@ -810,11 +824,11 @@
   #new names
   DF_2020$names <- DF_2020$sensitivity
   
-  DF_2020$names <- revalue(DF_2020$names, c("cs"="Climate sensitivity", "damage"="Damage to \n Natural Capital","gama4","atfp"="Production elasticity \n to Natural Capital", 
+  DF_2020$names <- revalue(DF_2020$names, c("cs"="Climate sensitivity", "damage"="Damage to \n Natural Capital","gama4" = "Non-use elasticity \n to Natural Capital","atfp"="Elasticity of economic output \n to Natural Capital", 
     "prtp"="Pure rate of \n time preference","ratio"="Natural Capital \n initial stock", "share1"="Ecosystem services \n value","share2"="Non-use value", "theta1"="Substitutability between \n market and ES goods","theta2"="Substitutability between \n use and non-use values"))
 
-  DF_2020$intensity <- numeric(88)  
-  variable = c("cs","damage","gama4","atfp","prtp","ratio","share1","share2","theta1","theta2")
+  DF_2020$intensity <- numeric(93)  
+  variable = c("cs","damage","gama4","gama3","prtp","ratio","share1","share2","theta1","theta2")
   for (i in 1:length(variable)[1]) { #calculating how high is each value
     value_of_interest = variable[i]
     column_of_interest = DF_2020[names(DF_2020)==paste('value_',variable[i],sep="")]
@@ -846,7 +860,7 @@
       scale_fill_gradientn(colours = cbp1,labels = c('low','','','','high'))
     #a <- a + scale_fill_manual(values = cbp1, labels=c("production","utilitys","reference"))
     a <- a + labs(fill="Relative value")
-    DF_2100$intensity <- numeric(88)  
+    DF_2100$intensity <- numeric(93)  
   variable = c("cs","damage","gama4","atfp","prtp","ratio","share1","share2","theta1","theta2")
   for (i in 1:length(variable)[1]) { #calculating how high is each value
     value_of_interest = variable[i]
@@ -945,16 +959,15 @@
     library(randomForestExplainer)
     #RF for SCC in 2020 (start)
         df_mcs_2020 <- df_mcs[which(df_mcs[1]==2020),]
-        names(df_mcs_2020) = c("years","model","value_t","value_e","value_scc","gamma3","NC0/K0","damage","share1","share2","theta2","theta1","prtp","cs")
-        names(df_mcs_2020) = c("years","model","value_t","value_e","value_scc","Production elasticity \n to Natural Capital","Natural Capital \n initial stock","Damage to \n Natural Capital","Ecosystem services \n value","Non-use value","Substitutability between \n use and non-use values","Substitutability between \n market and ES goods","Pure rate of \n time preference","Climate sensitivity")
-        
+        names(df_mcs_2020) = c("years","model","value_t","value_e","value_scc","gamma3","NC0/K0","damage","share1","share2","theta2","theta1","prtp","cs","gama4")
+        names(df_mcs_2020) =c("years","model","value_t","value_e","value_scc","Adjusted Total \n Fractor Productivity","Natural Capital \n initial stock","Damage to \n Natural Capital","Initial ecosystem \n services value","Initial non-use value","Substitutability between \n use and non-use values","Substitutability between \n market and ES goods","Non-use values elasicity \n to Natural Capital","Pure rate of \n time preference","Climate sensitivity")
         head(df_mcs_2020)
-        df_mcs_2020 <- df_mcs_2020[,5:12]
+        df_mcs_2020 <- df_mcs_2020[,5:13]
         dim(df_mcs_2020)
-        trf <- tuneRF(df_mcs_2020[,2:8], df_mcs_2020[,1])
+        trf <- tuneRF(df_mcs_2020[,2:9], df_mcs_2020[,1])
         mt <- trf[which.min(trf[,2]), 1]
         mt
-        Results_rf <- randomForest(df_mcs_2020[,2:8], df_mcs_2020[,1], importance = TRUE,tree = TRUE, mtry =mt)
+        Results_rf <- randomForest(df_mcs_2020[,2:9], df_mcs_2020[,1], importance = TRUE,tree = TRUE, mtry =mt)
         Results_rf
         plot(Results_rf)
         varImpPlot(Results_rf) #%IncMSE is the most robust and informative measure. It is the increase in mse of predictions(estimated with out-of-bag-CV) as a result of variable j being permuted(values randomly shuffled).
@@ -967,22 +980,22 @@
         md1 <- md1 + theme_minimal()
         md1
 
-        plot_min_depth_interactions(Results_rf) #Minimal depth for a variable in a tree equals to the depth of the node which splits on that variable and is the closest to the root of the tree. If it is low than a lot of observations are divided into groups on the basis of this variable
-        #ggsave("RF_SCC2020_interactions.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
-        measure_importance(Results_rf)
-        explain_forest(Results_rf, interactions = TRUE, data =  df_mcs_2020)
+        # plot_min_depth_interactions(Results_rf) #Minimal depth for a variable in a tree equals to the depth of the node which splits on that variable and is the closest to the root of the tree. If it is low than a lot of observations are divided into groups on the basis of this variable
+        # #ggsave("RF_SCC2020_interactions.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
+        # measure_importance(Results_rf)
+        # explain_forest(Results_rf, interactions = TRUE, data =  df_mcs_2020)
     #RF for SCC in 2020 (end)
     #RF for T in 2100 (start)
         df_mcs_2100 <- df_mcs[which(df_mcs[1]==2100),]
         head(df_mcs_2100)
-        names(df_mcs_2100) = c("years","model","value_t","value_e","value_scc","Production elasticity \n to Natural Capital","Natural Capital \n initial stock","Damage to \n Natural Capital","Ecosystem services \n value","Non-use value","Substitutability between \n use and non-use values","Substitutability between \n market and ES goods","Pure rate of \n time preference","Climate sensitivity")
-        df_mcs_t2100 <- cbind(df_mcs_2100$value_t,df_mcs_2020[2:8])
+        names(df_mcs_2100) = c("years","model","value_t","value_e","value_scc","Adjusted Total \n Fractor Productivity","Natural Capital \n initial stock","Damage to \n Natural Capital","Initial ecosystem \n services value","Initial non-use value","Substitutability between \n use and non-use values","Substitutability between \n market and ES goods","Non-use values elasicity \n to Natural Capital","Pure rate of \n time preference","Climate sensitivity")
+        df_mcs_t2100 <- cbind(df_mcs_2100$value_t,df_mcs_2020[2:9])
         head(df_mcs_t2100)
         names(df_mcs_t2100)[1] = "value_t2100"
-        trf <- tuneRF(df_mcs_t2100[,2:8], df_mcs_t2100[,1])
+        trf <- tuneRF(df_mcs_t2100[,2:9], df_mcs_t2100[,1])
         mt <- trf[which.min(trf[,2]), 1]
         mt
-        Results_rf <- randomForest(df_mcs_t2100[,2:8], df_mcs_t2100[,1], importance = TRUE,tree = TRUE, mtry =mt)
+        Results_rf <- randomForest(df_mcs_t2100[,2:9], df_mcs_t2100[,1], importance = TRUE,tree = TRUE, mtry =mt)
         Results_rf$importance
         plot(Results_rf)
         varImpPlot(Results_rf) #%IncMSE is the most robust and informative measure. It is the increase in mse of predictions(estimated with out-of-bag-CV) as a result of variable j being permuted(values randomly shuffled).
@@ -992,10 +1005,10 @@
         md2 <- md2 + labs(title="Temperature in 2100", y="Number of trees", x = "", color="") + theme_minimal()
         md2
         #ggsave("RF_T2100_minDepth.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
-        plot_min_depth_interactions(Results_rf) #Minimal depth for a variable in a tree equals to the depth of the node which splits on that variable and is the closest to the root of the tree. If it is low than a lot of observations are divided into groups on the basis of this variable
+        #plot_min_depth_interactions(Results_rf) #Minimal depth for a variable in a tree equals to the depth of the node which splits on that variable and is the closest to the root of the tree. If it is low than a lot of observations are divided into groups on the basis of this variable
         #ggsave("RF_T2100_interactions.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
-        measure_importance(Results_rf)
-        explain_forest(Results_rf, interactions = TRUE, data =  df_mcs_t2100)
+        #measure_importance(Results_rf)
+        #explain_forest(Results_rf, interactions = TRUE, data =  df_mcs_t2100)
         #look here...>>>>> https://cran.rstudio.com/web/packages/randomForestExplainer/vignettes/randomForestExplainer.html
 
         
@@ -1003,7 +1016,7 @@
         annotate_figure(figure, top = NULL, bottom = NULL, left = NULL,
     right = NULL, fig.lab = "", fig.lab.pos = c("top.left"))
                         figure
-                        ggsave("minimal_depth_panel.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
+                        ggsave("minimal_depth_panel.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
     
     #RF for SCC in 2100 (end)
 
@@ -1029,7 +1042,7 @@
 
     df_r_inv_standard = df_r[which(df_r$variable=="TATM_standard" ),]
     df_r_inv_green = df_r[which(df_r$variable=="TATM_UVnonUV" ),]
-    df_inv_last = df_inv[which(df_inv$id_var==200),]
+    df_inv_last = df_inv[which(df_inv$id_var==50.5),]
     #comp_inv <- rbind(df_r_inv_standard,df_r_inv_green,df_inv_last,df_inv_reduceddamages)
 
     dif <- df_inv_last$value_YGross - df_r_inv_green$value_YGross
@@ -1154,144 +1167,34 @@
 
     newdf[14] <- 1 / newdf$value_ratio
     names(newdf)[14] = "NC_K"
+    newdf_default = newdf[which(newdf$value_gama3==newdf$value_gama3[1]),]
+    newdf_default = newdf_default[which(newdf_default$value_ratio==newdf_default$value_ratio[1]),]
   #Generate new dataframes (end)
 
-  ##### SCC sensitivity to NC and Gama (start)
-      #anova
-      aov_scc = aov(value_scc~value_ratio, data=newdf)
-      summary(aov_scc)
-      print(model.tables(aov_scc,"means"),digits=3)       #report the means and the number of subjects/cell
-      theme_minimal()
-      g1 <- ggplot(newdf, aes(x = NC_K, y = value_scc, group = NC_K)) +
-          geom_boxplot(fill = "turquoise",alpha = .7) +
-          #geom_violin(fill = "turquoise",alpha = .7) +
-          geom_jitter(width = .05, alpha = .1) +
-          labs(title = "anova test: p < 4.14e-10 ***", y="SCC in 2020", x = expression(paste(NC[0]/K[0]))) +
-          theme_bw() 
-          
-          #ggsave("scc2020_by_ratio_anova.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
+    gscc <- ggplot(newdf, aes(x = value_gama3,y = value_scc))
+    gscc <- gscc + geom_jitter(aes( size = NC_K, fill = NC_K), shape = 21, alpha = 0.7,colour = "transparent")  + 
+    scale_fill_gradientn(colours = cbp1, guide = "legend", name = expression(paste( over(NC[0],K[0])))) +
+    scale_size_continuous(range = c(1, 8), name = expression(paste(over(NC[0],K[0])))) +
+    geom_smooth(method="loess", se=T) +
+    labs(title=" ", y="Temperature in 2100", x = "Production elasticity to natural capital", color="") +
+    guides(color = FALSE) + 
+    geom_point(aes(x = newdf_default$value_gama3, y = newdf_default$value_scc), shape = "*", color = "red", size = 15)
+    gscc <- gscc + theme_bw() 
+    gscc
 
-      aov_scc = aov(value_scc~value_gama3, data=newdf)
-      summary(aov_scc)
-      print(model.tables(aov_scc,"means"),digits=3)       #report the means and the number of subjects/cell
-      g2 <- ggplot(newdf, aes(x = value_gama3, y = value_scc, group = value_gama3)) +
-          geom_boxplot(fill = "turquoise",alpha = .7) +
-          #geom_violin(fill = "turquoise",alpha = .7) +
-          geom_jitter(width = .005, alpha = .1) +
-          labs(title = "anova test: p < 2e-16 *** ", y="SCC in 2020", x = "Production elasticity to natural capital") +
-          theme_bw() 
-        g2
-        ##ggsave("scc2020_by_gama_anova.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
+    gT <- ggplot(newdf, aes(x = value_gama3,y = value_t2100))
+        gT <- gT + geom_jitter(aes( size = NC_K, fill = NC_K), shape = 21, alpha = 0.7,colour = "transparent")  + 
+        scale_fill_gradientn(colours = cbp1, guide = "legend", name = expression(paste( over(NC[0],K[0])))) +
+        scale_size_continuous(range = c(1, 8), name = expression(paste(over(NC[0],K[0])))) +
+        geom_smooth(method="loess", se=T) +
+        labs(title=" ", y="Temperature in 2100", x = "Production elasticity to natural capital", color="") +
+        guides(color = FALSE) + 
+        geom_point(aes(x = newdf_default$value_gama3, y = newdf_default$value_t2100), shape = "*", color = "red", size = 15)
+        gT <- gT + theme_bw() 
+        gT
 
-
-      g <- ggplot(newdf, aes( value_gama3,value_scc))
-            g + geom_jitter(aes(size=NC_K, col = factor(NC_K)))  + 
-            geom_smooth(aes(col=factor(NC_K)), method="loess", se=T) 
-
-      #This is the default value for gama3 = 0.0194080386981301
-      newdf_default = newdf[which(newdf$value_gama3==newdf$value_gama3[1]),]
-      newdf_default = newdf_default[which(newdf_default$value_ratio==newdf_default$value_ratio[1]),]
-      newdf_default
-      g <- ggplot(newdf, aes(x = value_gama3,y = value_scc))
-          g <- g + geom_jitter(aes( size = NC_K, fill = NC_K), shape = 21, alpha = 0.7,colour = "transparent")  + 
-            scale_fill_continuous(guide = "legend", name = expression(paste( over(NC[0],K[0])))) +
-            scale_size_continuous(range = c(1, 8), name = expression(paste(over(NC[0],K[0])))) +
-            #scale_color_gradient(low = "blue", high = "red") +
-            geom_smooth(aes(col = NC_K, group=factor(NC_K)), method="loess", se=F) +
-            labs(title=" ", y="SCC in 2020 (2020USD)", x = "Production elasticity to natural capital", color="") +
-            guides(color = FALSE) + 
-            geom_point(aes(x = newdf_default$value_gama3, y = newdf_default$value_scc), shape = "*", color = "red", size = 15)
-            g <- g + theme_bw() 
-            gscc <- g
-            #ggsave("scc2020_ratio_gama_2.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
-    figure <- ggarrange(g, ggarrange(g1, g2,
-                          labels = c("", ""),
-                          ncol = 2, legend = FALSE), labels = "", nrow = 2, common.legend = F, legend = "right")
-      figure
-
-      g <- ggplot(newdf, aes(x = value_gama3,y = value_scc))
-          g <- g + geom_jitter(shape = 20, alpha = 0.7, size = 3)  + 
-            geom_smooth(aes(col = NC_K, group=factor(NC_K)), method="loess", se=F) +
-            labs(title=" ", y="SCC in 2020 (USD/tonCO2)", x = "Production elasticity to natural capital", color="") +
-            guides(color = FALSE) + 
-            geom_point(aes(x = newdf_default$value_gama3, y = newdf_default$value_scc), shape = "*", color = "red", size = 15)
-            g <- g + theme_bw() 
-            gscc <- g
-            g
-    #ggsave("scc2020_NC_gama.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
-  ##### SCC sensitivity to NC and Gama (end)
-
-  ##### TEMP2100 sensitivity to NC and Gama (start)
-      #anova
-      aov_scc = aov(value_t2100~value_ratio, data=newdf)
-      summary(aov_scc)
-      print(model.tables(aov_scc,"means"),digits=3)       #report the means and the number of subjects/cell
-      g1 <- ggplot(newdf, aes(x = NC_K, y = value_t2100, group = NC_K)) +
-          geom_boxplot(fill = "turquoise",alpha = .7) +
-          #geom_violin(fill = "turquoise",alpha = .7) +
-          geom_jitter(width = .05, alpha = .1) +
-          labs(title = "anova test: p = 0.724", y="Temperature in 2100", x = expression(paste(NC[0]/K[0])))  + 
-          theme_bw() 
-          g1
-          #ggsave("t2100_by_ratio_anova.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
-
-      aov_scc = aov(value_t2100~value_gama3, data=newdf)
-      summary(aov_scc)
-      print(model.tables(aov_scc,"means"),digits=3)       #report the means and the number of subjects/cell
-      g2 <- ggplot(newdf, aes(x = value_gama3, y = value_t2100, group = value_gama3)) +
-          geom_boxplot(fill = "turquoise",alpha = .7) +
-          #geom_violin(fill = "turquoise",alpha = .7) +
-          geom_jitter(width = .005, alpha = .1) +
-          labs(title = "anova test: p < 2e-16 *** ", y="Temperature in 2100", x = "Production elasticity to natural capital")  + 
-          theme_bw() 
-          g2
-          #ggsave("scc2020_by_gama_anova.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
-
-
-      g <- ggplot(newdf, aes( value_gama3,value_t2100))
-            g + geom_jitter(aes(size=NC_K, col = factor(NC_K)))  + 
-            geom_smooth(aes(col=factor(NC_K)), method="loess", se=T) 
-            g
-
-      g <- ggplot(newdf, aes(x = value_gama3,y = value_t2100))
-          g <- g + geom_jitter(aes( size = NC_K, fill = NC_K), shape = 21, alpha = 0.7,colour = "transparent")  + 
-            scale_fill_continuous(guide = "legend", name = expression(paste( over(NC[0],K[0])))) +
-            scale_size_continuous(range = c(1, 8), name = expression(paste(over(NC[0],K[0])))) +
-            #scale_color_gradient(low = "blue", high = "red") +
-            geom_smooth(aes(col = NC_K, group=factor(NC_K)), method="loess", se=F) +
-            labs(title=" ", y="Temperature in 2100", x = "Production elasticity to natural capital", color="") +
-            guides(color = FALSE) + 
-            geom_point(aes(x = newdf_default$value_gama3, y = newdf_default$value_t2100), shape = "*", color = "red", size = 15)
-            g <- g+ theme_bw() 
-            g
-            #ggsave("scc2020_ratio_gama_2.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
-    figure <- ggarrange(g, ggarrange(g1, g2,
-                          labels = c("", ""),
-                          ncol = 2, legend = FALSE), labels = "", nrow = 2, common.legend = F, legend = "right")
-      figure
-    #ggsave("Temp2100_NC_gama.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
-    
-    
-     g <- ggplot(newdf, aes(x = value_gama3,y = value_t2100))
-          g <- g + geom_jitter(shape = 20, alpha = 0.7, size=3)  + 
-            #scale_fill_continuous(guide = "legend", name = expression(paste( over(NC[0],K[0])))) +
-            #scale_size_continuous(range = c(1, 8), name = expression(paste(over(NC[0],K[0])))) +
-            #scale_color_gradient(low = "blue", high = "red") +
-            geom_smooth(aes(col = NC_K, group=factor(NC_K)), method="loess", se=F) +
-            labs(title=" ", y="Temperature in 2100", x = "Production elasticity to natural capital") +
-            #guides(color = FALSE) + 
-            geom_point(aes(x = newdf_default$value_gama3, y = newdf_default$value_t2100), shape = "*", color = "red", size = 15)
-            g
-            
-            g <- g+ theme_bw() + scale_color_gradientn(colours = cbp1, labels=c('','low','','high'))
-            g
-    
-    
-
-          
-
-    gT <- g +labs(title=" ", y="Temperature in 2100 (Degrees C)", x = "Production elasticity to natural capital", color="Natural Capital \n initial stock") +
-          theme(legend.position="top") 
+    gT <- gT +labs(title=" ", y="Temperature in 2100 (Degrees C)", x = "Production elasticity to natural capital", color="Natural Capital \n initial stock") +
+        theme(legend.position="top") 
     gT
     legend <- get_legend(gT)
     
@@ -1301,77 +1204,26 @@
     gT
 
     gS <- gscc + labs(title=" ", y="SCC in 2020 (USD/tonCO2)", x = "", color="") +
-          theme(legend.position="none", plot.margin = unit(c(0.1,0.1,0.1,0.1), "lines")) + scale_color_gradientn(colours = cbp1)
+        theme(legend.position="none", plot.margin = unit(c(0.1,0.1,0.1,0.1), "lines")) + scale_color_gradientn(colours = cbp1)
 
     gS
     gS <- ggMarginal(gS, type = "histogram", margins = "y", fill = "gray", alpha = 0.7)
     gS
-    #png("C:/Users/bastien/Documents/My papers/GreenDICE/Temp2100_SCC2020_NC_gama_histogram.png", width = 5, height = 5, units = 'in', res = 600)
-    #grid.arrange(legend, gS, gT, ncol=1, nrow=3,heights = c(0.5,2.5, 2.5)) 
-    #dev.off()
-    mean(newdf$value_scc)
 
-    # gT <- g + labs(title=" ", y="Temperature in 2100", x = "", color="") +
-    #       theme(legend.position="top")
-    # gT
-    # legend <- get_legend(gT)
-    # gT <- gT + theme(legend.position="none")
-    # gT <- ggMarginal(gT, type = "density", margins = "y", fill = "#009E73", alpha = 0.7)
-    # gT
-
-    # gS <- gscc + 
-    #       theme(legend.position="none")
-    # gS
-    # gS <- ggMarginal(gS, type = "density", margins = "y", fill = "#009E73", alpha = 0.7)
-    # gS
-    #png("C:/Users/bastien/Documents/My papers/GreenDICE/Temp2100_SCC2020_NC_gama_density.png", width = 6, height = 6, units = 'in', res = 600)
-    #grid.arrange(gT, gS, legend, ncol=1, nrow=3,heights = c(2.5, 2.5,0.5)) 
-    #dev.off()
-
-    # gT <- g + labs(title=" ", y="Temperature in 2100", x = "", color="") +
-    #       theme(legend.position="top")
-    # gT
-    # legend <- get_legend(gT)
-    # gT <- gT + theme(legend.position="none")
-    # gT <- ggMarginal(gT, type = "violin", margins = "y", fill = "#009E73", alpha = 0.7)
-    # gT
-
-    # gS <- gscc + 
-    #       theme(legend.position="none")
-    # gS
-    # gS <- ggMarginal(gS, type = "violin", margins = "y", fill = "#009E73", alpha = 0.7)
-    # gS
-     
-     
-     myplotSCC <- arrangeGrob(gS, top = textGrob("A", x = unit(0, "npc")
-         , y   = unit(1, "npc"), just=c("left","top"),
-         gp=gpar(col="black", fontsize=18, fontfamily="Times Roman")))
+    myplotSCC <- arrangeGrob(gS, top = textGrob("A", x = unit(0, "npc")
+        , y   = unit(1, "npc"), just=c("left","top"),
+        gp=gpar(col="black", fontsize=18, fontfamily="Times Roman")))
 
     myplotT <- arrangeGrob(gT, top = textGrob("B", x = unit(0, "npc")
-         , y = unit(1, "npc"), just=c("left","top"),
-         gp=gpar(col="black", fontsize=18, fontfamily="Times Roman")))
+        , y = unit(1, "npc"), just=c("left","top"),
+        gp=gpar(col="black", fontsize=18, fontfamily="Times Roman")))
 
-    png("C:/Users/bastien/Documents/My papers/GreenDICE/Temp2100_SCC2020_NC_gama_2.png", width = 6, height = 6, units = 'in', res = 600)
-     
-    grid.arrange(myplotSCC, myplotT, legend, nrow = 3,heights = c(2.5, 2.5,0.5))
-      dev.off()
-     
-     png("C:/Users/bastien/Documents/My papers/GreenDICE/Temp2100_SCC2020_NC_gama_2.png", width = 6, height = 6, units = 'in', res = 600)
-     grid.arrange(gS, gT, legend, ncol=1, nrow=3,heights = c(2.5, 2.5,0.5)) 
-     dev.off()
+    png("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures/Temp2100_SCC2020_NC_gama_2.png", width = 6, height = 6, units = 'in', res = 600)
     
-
-     ggarrange(gS, gT, nrow = 2)
-    #  grid.arrange(gT,gS)
-    #  arrangeGrob(gT,gS)
-    #  figure <- ggarrange(gT, gS, labels = "", nrow = 2, common.legend = T, legend = "bottom")
-    #   figure
-       library("grid")
-       library(grid)
-  library(gridExtra)
-    #   grid_arrange_shared_legend(gT, gS, nrow = 2, ncol = 1)
-    ggsave("Temp2100_SCC2020_NC_gama_2.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
-  ##### TEMP2100 sensitivity to NC and Gama (end)
+    grid.arrange(myplotSCC, myplotT, legend, nrow = 3,heights = c(2.5, 2.5,0.5))
+    dev.off()
+    ##Revision (Figure NCTFP)
+    ##### TEMP2100 sensitivity to NC and Gama (end)
 #####
 #####
 ##### FIGURE S.1.: SCC in 2020 by NC ratio (END)
