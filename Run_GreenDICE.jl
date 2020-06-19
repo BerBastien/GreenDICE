@@ -30,11 +30,11 @@ using CSV
     uncertainty_analysis_utility = false
 
     #Different estimations of  the role of natural capital in production
-    # ALL Adjusted_tfp_i = [1.01144,0.9565217391,1.006993007,1,1.1052631579,1,1.0090909091,0.96,1,1,1,1.0555555556,1.0070422535,1,1,1,1.0526315789,0.8644067797,0.9705882353,1,1,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #26 elasticities
-    Adjusted_tfp_i = [1.01144,0.9565217391,1.006993007,1,1.1052631579,1.0090909091,0.96,1.0555555556,1.0070422535,1.0526315789,0.8644067797,0.9705882353,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #removing repeated 1's, 17 elasticities
-    # only positive numbers Adjusted_tfp_i = [1.01144,1.006993007,1,1.1052631579,1.0090909091,1.0555555556,1.0070422535,1.0526315789,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #removing repeated 1's, 17 elasticities
+    # ALL Adjusted_tfp_i = [1.014353,0.9565217391,1.006993007,1,1.1052631579,1,1.0090909091,0.96,1,1,1,1.0555555556,1.0070422535,1,1,1,1.0526315789,0.8644067797,0.9705882353,1,1,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #26 elasticities
+    Adjusted_tfp_i = [1.014353,0.9565217391,1.006993007,1,1.1052631579,1.0090909091,0.96,1.0555555556,1.0070422535,1.0526315789,0.8644067797,0.9705882353,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #removing repeated 1's, 17 elasticities
+    # only positive numbers Adjusted_tfp_i = [1.014353,1.006993007,1,1.1052631579,1.0090909091,1.0555555556,1.0070422535,1.0526315789,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #removing repeated 1's, 17 elasticities
 
-    k_nc_i = [44760/15841, 1967/6421, 6531/6949, 28527/18960, 59096/80104, 195929/19525] #Ref: Changing Wealth of Naitons, World Bank 2018, Appendix B
+    k_nc_i = [3.87, 1967/6421, 6531/6949, 28527/18960, 59096/80104, 195929/19525] #Ref: Changing Wealth of Naitons, World Bank 2018, Appendix B
     #[world, low-income, lower-middle income, upper/middle income, high income non/OECD, high income OECD]
     #
     share_i = [0.1, 0.01, 0.05, 0.15, 0.2] #invented
@@ -293,8 +293,8 @@ using CSV
 # Finding damage parameters (end)
 
 #Vectors of estimations (start)
-    Adjusted_tfp_i = [1.01144,0.9565217391,1.006993007,1,1.1052631579,1.0090909091,0.96,1.0555555556,1.0070422535,1.0526315789,0.8644067797,0.9705882353,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #removing repeated 1's, 17 elasticities
-    k_nc_i = [44760/15841, 1967/6421, 6531/6949, 28527/18960, 59096/80104, 195929/19525] #Ref: Changing Wealth of Naitons, World Bank 2018, Appendix B
+    Adjusted_tfp_i = [1.014353,0.9565217391,1.006993007,1,1.1052631579,1.0090909091,0.96,1.0555555556,1.0070422535,1.0526315789,0.8644067797,0.9705882353,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716]; #removing repeated 1's, 17 elasticities
+    k_nc_i = [3.87, 1967/6421, 6531/6949, 28527/18960, 59096/80104, 195929/19525] #Ref: Changing Wealth of Naitons, World Bank 2018, Appendix B
     latfp = log.(Adjusted_tfp_i)
     lknc = log.(k_nc_i)
     lknc_inv = 1 ./ lknc
@@ -315,12 +315,12 @@ using CSV
 #Distributions (start)
     cs_lnd = LogNormal(log(3.2), 0.12) #based on Roe and Baker 2007, using the mean of Nordhaus
     prtp_ud = Uniform(0.001, 0.03) 
-    tfp_param = Normal(1.01144,0.000192385) #based on wighted adjusted TFP by country GDP (see gamma3_computation.R)
-    gama3_nd = Normal(log(1.01144)/log(44760/15841), std(gama3_i)) #normal distributions
+    tfp_param = Normal(1.014353,0.028783) #based on wighted adjusted TFP by country GDP (see gamma3_computation.R)
+    gama3_nd = Normal(log(1.014353)/log(3.87), std(gama3_i)) #normal distributions
     k_nc_nd = Normal(3.87,2.11)
     damagek1_nd = Normal(0.151, 0.147) #From regression using Howard and Sterner (2017) data
     damagek2_ud = Uniform(0.3,0.5) #From Howard and Sylvan (2015)
-    atfp_nd = Normal(1.0144,0.0324) #From Brandt et al (2017) weighted mean and standard deviation
+    atfp_nd = Normal(1.0144,0.028783) #From Brandt et al (2017) weighted mean and standard deviation
     gamma4_ud = Uniform(0.6,1)
     
 #Distributions (end) 
@@ -351,20 +351,20 @@ using CSV
     # Damages as if taken out the 25%: 0.00480515
     #set_param!(GreenDICE,:damages,:a2,0.00181)                 # YGROSS damage coefficient
     # Standard DICE: 0.00236; Minus non-market damages: 0.00181
-    #K_NC = 44760/15841
+    #K_NC = 3.87
     #set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC)   # Ratio of NC to K0 
     #set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)   # Ratio of NC to K0 
     # Produced Capital vs. Natural Capital (K/NC)
     # Default value (World estimate): 27/9 Ref: Changing Wealth of Nations World Bank
     # Other possibilities - Rich countries: 28/3; Poor countries: 11/10 Ref: Changing Wealth of Nations World Bank, Table 2.2
     # Other possibilities: [world, low-income, lower-middle income, upper/middle income, high income non/OECD, high income OECD]
-    # K_NC = [44760/15841, 1967/6421, 6531/6949, 28527/18960, 59096/80104, 195929/19525] #Ref: Changing Wealth of Naitons, World Bank 2018, Appendix B
-    #Adjusted_tfp = 1.01144
+    # K_NC = [3.87, 1967/6421, 6531/6949, 28527/18960, 59096/80104, 195929/19525] #Ref: Changing Wealth of Naitons, World Bank 2018, Appendix B
+    #Adjusted_tfp = 1.014353
     #Adjusted TFP once NC is explicitely in the production function
-    # Default value (Weighted average of estimates): 1.01144
+    # Default value (Weighted average of estimates): 1.014353
     # Other posssibilities (individual countries): [0.9565217391,1.006993007,1,1.1052631579,1,1.0090909091,...
     #    0.96,1,1,1,1.0555555556,1.0070422535,1,1,1,1.0526315789,0.8644067797,...
-    #    0.9705882353,1,1,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716,1.01144,1.01144];
+    #    0.9705882353,1,1,1.0194174757,1.2222222222,1.1237113402,1.1312217195,1.049382716,1.014353,1.014353];
     #set_param!(GreenDICE,:grosseconomy,:atfp,Adjusted_tfp)             # Elasticity of YGROSS to NC
     #elasticity_nc = log(Adjusted_tfp)/log(K_NC)
     #set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)             # Elasticity of YGROSS to NC
@@ -385,10 +385,10 @@ using CSV
         set_param!(GreenDICE,:welfare,:theta,mean(theta1_i)) 
         set_param!(GreenDICE,:welfare,:theta2,mean(theta2_i))
         set_param!(GreenDICE,:damages,:a5,0)
-        K_NC = 3.088595171
+        K_NC = 3.878362
         set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
         set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
-        Adjusted_tfp = 1.01144
+        Adjusted_tfp = 1.014353
         elasticity_nc = log(Adjusted_tfp)/log(K_NC)
         set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
         set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
@@ -544,10 +544,10 @@ using CSV
     #         set_param!(GreenDICE,:welfare,:theta,mean(theta1_i)) 
     #         set_param!(GreenDICE,:welfare,:theta2,mean(theta2_i))
     #         set_param!(GreenDICE,:damages,:a5,0)
-    #         K_NC = 3.088595171
+    #         K_NC = 3.878362
     #         set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
     #         set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
-    #         Adjusted_tfp = 1.01144
+    #         Adjusted_tfp = 1.014353
     #         elasticity_nc = log(Adjusted_tfp)/log(K_NC)
     #         set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
     #         set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
@@ -608,10 +608,10 @@ using CSV
     #         end
     #     results = Results_combination_NC_tfp
     #     #back to standard for future runs
-    #     K_NC = 3.088595171
+    #     K_NC = 3.878362
     #     set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
     #     set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
-    #     Adjusted_tfp = 1.01144
+    #     Adjusted_tfp = 1.014353
     #     elasticity_nc = log(Adjusted_tfp)/log(K_NC)
     #     set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
     #     set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
@@ -698,34 +698,38 @@ using CSV
     #     run(GreenDICE)
     #     CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_cs.csv",Results_uncertainty_cs)
 
-    #     global Results_uncertainty_gama3 = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
-    #     global mc = 0
-    #     mc_max = 20
-    #     while mc < mc_max              
-    #         tfpi = rand(tfp_param)
-    #         if atfp < 1
-    #             continue
-    #         end
-    #         elasticity_nc = log(atfp) / log(K_NC)
-    #         set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
-    #         set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc) 
-    #         res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
-    #         best_candidate(res) # optimal vector of miu emissions trajectories
-    #         set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
-    #         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])       
-    #         run(GreenDICE)
-    #         results = foo()
-    #         global Results_uncertainty_gama3 = join(Results_uncertainty_gama3,results,on= :time, makeunique = true)
-    #     end
-    #     CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_gama3.csv",Results_uncertainty_gama3)
-    #     K_NC = 3.088595171
-    #     set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
-    #     set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
-    #     Adjusted_tfp = 1.01144
-    #     elasticity_nc = log(Adjusted_tfp)/log(K_NC)
-    #     set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
-    #     set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
-    #     run(GreenDICE)
+        global Results_uncertainty_gama3 = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
+        global mc = 0
+        mc_max = 20
+        while mc < mc_max              
+            tfpi = rand(tfp_param)
+            if tfpi < 1
+                continue
+            end
+            elasticity_nc = log(tfpi) / log(K_NC)
+            if elasticity_nc < 0
+                continue
+            end
+            set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
+            set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc) 
+            res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+            best_candidate(res) # optimal vector of miu emissions trajectories
+            set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
+            set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])       
+            run(GreenDICE)
+            results = foo()
+            global Results_uncertainty_gama3 = join(Results_uncertainty_gama3,results,on= :time, makeunique = true)
+            global mc = mc + 1
+        end
+        CSV.write("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/GreenDICE_UVnonUV_sens_opt_gama3.csv",Results_uncertainty_gama3)
+        K_NC = 3.878362
+        set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
+        set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
+        Adjusted_tfp = 1.014353
+        elasticity_nc = log(Adjusted_tfp)/log(K_NC)
+        set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
+        set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
+        run(GreenDICE)
 
         
     #     global Results_uncertainty_gama4 = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
@@ -783,10 +787,10 @@ using CSV
     #         results = foo()
     #         global Results_uncertainty_nc = join(Results_uncertainty_nc,results,on= :time, makeunique = true)
     #     end
-    #     K_NC = 3.088595171
+    #     K_NC = 3.878362
     #     set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
     #     set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
-    #     Adjusted_tfp = 1.01144
+    #     Adjusted_tfp = 1.014353
     #     elasticity_nc = log(Adjusted_tfp)/log(K_NC)
     #     set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
     #     set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)    

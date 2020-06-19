@@ -244,7 +244,7 @@
 
         ###Arrange sensitivity data (START)
             sens = c("cs","damage","gama3","gama4","prtp","ratio","share1","share2","theta1","theta2")
-            num_exp_ss = c(20,20,20,20,3,4,3,3,16,4)
+            num_exp_ss = c(20,20,20,20,3,20,3,3,16,4)
             10+2+41+3+6+3+3+16+4+20
             for (num_exp_s_i in 1:10){
             initial = sum(num_cols[0:(num_exp_s_i-1)])
@@ -315,11 +315,13 @@
 
 
             
+            df_atfp <- df_ratio[3]^df_gama[3]
+            names(df_atfp)= "value_gama3"
 
             id = rep((1+(num_exp_s_i-1)*num_exp):((num_exp_s_i)*num_exp), each = dim(df_t)[1]/num_exp)
             df_id = data.frame("id" = id)
 
-            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_share[3],df_theta1[3],df_prtp[3],df_cs[3],df_share2[3],df_theta2[3],df_damage[3],df_gama4[3],df_id)
+            df <- cbind(df_t,df_e[3],df_scc[3],df_atfp,df_ratio[3],df_share[3],df_theta1[3],df_prtp[3],df_cs[3],df_share2[3],df_theta2[3],df_damage[3],df_gama4[3],df_id)
             df$sensitivity = sens[num_exp_s_i]
 
             names(df)[1] = "years"
@@ -720,7 +722,8 @@
   df_r$neworder[df_r$variable=='TATM_UV'] <- 3
   df_r$neworder[df_r$variable=='TATM_UVnonUV'] <- 4
   df_r <- df_r[order(df_r$neworder),]
-
+    df_r$value_scc[df_r$years==2020]
+    df_r$value_t[df_r$years==2100]
   theme_set(theme_classic())
   p_t <- ggplot(data = df_r, aes(years)) +
         geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
@@ -806,15 +809,17 @@
   DF_2100 = merge(cum_e, DF_2100, by.x = "id", by.y = "id")
     glimpse(DF_2020)
   #order sensitivity (start)
-    DF_2020$sensitivity <- factor(DF_2020$sensitivity, levels = c("prtp","cs","damage","gama4","atfp","ratio","share2","theta2","share1","theta1"))
-    type = cbind(c("reference","reference","production","production","production","production","utility","utility","utility","utility"),c("prtp","cs","damage","gama4","atfp","ratio","share2","theta2","share1","theta1"))
+    factor(DF_2020$sensitivity)
+    DF_2020$value_gama3
+    DF_2020$sensitivity <- factor(DF_2020$sensitivity, levels = c("prtp","cs","damage","gama3","gama4","ratio","share2","theta2","share1","theta1"))
+    type = cbind(c("reference","reference","production","production","production","production","utility","utility","utility","utility"),c("prtp","cs","damage","gama3","gama4","ratio","share2","theta2","share1","theta1"))
     type = data.frame(type)
     names(type)[2] = "sensitivity"
     DF_2020 <- merge(DF_2020, type, by="sensitivity")
     names(DF_2020)[18] = "type"
     head(DF_2100)
 
-    DF_2100$sensitivity <- factor(DF_2100$sensitivity, levels = c("prtp","cs","damage","gama4","atfp","ratio","share2","theta2","share1","theta1"))
+    DF_2100$sensitivity <- factor(DF_2100$sensitivity, levels = c("prtp","cs","damage","gama4","gama3","ratio","share2","theta2","share1","theta1"))
     DF_2100 <- merge(DF_2100, type, by="sensitivity")
     names(DF_2100)[19] = "type"
   #order sensitivity (*End)
@@ -824,15 +829,17 @@
   #new names
   DF_2020$names <- DF_2020$sensitivity
   
-  DF_2020$names <- revalue(DF_2020$names, c("cs"="Climate sensitivity", "damage"="Damage to \n Natural Capital","gama4" = "Non-use elasticity \n to Natural Capital","atfp"="Elasticity of economic output \n to Natural Capital", 
+  DF_2020$names <- revalue(DF_2020$names, c("cs"="Climate sensitivity", "damage"="Damage to \n Natural Capital","gama4" = "Non-use elasticity \n to Natural Capital","gama3"="Elasticity of economic output \n to Natural Capital", 
     "prtp"="Pure rate of \n time preference","ratio"="Natural Capital \n initial stock", "share1"="Ecosystem services \n value","share2"="Non-use value", "theta1"="Substitutability between \n market and ES goods","theta2"="Substitutability between \n use and non-use values"))
 
-  DF_2020$intensity <- numeric(93)  
-  variable = c("cs","damage","gama4","gama3","prtp","ratio","share1","share2","theta1","theta2")
+  DF_2020$intensity <- numeric(113)  
+  glimpse(DF_2020)
+  variable = c("cs","damage","gama3","gama4","prtp","ratio","share1","share2","theta1","theta2")
   for (i in 1:length(variable)[1]) { #calculating how high is each value
     value_of_interest = variable[i]
     column_of_interest = DF_2020[names(DF_2020)==paste('value_',variable[i],sep="")]
     spread = column_of_interest[DF_2020$sensitivity==value_of_interest,1]
+    DF_2020$value_scc[DF_2020$sensitivity==value_of_interest]
     minval = min(spread)
     maxval = max(spread)
     intensity_i = (spread - minval) / (maxval-minval)
@@ -860,8 +867,9 @@
       scale_fill_gradientn(colours = cbp1,labels = c('low','','','','high'))
     #a <- a + scale_fill_manual(values = cbp1, labels=c("production","utilitys","reference"))
     a <- a + labs(fill="Relative value")
-    DF_2100$intensity <- numeric(93)  
-  variable = c("cs","damage","gama4","atfp","prtp","ratio","share1","share2","theta1","theta2")
+    a
+    DF_2100$intensity <- numeric(113)  
+  variable = c("cs","damage","gama4","gama3","prtp","ratio","share1","share2","theta1","theta2")
   for (i in 1:length(variable)[1]) { #calculating how high is each value
     value_of_interest = variable[i]
     column_of_interest = DF_2100[names(DF_2100)==paste('value_',variable[i],sep="")]
@@ -893,7 +901,7 @@
       scale_fill_gradientn(colours = cbp1,labels = c('low','','','','high'))
       
   c <- c + labs(fill="Relative value")
- 
+    c
   #c <- c + scale_fill_manual(values = cbp1)
 
 
