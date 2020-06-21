@@ -532,7 +532,7 @@
             num_vars=26
             num_exp = (dim(Results_ReducedDamages)[2]-2)/(num_vars)
             Results_ReducedDamages <- Results_ReducedDamages[,-2]
-            num_exp = 100
+            num_exp = 1
             df_t_inv <- Results_ReducedDamages %>%
                 select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+2)]) %>%
                 gather(key = "variable", value = "value_t", -1)
@@ -787,7 +787,7 @@
                       labels = c("b", "c"),
                       ncol = 2, legend = FALSE), labels = "a", nrow = 2, common.legend = TRUE, legend = "bottom")
   figure
-  ggsave("T_E_SCC.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
+  #ggsave("T_E_SCC.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
 
 #####
 #####
@@ -909,7 +909,7 @@
                       #ggsave("sensitivity_UVnonUV_3.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
                       figure <- ggarrange(a,c, labels = c("","",""), ncol = 2, nrow = 1, common.legend = TRUE, legend = "bottom", widths=c(1.5,1))
                       figure
-                      #ggsave("sensitivity_GreenDICE.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
+                      ggsave("sensitivity_GreenDICE.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
   #PArametric sensitivity UVnonUV (end)
 #####
 #####
@@ -1050,7 +1050,7 @@
 
     df_r_inv_standard = df_r[which(df_r$variable=="TATM_standard" ),]
     df_r_inv_green = df_r[which(df_r$variable=="TATM_UVnonUV" ),]
-    df_inv_last = df_inv[which(df_inv$id_var==50.5),]
+    df_inv_last = df_inv[which(df_inv$id_var==100.5),]
     #comp_inv <- rbind(df_r_inv_standard,df_r_inv_green,df_inv_last,df_inv_reduceddamages)
 
     dif <- df_inv_last$value_YGross - df_r_inv_green$value_YGross
@@ -1112,9 +1112,9 @@
           geom_line(data = df_inv_last, aes(x=years, y=value_scc, colour = variable, linetype=variable),size=1)  + 
           geom_line(data = df_inv_reduceddamages, aes(x=years, y=value_scc, colour = variable, linetype=variable),size=1)  + 
           labs(title="SCC", y="USD/ton", x = "years") +
-          coord_cartesian(xlim = c(2010, 2100),ylim=c(0,600)) +
+          coord_cartesian(xlim = c(2010, 2100),ylim=c(0,1500)) +
           scale_linetype_manual("", values=c(4,2,3,1), labels=c( "Asset Investment", "Damage Reduction", "Standard DICE", "GreenDICE")) +
-          scale_colour_manual("",values=c("firebrick2","darkcyan","indianred","seagreen3"),labels=c( "Asset Investment","Damage Reduction", "Standard DICE", "GreenDICE")) 
+          scale_colour_manual("",values=c("firebrick2","darkcyan","indianred","seagreen3"),labels=c( "Asset Investment","Damage Reduction", "Standard DICE", "GreenDICE"))     
     plot_scc2
 
      plot_inv2 <- ggplot(data =  df_r_inv_standard, aes(years)) +
@@ -1122,7 +1122,7 @@
           geom_line(data = df_r_inv_green, aes(x=years, y=value_inv, colour = variable, linetype=variable),size=1)  + 
           geom_line(data = df_inv, aes(x=years, y=value_inv, colour = variable, linetype=variable),size=1)  + 
           geom_line(data = df_inv_reduceddamages, aes(x=years, y=value_inv, colour = variable, linetype=variable),size=1)  + 
-          labs(title="Investments", y="Percentage of GWP", x = "years") +
+          labs(title="Investments", y="Fraction of GWP", x = "years") +
           #coord_cartesian(xlim = c(2010, 2100),ylim=c(0,600)) +
           #scale_linetype_manual("", values=c(4,2), labels=c( "Asset Investment", "Damage Reduction")) +
           #scale_colour_manual("",values=c("firebrick2","darkcyan"),labels=c( "Asset Investment","Damage Reduction")) +
@@ -1140,7 +1140,7 @@
           labs(title="Natural capital stock", y="Value (USD)", x = "years") +
           scale_linetype_manual("", values=c(4,2,1), labels=c( "Asset Investment", "Damage Reduction", "GreenDICE")) +
           scale_colour_manual("",values=c("firebrick2","darkcyan","seagreen3"),labels=c( "Asset Investment","Damage Reduction", "GreenDICE")) +
-          coord_cartesian(xlim = c(2010, 2100),ylim=c(40,80)) 
+          coord_cartesian(xlim = c(2010, 2100),ylim=c(10,90)) 
     plot_nc2
     
     
@@ -1149,7 +1149,7 @@
     comparison_investments
 
 
-    #ggsave("investments.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
+    #ggsave("investments.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
   ## Comparison between investments (end)
 
 #####
