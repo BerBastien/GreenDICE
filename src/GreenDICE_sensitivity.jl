@@ -1,9 +1,7 @@
-    mc_max = 20
-    
-    global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
+global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     global mc = 0
-    mc_max = 20
-    while mc < mc_max
+    
+    while mc < sens_max
         D_d = choice(damaged_i)
         D_k = choice(damagek_i)
         if D_k == 1
@@ -55,8 +53,8 @@
 
     global Results_uncertainty_cs = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     global mc = 0
-    mc_max = 20
-    while mc < mc_max
+    
+    while mc < sens_max
         cs = rand(cs_lnd)
         if cs < 0.01
             cs = 3.2
@@ -77,8 +75,8 @@
 
     global Results_uncertainty_gama3 = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     global mc = 0
-    mc_max = 20
-    while mc < mc_max              
+    
+    while mc < sens_max              
         tfpi = rand(tfp_param)
         if tfpi < 1
             continue
@@ -112,8 +110,8 @@
     global Results_uncertainty_gama4 = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     global mc = 0
     global mc = 0
-    mc_max = 20
-    while mc < mc_max
+    
+    while mc < sens_max
         g4 = gamma4_ud
         set_param!(GreenDICE,:green_naturalcapital,:g4,g4) #gamma4
         res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
@@ -148,8 +146,8 @@
 
     global Results_uncertainty_nc = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     global mc = 0
-    mc_max = 20
-    while mc < mc_max
+    
+    while mc < sens_max
         K_NC = rand(k_nc_nd)
         set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC)   # Ratio of NC to K0 
         set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)   # Ratio of NC to K0    

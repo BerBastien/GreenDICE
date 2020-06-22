@@ -7,19 +7,9 @@ set_param!(GreenDICE,:welfare,:utility_path,1)
     set_param!(GreenDICE,:welfare,:sigma_subs,10^10) 
     set_param!(GreenDICE,:welfare,:theta,1) 
     set_param!(GreenDICE,:welfare,:theta2,1)
-    set_param!(GreenDICE,:damages,:a4,a4[1])
-    set_param!(GreenDICE,:damages,:a5,0)
-    
-    # #Finding the damage parameters (start)
-    #  run(GreenDICE)
-    # Res = bboptimize(damage_params_market;SearchRange=(0.,1.), NumDimensions=1, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=3000)
-    # a_4 = best_candidate(Res) #
-    # set_param!(GreenDICE,:damages,:a4,a_4[1])
-    # set_param!(GreenDICE,:neteconomy,:a4,a_4[1])
-    # set_param!(GreenDICE,:damages,:a2,a_k) 
-    # #Finding the damage parameters (end)
 
-        Res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+
+        Res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=optim_steps)
         best_candidate(Res) # optimal vector of miu emissions trajectories
         set_param!(GreenDICE,:emissions,:MIU,best_candidate(Res)[1:60])
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(Res)[61:120])

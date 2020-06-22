@@ -1,5 +1,4 @@
 
-    mc_max = 2000
     
     global Results_spread_combined_mcs_opt = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     global mc = 0

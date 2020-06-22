@@ -25,11 +25,10 @@ function foo()
         set_param!(GreenDICE,:neteconomy,:ExtraC,Extracons)
         run(GreenDICE)
         C = GreenDICE[:neteconomy, :CPC]
-        ES = GreenDICE[:neteconomy, :ES]
+        ES = GreenDICE[:neteconomy, :ESPC]
         nonUV = GreenDICE[:green_naturalcapital, :nonUV]
         l = GreenDICE[:welfare, :l]
         df = [zeros(ii-1)..., (1/(1+prtp)^(t-year) for (i,t) in enumerate(model_years) if year<=t<=last_year)...]
-        #U = (((((1.0 - share) .* (C .* 1000 ./ l) .^ (1.0 - 1.0 ./ sigma_subs)) + ((share) * (ES.* 1000 ./ l) .^ (1.0 - 1.0 ./ sigma_subs))).^((1 - eta).*(sigma_subs ./ (sigma_subs - 1))) .- 1) ./ (1-eta) .- 1)
         U = ((((1.0).*((1.0 - share).* C .^ theta) + (share .* ES .^ theta)) .^ (theta2 / theta)+ share2 .* (nonUV) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
         
         W = sum(U.*df.*l)
@@ -38,9 +37,8 @@ function foo()
         set_param!(GreenDICE,:emissions,:ExtraCO2,Extraton)
         run(GreenDICE)
         C2 = GreenDICE[:neteconomy, :CPC]
-        ES2 = GreenDICE[:neteconomy, :ES]
+        ES2 = GreenDICE[:neteconomy, :ESPC]
         nonUV2 = GreenDICE[:green_naturalcapital, :nonUV]
-        #U2 = (((((1.0 - share) .* (C2 .* 1000 ./ l) .^ (1.0 - 1.0 ./ sigma_subs)) + ((share) * (ES2 .* 1000 ./ l) .^ (1.0 - 1.0 ./ sigma_subs))).^((1 - eta).*(sigma_subs ./ (sigma_subs - 1))) .- 1) ./ (1-eta) .- 1)
         U2 = ((((1.0).*((1.0 - share).* C2 .^ theta) + (share .* ES2 .^ theta)) .^ (theta2 / theta)+ share2 .* (nonUV2) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
         
         W2 = sum(U2.*df .* l)
@@ -52,11 +50,9 @@ function foo()
         Extracons[ii] = 1
         set_param!(GreenDICE,:neteconomy,:ExtraC,Extracons)
         run(GreenDICE)
-        ES3 = GreenDICE[:neteconomy, :ES]
+        ES3 = GreenDICE[:neteconomy, :ESPC]
         nonUV3 = GreenDICE[:green_naturalcapital, :nonUV]
         C3 = GreenDICE[:neteconomy, :CPC]
-        #U3 = (((((1.0 - share) .* (C3 .* 1000 ./ l) .^ (1.0 - 1.0 ./ sigma_subs)) + ((share) * (ES3 .* 1000 ./ l) .^ (1.0 - 1.0 ./ sigma_subs))).^((1 - eta).*(sigma_subs ./ (sigma_subs - 1))) .- 1) ./ (1-eta) .- 1)
-        #U3 = ((((1.0 - share2).*((1.0 - share).* C3 .^ theta) + (share .* ES3 .^ theta)) .^ (theta2 / theta)+ share2 .* (nonUV3) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
         U3 = ((((1.0).*((1.0 - share).* C3 .^ theta) + (share .* ES3 .^ theta)) .^ (theta2 / theta)+ share2 .* (nonUV3) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
         W3 = sum(U3.*df .* l)
         dWdC = (W3 - W)
@@ -82,14 +78,6 @@ function eval_dice(x)
     return -GreenDICE[:welfare, :UTILITY]
 end
 
-function eval_DICE(x)
-    m = x[1:60]
-    s = x[61:end]
-    set_param!(DICE,:emissions,:MIU,m)
-    set_param!(DICE,:neteconomy,:S,s)
-    run(DICE)
-    return -DICE[:welfare, :UTILITY]
-end
 
 function eval_dice_inv(x)
     m = x[1:60]
@@ -102,18 +90,6 @@ function eval_dice_inv(x)
     
     return -GreenDICE[:welfare, :UTILITY]
 end
-
-
-function f()
-    paretopoints = DataFrame(x = Float64[], y = Float64[])
-    for x in pareto_frontier(res)
-    X = fitness(x)[1]
-    Y = fitness(x)[2]
-    push!(paretopoints, [X, Y])
-    end
-    return paretopoints
-end
-
 
 function choice(a::Array)
     n = length(a)
@@ -141,7 +117,7 @@ function damage_params(x)
     #Utility parameters
     eta = 1.45
     #Consumption
-    C0 = tfp * L ^ 0.7 + K ^ g2 + (r*K)^g3
+    C0 = (tfp * L ^ 0.7 + K ^ g2 + (r*K)^g3) * 1000 / L #consumption per capita 
     theta = GreenDICE[:welfare,:theta]
     theta2 = GreenDICE[:welfare,:theta2]
     share = GreenDICE[:welfare,:share]
@@ -149,7 +125,7 @@ function damage_params(x)
     a_d = GreenDICE[:damages,:a_d]  #0.0026686075 #Damage parameter in Nordhaus and Sztorc (2013)
     a_k = GreenDICE[:damages,:a2]
     T=2.5
-    C0_d = C0 * (1/(1+a_d * T^2)) #Damaged consumption according to DICE 
+    C0_d = C0 * (1-a_d * T^2) #Damaged consumption according to DICE 
     U_aggregated = ((((1.0).*((1.0 - share).* C0_d .^ theta) + (share .* (C0 * r^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K)^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
     #a = (((1 + a_k * T^2)(r/(1+a4 * T^2))^g3) / T^2)
     #U_explicit = ((((1.0).*((1.0 - share).* ((1/(1+a*T^2))*C0*(r/(1+a4*T^2))^g3) .^ theta) + (share .* (C0*(r/(1+a4*T^2))^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K/(1+a4*T^2))^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
