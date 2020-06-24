@@ -21,8 +21,8 @@ damagek3 = 0.624 #From Nordhaus 1994 Survey
 #Distributions (start)
 cs_lnd = LogNormal(log(3.2), 0.12) #based on Roe and Baker 2007, using the mean of Nordhaus
 prtp_ud = Uniform(0.001, 0.03) 
-tfp_param = Normal(1.01144,0.000192385) #based on wighted adjusted TFP by country GDP (see gamma3_computation.R)
-gama3_nd = Normal(log(1.01144)/log(44760/15841), std(gama3_i)) #normal distributions
+tfp_param = Normal(1.014353,0.000192385) #based on wighted adjusted TFP by country GDP (see gamma3_computation.R)
+gama3_nd = Normal(log(1.014353)/log(44760/15841), std(gama3_i)) #normal distributions
 k_nc_nd = Normal(3.87,2.11)
 damagek1_nd = Normal(0.151, 0.147) #From regression using Howard and Sterner (2017) data
 damagek2_ud = Uniform(0.3,0.5) #From Howard and Sylvan (2015)

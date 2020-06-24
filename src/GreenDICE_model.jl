@@ -106,7 +106,7 @@ replace_comp!(GreenDICE,green_damages,:damages)
             v.NC[t] = p.k0 / p.ratioNC + p.ExtraN[1]
             v.nonUV[t] = v.NC[t] ^ p.g4 
         else
-            v.NC[t] = v.NC[t-1] - (v.NC[t-1] - v.NC[t-1] * p.DAMAGES_NC[t]) / (1 + ((5 * p.benefitsNC[t-1] ^ 0.1214)))
+            v.NC[t] = v.NC[t-1] - (v.NC[t-1] - v.NC[t-1] * p.DAMAGES_NC[t]) / (1 + ((5 * p.benefitsNC[t-1] ^ 0.187)))
             v.nonUV[t] = v.NC[t] ^ p.g4
         end
     end

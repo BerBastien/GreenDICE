@@ -1,4 +1,4 @@
-global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
+    global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     global mc = 0
     
     while mc < sens_max
@@ -21,16 +21,17 @@ global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symb
         a_4 = best_candidate(Resd) 
         set_param!(GreenDICE,:damages,:a4,a_4[1])
         set_param!(GreenDICE,:neteconomy,:a4,a_4[1]) 
-        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
         best_candidate(res) # optimal vector of miu emissions trajectories
         set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
         run(GreenDICE)
         results = foo()
         global Results_uncertainty_damage = join(Results_uncertainty_damage,results,on= :time, makeunique = true)
+        global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_damage.csv"),Results_uncertainty_damage)
-    set_param!(GreenDICE,:damages,:a4,0.050642536)
+    set_param!(GreenDICE,:damages,:a4,0.061)
     run(GreenDICE)
     
     global Results_uncertainty_prtp = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
@@ -38,13 +39,14 @@ global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symb
         prtp = prtp_i[prtpi]
         RR = [1/(1+prtp)^(t*5) for t in 0:59]
         set_param!(GreenDICE,:welfare,:rr,RR)   # Ratio of NC to K0 
-        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
         best_candidate(res) # optimal vector of miu emissions trajectories
         set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
         run(GreenDICE)
         results = foo()
         global Results_uncertainty_prtp = join(Results_uncertainty_prtp,results,on= :time, makeunique = true)
+        global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_prtp.csv"),Results_uncertainty_prtp)
     RR = [1/(1+0.015)^(t*5) for t in 0:59]
@@ -60,7 +62,7 @@ global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symb
             cs = 3.2
         end
         set_param!(GreenDICE,:climatedynamics,:t2xco2,cs) 
-        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
         best_candidate(res) # optimal vector of miu emissions trajectories
         set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
@@ -75,7 +77,6 @@ global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symb
 
     global Results_uncertainty_gama3 = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     global mc = 0
-    
     while mc < sens_max              
         tfpi = rand(tfp_param)
         if tfpi < 1
@@ -87,7 +88,7 @@ global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symb
         end
         set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
         set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc) 
-        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
         best_candidate(res) # optimal vector of miu emissions trajectories
         set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])       
@@ -109,18 +110,18 @@ global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symb
     
     global Results_uncertainty_gama4 = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     global mc = 0
-    global mc = 0
     
     while mc < sens_max
-        g4 = gamma4_ud
+        g4 = rand( gamma4_ud)
         set_param!(GreenDICE,:green_naturalcapital,:g4,g4) #gamma4
-        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
         best_candidate(res) # optimal vector of miu emissions trajectories
         set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])       
         run(GreenDICE)
         results = foo()
         global Results_uncertainty_gama4 = join(Results_uncertainty_gama4,results,on= :time, makeunique = true)
+        global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_gama4.csv"),Results_uncertainty_gama4)
     set_param!(GreenDICE,:green_naturalcapital,:g4,0.8) #gamma4
@@ -130,13 +131,14 @@ global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symb
     for sharei in (1:size(share2_i)[1])
         Share = share2_i[sharei]
         set_param!(GreenDICE,:welfare,:share2,Share)   
-        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
         best_candidate(res) # optimal vector of miu emissions trajectories
         set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
         run(GreenDICE)
         results = foo()
         global Results_uncertainty_share2 = join(Results_uncertainty_share2,results,on= :time, makeunique = true)
+        global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_share2.csv"),Results_uncertainty_share2)
     set_param!(GreenDICE,:welfare,:share2,0.1)
@@ -151,16 +153,17 @@ global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symb
         K_NC = rand(k_nc_nd)
         set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC)   # Ratio of NC to K0 
         set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)   # Ratio of NC to K0    
-        elasticity_nc = log(atfp) / log(K_NC)
+        elasticity_nc = log(1.014353) / log(K_NC)
         set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
         set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc) 
-        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
         best_candidate(res) # optimal vector of miu emissions trajectories
         set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])   
         run(GreenDICE)
         results = foo()
         global Results_uncertainty_nc = join(Results_uncertainty_nc,results,on= :time, makeunique = true)
+        global mc = mc + 1
     end
     K_NC = 3.878362
     set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
@@ -169,7 +172,7 @@ global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symb
     elasticity_nc = log(Adjusted_tfp)/log(K_NC)
     set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
     set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)    
-    CSV.write(sting(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_ratio.csv"),Results_uncertainty_nc)
+    CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_ratio.csv"),Results_uncertainty_nc)
     run(GreenDICE)
     
 
@@ -178,13 +181,14 @@ global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symb
     for sharei in (1:size(share1_i)[1])
         Share = share1_i[sharei]
         set_param!(GreenDICE,:welfare,:share,Share)   
-        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
         best_candidate(res) # optimal vector of miu emissions trajectories
         set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
         run(GreenDICE)
         results = foo()
         global Results_uncertainty_share = join(Results_uncertainty_share,results,on= :time, makeunique = true)
+        global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_share1.csv"),Results_uncertainty_share)
     set_param!(GreenDICE,:welfare,:share,0.1)
@@ -195,7 +199,7 @@ global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symb
     for theta2i in (1:size(theta2_i)[1])
         Theta2 = theta2_i[theta2i]
         set_param!(GreenDICE,:welfare,:theta2,Theta2)   
-        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
         best_candidate(res) # optimal vector of miu emissions trajectories
         set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
@@ -211,7 +215,7 @@ global Results_uncertainty_damage = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symb
     for theta1i in (1:size(theta1_i)[1])
         Theta1 = theta1_i[theta1i]
         set_param!(GreenDICE,:welfare,:theta,Theta1)   
-        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=99999)
+        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
         best_candidate(res) # optimal vector of miu emissions trajectories
         set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])

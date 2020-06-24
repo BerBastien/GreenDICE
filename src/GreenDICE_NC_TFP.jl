@@ -31,6 +31,7 @@
             run(GreenDICE)
             results = foo()
             global Results_combination_NC_tfp = join(Results_combination_NC_tfp,results,on= :time, makeunique = true)
+            global mc = mc + 1
         end
     results = Results_combination_NC_tfp
     #back to standard for future runs

@@ -5,9 +5,9 @@ dir = "C:/Users/bastien/Documents/GitHub/GreenDICE/"
 #max number of steps for optimization
 optim_steps = 99999 #default = 99999
 #number of monte carlo samples
-mc_max = 1
+mc_max = 10
 #number of samples for the one at a time sensitivity analysis
-sens_max = 20
+sens_max = 10
 
 #load required packages:
 include(string(dir,"src/Load_req_Packages.jl"))
@@ -29,14 +29,16 @@ run(GreenDICE)
 #Optimize GreenDICE for welfare maximizing
 include(string(dir,"src/Optim_GreenDICE.jl"))
 
-#Run Monte Carlo analysis
-include(string(dir,"src/MonteCarlo_GreenDICE.jl"))
+#Run one by one sensitivity analysis:
+include(string(dir,"src/GreenDICE_sensitivity.jl"))
 
 #Run combinations of natural capital and total factor productivity
 include(string(dir,"src/GreenDICE_NC_TFP.jl"))
 
-#Run one by one sensitivity analysis:
-include(string(dir,"src/GreenDICE_sensitivity.jl"))
+#Run Monte Carlo analysis
+include(string(dir,"src/MonteCarlo_GreenDICE.jl"))
+
+
 
 #Setup and optimize GreenDICE - All use values specification
 include(string(dir,"src/Setup_GreenDICE_AllUseValues.jl"))

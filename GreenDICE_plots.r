@@ -244,7 +244,8 @@
 
         ###Arrange sensitivity data (START)
             sens = c("cs","damage","gama3","gama4","prtp","ratio","share1","share2","theta1","theta2")
-            num_exp_ss = c(20,20,20,20,3,20,3,3,16,4)
+            #num_exp_ss = c(20,20,20,20,3,20,3,3,16,4)
+            num_exp_ss = c(10,10,10,10,3,10,3,3,16,4)
             10+2+41+3+6+3+3+16+4+20
             for (num_exp_s_i in 1:10){
             initial = sum(num_cols[0:(num_exp_s_i-1)])
@@ -388,7 +389,7 @@
         # arrange spread of UVnonUV montecarlo simulation optimized (start)
             num_vars = 25
             num_exp = (dim(Results)[2]-2)/(num_vars)
-            num_exp = 500
+            num_exp = 1000
             df_t <- Results %>%
             select(names(Results)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
             gather(key = "variable", value = "value_t", -1)
@@ -727,6 +728,7 @@
   theme_set(theme_classic())
   p_t <- ggplot(data = df_r, aes(years)) +
         geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
+        geom_ribbon(data=qs_t, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) + 
         geom_line(data = df_r, aes(x=years, y=value_t, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="Temperature (Degrees C)", x = "years", color="") +
         coord_cartesian(xlim = c(2020, 2100),ylim=c(0.8,3.25)) +
