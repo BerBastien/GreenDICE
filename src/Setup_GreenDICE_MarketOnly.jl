@@ -1,10 +1,6 @@
-set_param!(GreenDICE,:welfare,:utility_path,1)
-    set_param!(GreenDICE,:damages,:path,1)        
-    set_param!(GreenDICE,:grosseconomy,:greenGDP,1) 
-    set_param!(GreenDICE,:welfare,:share,0.)
+set_param!(GreenDICE,:welfare,:share,0.)
     set_param!(GreenDICE,:welfare,:share2,0.)
     set_param!(GreenDICE,:grosseconomy,:share,0.) 
-    set_param!(GreenDICE,:welfare,:sigma_subs,10^10) 
     set_param!(GreenDICE,:welfare,:theta,1) 
     set_param!(GreenDICE,:welfare,:theta2,1)
 

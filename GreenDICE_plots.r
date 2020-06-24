@@ -336,7 +336,7 @@
 
         # arrange combination NC_TFP of UVnonUV montecarlo simulation optimized (start)
             num_vars = 25
-            num_exp = 100
+            num_exp = 10
 
             df_t <- Results_nc %>%
             select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
@@ -751,8 +751,7 @@
         scale_colour_manual("",values=c("indianred","violet","blue","seagreen3"),labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) 
   
   p_k
-  ggsave("K_greendice.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
-
+  
   p_s <- ggplot(data = df_r, aes(years)) +
         #geom_ribbon(data=qs_t, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
         geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
@@ -765,10 +764,10 @@
         scale_colour_manual("",values=c("indianred","violet","blue","seagreen3"),labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) 
   
   p_s
-  ggsave("savings_greendice.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
-
+  
 
   p_e <- ggplot(data = df_r, aes(years)) +
+        geom_ribbon(data=qs_e, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
         geom_ribbon(data=qs_e, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) +
         geom_line(data = df_r, aes(x=years, y=value_e, group =neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="Emissions (GtCO2)", x = "years", color="") +
@@ -781,7 +780,7 @@
         geom_ribbon(data=qs_scc, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) +
         geom_line(data = df_r, aes(x=years, y=value_scc, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="SCC (2019USD/tCO2)", x = "years", color="") +
-        coord_cartesian(xlim = c(2020, 2100),ylim=c(10,1500)) +
+        coord_cartesian(xlim = c(2020, 2100),ylim=c(10,500)) +
         scale_linetype_manual("", values=c(3,4,2,1), labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) +
         scale_colour_manual("",values=c("indianred","violet","blue","seagreen3"),labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) 
     p_scc

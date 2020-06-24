@@ -17,7 +17,6 @@ const model_years = 2010:5:2305 #necesary to compute SCC
     gama3   = Parameter()               #GreenDICE: natural Capital elasticity in production function
     k0      = Parameter()               #Initial capital value (trill 2005 USD)
     ratioNC = Parameter()               #GreenDICE: ratio of NC to K0
-    greenGDP= Parameter()               #GreenDICE: Is NC in the production function?
     k0         = Parameter()               #Initial capital value (trill 2005 USD)
     ratioNC    = Parameter()               #GreenDICE: ratio of NC to K0
     share           = Parameter()               #GreenDICE: share of ES produced by Green Production Function
@@ -54,11 +53,9 @@ set_param!(GreenDICE,:grosseconomy,:ExtraK,fill(0.,60))
 @defcomp green_damages begin
     DAMAGES    = Variable(index=[time])    #Damages (trillions 2005 USD per year)
     DAMAGES_NC = Variable(index=[time])    # GreenDICE: Natural capital Damages (in a measurement of NC)
-    DAMAGES_ES = Variable(index=[time])    # GreenDICE: Ecosystem services Damages (in a measurement of NC)
     DAMFRAC    = Variable(index=[time])    #Damages (fraction of gross output)
     DAMFRAC_NC = Variable(index=[time])    # GreenDICE: Natural Capital Damages (fraction of NC)
-    DAMFRAC_ES = Variable(index=[time])    # GreenDICE: Ecosystesm Services Damages (fraction of NC)
-
+    
     TATM    = Parameter(index=[time])   #Increase temperature of atmosphere (degrees C from 1900)
     YGROSS  = Parameter(index=[time])   #Gross world product GROSS of abatement and damages (trillions 2005 USD per year)
     NC      = Parameter(index=[time])   #GreenDICE: NC
@@ -69,7 +66,6 @@ set_param!(GreenDICE,:grosseconomy,:ExtraK,fill(0.,60))
     a5      = Parameter()               #GreenDICE: Damage coefficient for ES
     damadj  = Parameter()               #Adjustment exponent in damage function
     usedamadj::Bool = Parameter()       # Only the Excel version uses the damadj parameter
-    path    = Parameter()               #GreenDICE: PAth in which climate damage nature: 0 for none, 1 for NC, 2 for ES
     a_d = Parameter()                   #Total aggregated damages (meta paratameter, used to compute damage parameter a4, using damage_params function)
      
     function run_timestep(p, v, d, t)
@@ -98,7 +94,7 @@ replace_comp!(GreenDICE,green_damages,:damages)
     ExtraN = Parameter(index=[time])          #GreenDICE: Year to add an extra asset of N, to compute investments 
     g4 = Parameter()                        #gamma4, elasticity of natural capital
     invNCfrac   = Parameter(index=[time])    #GreenDICE - investment control
-    invparam = Parameter()                  #investment cost parameter
+    damred = Parameter()                  #damage reduction parameter
     
     function run_timestep(p, v, d, t)
     
@@ -106,18 +102,18 @@ replace_comp!(GreenDICE,green_damages,:damages)
             v.NC[t] = p.k0 / p.ratioNC + p.ExtraN[1]
             v.nonUV[t] = v.NC[t] ^ p.g4 
         else
-            v.NC[t] = v.NC[t-1] - (v.NC[t-1] - v.NC[t-1] * p.DAMAGES_NC[t]) / (1 + ((5 * p.benefitsNC[t-1] ^ 0.187)))
+            v.NC[t] = v.NC[t-1] - (v.NC[t-1] - v.NC[t-1] * p.DAMAGES_NC[t]) / (1 + ((5 * p.benefitsNC[t-1] ^ p.damred)))
             v.nonUV[t] = v.NC[t] ^ p.g4
         end
     end
 end
 add_comp!(GreenDICE, green_naturalcapital,:green_naturalcapital, before=:neteconomy)
 set_param!(GreenDICE,:green_naturalcapital,:k0,135.)
+set_param!(GreenDICE,:green_naturalcapital,:damred,0.187)
 connect_param!(GreenDICE, :grosseconomy, :NC, :green_naturalcapital, :NC)
 connect_param!(GreenDICE, :damages, :NC, :green_naturalcapital, :NC)
 connect_param!(GreenDICE, :green_naturalcapital, :DAMAGES_NC, :damages, :DAMAGES_NC)
 set_param!(GreenDICE,:green_naturalcapital,:ExtraN,fill(0.,60))
-set_param!(GreenDICE, :green_naturalcapital, :invparam, -3.6141779415331468)
 set_param!(GreenDICE,:green_naturalcapital,:invNCfrac,fill(0.,60))
 
 @defcomp green_welfare begin
@@ -135,12 +131,10 @@ set_param!(GreenDICE,:green_naturalcapital,:invNCfrac,fill(0.,60))
     elasmu          = Parameter()               #Elasticity of marginal utility of consumption
     scale1          = Parameter()               #Multiplicative scaling coefficient
     scale2          = Parameter()               #Additive scaling coefficient
-    utility_path    = Parameter()               #GreenDICE: defines whether ES are in the Utility function
     share           = Parameter()               #GreenDICE: share of utility produced by ES
     share2           = Parameter()               #GreenDICE: share of utility produced by nonUV
     theta      = Parameter()               #GreenDICE: Elasticity of substitution for ES and C
     theta2      = Parameter()               #GreenDICE: Elasticity of substitution for UV and nonUV
-    sigma_subs      = Parameter()               #GreenDICE: Substitutability parameter
     ESPC              = Parameter(index=[time])               
     nonUV             = Parameter(index=[time])
     ES              = Parameter(index=[time])                              
@@ -149,7 +143,7 @@ set_param!(GreenDICE,:green_naturalcapital,:invNCfrac,fill(0.,60))
 
     function run_timestep(p, v, d, t)
         
-        v.PERIODU[t] = ((((1)*((1-p.share)*p.CPC[t]^p.theta)+(p.share*p.ES[t]^p.theta))^(p.theta2/p.theta)+p.share2*(p.nonUV[t])^p.theta2)^((1-p.elasmu)/p.theta2)-1)/(1-p.elasmu)-1 #nested utility function with constant elasticities of substiution
+        v.PERIODU[t] = ((((1)*((1-p.share)*p.CPC[t]^p.theta)+(p.share*p.ESPC[t]^p.theta))^(p.theta2/p.theta)+p.share2*(p.nonUV[t])^p.theta2)^((1-p.elasmu)/p.theta2)-1)/(1-p.elasmu)-1 #nested utility function with constant elasticities of substiution
 
 
         v.CEMUTOTPER[t] = v.PERIODU[t] * p.l[t] * p.rr[t]
@@ -222,7 +216,7 @@ connect_param!(GreenDICE, :welfare, :nonUV, :green_naturalcapital, :nonUV)
         v.I[t] = p.S[t] * v.Y[t]
         #v.I[t] = ( p.S[t] / ( 1 - v.InvNC[t])) * v.Y[t]
         
-        v.benefitsNC[t] =  v.InvNC[t]  
+        v.benefitsNC[t] =  v.InvNC[t]  * 1000 #in billion dollars
 
 
         #Define function for C

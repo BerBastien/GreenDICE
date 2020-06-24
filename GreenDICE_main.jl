@@ -7,7 +7,7 @@ optim_steps = 99999 #default = 99999
 #number of monte carlo samples
 mc_max = 10
 #number of samples for the one at a time sensitivity analysis
-sens_max = 10
+sens_max = 20
 
 #load required packages:
 include(string(dir,"src/Load_req_Packages.jl"))

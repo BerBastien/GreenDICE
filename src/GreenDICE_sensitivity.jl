@@ -31,7 +31,7 @@
         global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_damage.csv"),Results_uncertainty_damage)
-    set_param!(GreenDICE,:damages,:a4,0.061)
+    set_param!(GreenDICE,:damages,:a4,0.0362)
     run(GreenDICE)
     
     global Results_uncertainty_prtp = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
@@ -98,10 +98,10 @@
         global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_gama3.csv"),Results_uncertainty_gama3)
-    K_NC = 3.878362
+    K_NC = k_nc_param
     set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
     set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
-    Adjusted_tfp = 1.014353
+    Adjusted_tfp = atfp_param
     elasticity_nc = log(Adjusted_tfp)/log(K_NC)
     set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
     set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
@@ -153,7 +153,7 @@
         K_NC = rand(k_nc_nd)
         set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC)   # Ratio of NC to K0 
         set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)   # Ratio of NC to K0    
-        elasticity_nc = log(1.014353) / log(K_NC)
+        elasticity_nc = log(atfp_param) / log(K_NC)
         set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
         set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc) 
         res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
@@ -165,10 +165,10 @@
         global Results_uncertainty_nc = join(Results_uncertainty_nc,results,on= :time, makeunique = true)
         global mc = mc + 1
     end
-    K_NC = 3.878362
+    K_NC = k_nc_param
     set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
     set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
-    Adjusted_tfp = 1.014353
+    Adjusted_tfp = atfp_param
     elasticity_nc = log(Adjusted_tfp)/log(K_NC)
     set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
     set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)    

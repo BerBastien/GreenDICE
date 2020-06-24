@@ -80,20 +80,16 @@
     end
     CSV.write(string(dir,"/Results/spread/GreenDICE_UVnonUV_spread_mcs_opt.csv"),Results_spread_combined_mcs_opt)
     #going back to preferred specification (start)
-        set_param!(GreenDICE,:welfare,:utility_path,1)
-        set_param!(GreenDICE,:damages,:path,1)        
-        set_param!(GreenDICE,:grosseconomy,:greenGDP,1) 
-        set_param!(GreenDICE,:welfare,:share,0.1)
-        set_param!(GreenDICE,:welfare,:share2,0.1)
-        set_param!(GreenDICE,:grosseconomy,:share,0.1) 
-        set_param!(GreenDICE,:welfare,:sigma_subs,1/(1-0.57)) 
-        set_param!(GreenDICE,:welfare,:theta,mean(theta1_i)) 
-        set_param!(GreenDICE,:welfare,:theta2,mean(theta2_i))
+        set_param!(GreenDICE,:welfare,:share,share1_param)
+        set_param!(GreenDICE,:welfare,:share2,share2_param)
+        set_param!(GreenDICE,:grosseconomy,:share,share1_param) 
+        set_param!(GreenDICE,:welfare,:theta,theta1_param) 
+        set_param!(GreenDICE,:welfare,:theta2,theta2_param)
         set_param!(GreenDICE,:damages,:a5,0)
-        K_NC = 3.878362
+        K_NC = k_nc_param
         set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
         set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
-        Adjusted_tfp = 1.014353
+        Adjusted_tfp = atfp_param
         elasticity_nc = log(Adjusted_tfp)/log(K_NC)
         set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
         set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
@@ -105,7 +101,7 @@
         set_param!(GreenDICE,:damages,:a_d,a_d) 
         set_param!(GreenDICE,:damages,:a4,0)
         set_param!(GreenDICE,:neteconomy,:a4,0)
-        g4 = 0.8
+        g4 = gamma4_param
         set_param!(GreenDICE,:green_naturalcapital,:g4,g4) #gamma4
         run(GreenDICE)
         Resd = bboptimize(damage_params;SearchRange=(0.,1.), NumDimensions=1, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=3000)

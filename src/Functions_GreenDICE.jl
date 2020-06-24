@@ -127,10 +127,7 @@ function damage_params(x)
     T=2.5
     C0_d = C0 * (1-a_d * T^2) #Damaged consumption according to DICE 
     U_aggregated = ((((1.0).*((1.0 - share).* C0_d .^ theta) + (share .* (C0 * r^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K)^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
-    #a = (((1 + a_k * T^2)(r/(1+a4 * T^2))^g3) / T^2)
-    #U_explicit = ((((1.0).*((1.0 - share).* ((1/(1+a*T^2))*C0*(r/(1+a4*T^2))^g3) .^ theta) + (share .* (C0*(r/(1+a4*T^2))^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K/(1+a4*T^2))^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
-    U_explicit = ((((1.0).*((1.0 - share).* ((1/(1+a_k*T^2))*C0*(r/(1+a4*T^2))^g3) .^ theta) + (share .* (C0*(r/(1+a4*T^2))^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K/(1+a4*T^2))^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
-    #U_explicit = ((((1.0).*((1.0 - share).* ((1/(1+(((1 + a_k * T^2)*(r/(1+a4 * T^2))^g3) / T^2)*T^2))*C0*(r/(1+a4*T^2))^g3) .^ theta) + (share .* (C0*(r/(1+a4*T^2))^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K/(1+a4*T^2))^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+    U_explicit = ((((1.0).*((1.0 - share).* ((1-a_k*T^2)*C0*(r/(1+a4*T^2))^g3) .^ theta) + (share .* (C0*(r/(1+a4*T^2))^g2) .^ theta)) .^ (theta2 / theta)+ share2 .* ((r*K/(1+a4*T^2))^g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
     dif_U = abs(U_aggregated - U_explicit)
     
     return dif_U
