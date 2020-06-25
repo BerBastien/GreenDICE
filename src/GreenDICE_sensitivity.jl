@@ -98,13 +98,7 @@
         global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_gama3.csv"),Results_uncertainty_gama3)
-    K_NC = k_nc_param
-    set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
-    set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
-    Adjusted_tfp = atfp_param
-    elasticity_nc = log(Adjusted_tfp)/log(K_NC)
-    set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
-    set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
+    include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
     run(GreenDICE)
 
     
@@ -124,7 +118,7 @@
         global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_gama4.csv"),Results_uncertainty_gama4)
-    set_param!(GreenDICE,:green_naturalcapital,:g4,0.8) #gamma4
+    include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
     run(GreenDICE)
         
     global Results_uncertainty_share2 = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
@@ -141,19 +135,27 @@
         global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_share2.csv"),Results_uncertainty_share2)
-    set_param!(GreenDICE,:welfare,:share2,0.1)
+    include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
     run(GreenDICE)
     
 
 
     global Results_uncertainty_nc = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     global mc = 0
-    
     while mc < sens_max
         K_NC = rand(k_nc_nd)
+        if K_NC < 0
+            continue
+        end
+        elasticity_nc = log(atfp_param) / log(K_NC)
+        if elasticity_nc < 0
+            continue #skip to the next step in the for loop
+        end
+        if elasticity_nc > 0.2999999
+            continue #skip to the next step in the for loop
+        end
         set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC)   # Ratio of NC to K0 
         set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)   # Ratio of NC to K0    
-        elasticity_nc = log(atfp_param) / log(K_NC)
         set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
         set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc) 
         res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
@@ -165,14 +167,8 @@
         global Results_uncertainty_nc = join(Results_uncertainty_nc,results,on= :time, makeunique = true)
         global mc = mc + 1
     end
-    K_NC = k_nc_param
-    set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
-    set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
-    Adjusted_tfp = atfp_param
-    elasticity_nc = log(Adjusted_tfp)/log(K_NC)
-    set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
-    set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)    
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_ratio.csv"),Results_uncertainty_nc)
+    include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
     run(GreenDICE)
     
 
@@ -191,10 +187,9 @@
         global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_share1.csv"),Results_uncertainty_share)
-    set_param!(GreenDICE,:welfare,:share,0.1)
+    include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
     run(GreenDICE)
     
-
     global Results_uncertainty_theta2 = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     for theta2i in (1:size(theta2_i)[1])
         Theta2 = theta2_i[theta2i]
@@ -208,9 +203,9 @@
         global Results_uncertainty_theta2 = join(Results_uncertainty_theta2,results,on= :time, makeunique = true)
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_theta2.csv"),Results_uncertainty_theta2)
-    set_param!(GreenDICE,:welfare,:theta2,mean(theta2_i))
+    include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
     run(GreenDICE)
-
+    
     global Results_uncertainty_theta = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     for theta1i in (1:size(theta1_i)[1])
         Theta1 = theta1_i[theta1i]
@@ -224,6 +219,6 @@
         global Results_uncertainty_theta = join(Results_uncertainty_theta,results,on= :time, makeunique = true)
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_theta.csv"),Results_uncertainty_theta)
-    set_param!(GreenDICE,:welfare,:theta,mean(theta1_i))
+    include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
     run(GreenDICE)
-
+    

@@ -1,7 +1,5 @@
-    set_param!(GreenDICE,:welfare,:share,share1_param)
+    include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
     set_param!(GreenDICE,:welfare,:share2,0.)
-    set_param!(GreenDICE,:grosseconomy,:share,share1_param) 
-    set_param!(GreenDICE,:welfare,:theta,theta1_param) 
     set_param!(GreenDICE,:welfare,:theta2,1)
 
     run(GreenDICE)

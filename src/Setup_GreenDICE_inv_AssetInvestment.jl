@@ -1,7 +1,8 @@
 include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
+run(GreenDICE)
 function iterations_damagereduction()
     while mc < mc_max
-        resinv = bboptimize(eval_dice_inv;SearchRange=(0.,1.0), NumDimensions=180, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=optim_steps)
+                resinv = bboptimize(eval_dice_inv;SearchRange=(0.,1.0), NumDimensions=180, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=optim_steps)
                     best_candidate(resinv) # optimal vector of miu emissions trajectories
                     set_param!(GreenDICE,:emissions,:MIU,best_candidate(resinv)[1:60])
                     set_param!(GreenDICE,:neteconomy,:S,best_candidate(resinv)[61:120])

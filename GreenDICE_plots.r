@@ -453,7 +453,7 @@
 
 
         # arrange iterations of GreenDICE + Asset investment (start)
-            num_vars = 27
+            num_vars = 25
             num_exp = (dim(Results_AssetInv)[2]-2)/(num_vars)
 
             df_t_inv <- Results_AssetInv %>%
@@ -477,9 +477,9 @@
             df_Y_inv = cbind(df_inv_inv[,1:2],df_inv_inv[3] * df_YGreen[3] *1.18*10^3)  #multiplied by 1.18 to pass from 2010usd to 2019 usd, multiplied by 10^3 to pass from trillion to billion
             names(df_Y_inv) = c("time_UVnonUV_inv","variable","value_Y")
             
-            df_price_inv <- Results_AssetInv %>%
-            select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+29)]) %>%
-            gather(key = "variable_price", value = "value_price", -1)
+            #df_price_inv <- Results_AssetInv %>%
+            #select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+29)]) %>%
+            #gather(key = "variable_price", value = "value_price", -1)
 
             df_inv_inv <- Results_AssetInv %>%
             select(names(Results_AssetInv)[c(1,num_vars*(0:(num_exp-1))+28)]) %>%
@@ -518,12 +518,13 @@
         
             df_nc_perc = df_NC_inv[3] / (df_NC_inv[3] + df_k_inv[3])
             df_inv <- cbind(df_t_inv,df_e_inv[3],df_scc_inv[3],df_YGreen[3],df_Y_inv[3],
-            df_price_inv[3]*1.18,df_NC_inv[3],df_S_inv[3],df_inv_inv[3],df_miu_inv[3],df_k_inv[3],df_YGross_inv[3],df_nc_perc,id_var)
+                            #df_price_inv[3]*1.18,df_NC_inv[3],df_S_inv[3],df_inv_inv[3],df_miu_inv[3],df_k_inv[3],df_YGross_inv[3],df_nc_perc,id_var)
+                            df_NC_inv[3],df_S_inv[3],df_inv_inv[3],df_miu_inv[3],df_k_inv[3],df_YGross_inv[3],df_nc_perc,id_var)
 
             names(df_inv)[1]="years"
             names(df_inv)[dim(df_inv)[2]-1] = "nc_perc"
 
-            df_inv<- cbind(df_inv[1:60,2],aggregate(df_inv[,3:16], list(df_inv$years), mean))
+            df_inv<- cbind(df_inv[1:60,2],aggregate(df_inv[,3:15], by = list(df_inv$years), mean))
             names(df_inv)[1:2] <- c("variable","years")
             
             
@@ -777,6 +778,7 @@
     p_e
 
   p_scc <- ggplot(data = df_r, aes(years)) +
+        geom_ribbon(data=qs_scc, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
         geom_ribbon(data=qs_scc, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) +
         geom_line(data = df_r, aes(x=years, y=value_scc, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="SCC (2019USD/tCO2)", x = "years", color="") +
@@ -801,7 +803,7 @@
 ##### FIGURE 3: Sensitivity (start)
 #####
 #####
- 
+  DF$value_ratio = 1/DF$value_ratio
   DF_2020 <- DF[which(DF[1]==2020),]
   DF_2100 <- DF[which(DF[1]==2100),]
   DF_20202100 <- DF[which(DF[1]<2105 & DF[1]>2015),]
@@ -830,8 +832,8 @@
   #new names
   DF_2020$names <- DF_2020$sensitivity
   
-  DF_2020$names <- revalue(DF_2020$names, c("cs"="Climate sensitivity", "damage"="Damage to \n Natural Capital","gama4" = "Non-use elasticity \n to Natural Capital","gama3"="Elasticity of economic output \n to Natural Capital", 
-    "prtp"="Pure rate of \n time preference","ratio"="Natural Capital \n initial stock", "share1"="Ecosystem services \n value","share2"="Non-use value", "theta1"="Substitutability between \n market and ES goods","theta2"="Substitutability between \n use and non-use values"))
+  DF_2020$names <- revalue(DF_2020$names, c("cs"="Climate sensitivity", "damage"="Damage to \n Natural Capital","gama4" = "Elasticity of non-use values \n to Natural Capital","gama3"="Elasticity of economic \n output to Natural Capital", 
+    "prtp"="Pure rate of \n time preference","ratio"="Natural Capital \n initial stock", "share1"="Ecosystem services \n initial value","share2"="Non-use value initial value", "theta1"="Substitutability between \n market and ES goods","theta2"="Substitutability between \n use and non-use values"))
 
   DF_2020$intensity <- numeric(113)  
   glimpse(DF_2020)
@@ -1051,7 +1053,7 @@
 
     df_r_inv_standard = df_r[which(df_r$variable=="TATM_standard" ),]
     df_r_inv_green = df_r[which(df_r$variable=="TATM_UVnonUV" ),]
-    df_inv_last = df_inv[which(df_inv$id_var==100.5),]
+    df_inv_last = df_inv[which(df_inv$id_var==50.5),]
     #comp_inv <- rbind(df_r_inv_standard,df_r_inv_green,df_inv_last,df_inv_reduceddamages)
 
     dif <- df_inv_last$value_YGross - df_r_inv_green$value_YGross

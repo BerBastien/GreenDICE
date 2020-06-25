@@ -109,6 +109,7 @@ replace_comp!(GreenDICE,green_damages,:damages)
 end
 add_comp!(GreenDICE, green_naturalcapital,:green_naturalcapital, before=:neteconomy)
 set_param!(GreenDICE,:green_naturalcapital,:k0,135.)
+set_param!(GreenDICE,:green_naturalcapital,:damred,0.187)
 connect_param!(GreenDICE, :grosseconomy, :NC, :green_naturalcapital, :NC)
 connect_param!(GreenDICE, :damages, :NC, :green_naturalcapital, :NC)
 connect_param!(GreenDICE, :green_naturalcapital, :DAMAGES_NC, :damages, :DAMAGES_NC)

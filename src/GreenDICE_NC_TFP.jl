@@ -34,13 +34,7 @@
             global mc = mc + 1
         end
     results = Results_combination_NC_tfp
-    #back to standard for future runs
-    K_NC = k_nc_param
-    set_param!(GreenDICE,:grosseconomy,:ratioNC,K_NC) 
-    set_param!(GreenDICE,:green_naturalcapital,:ratioNC,K_NC)  
-    Adjusted_tfp = atfp_param
-    elasticity_nc = log(Adjusted_tfp)/log(K_NC)
-    set_param!(GreenDICE,:grosseconomy,:gama3,elasticity_nc)
-    set_param!(GreenDICE,:neteconomy,:gama3,elasticity_nc)        
     CSV.write(string(dir,"Results/NCtfp/GreenDICE_UVnonUV_combination_NC_tfp.csv"),results)
+    include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
     run(GreenDICE)
+    
