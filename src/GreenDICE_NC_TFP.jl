@@ -1,7 +1,7 @@
 
     global Results_combination_NC_tfp = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     global mc = 0
-    while mc < sens_max
+    while mc < 20
             K_NC = rand(k_nc_nd)
             atfp = rand(atfp_nd)
 

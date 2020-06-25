@@ -30,7 +30,7 @@ run(GreenDICE)
 include(string(dir,"src/Optim_GreenDICE.jl"))
 
 #Run one by one sensitivity analysis:
-#include(string(dir,"src/GreenDICE_sensitivity.jl"))
+include(string(dir,"src/GreenDICE_sensitivity.jl"))
 
 #Run combinations of natural capital and total factor productivity
 include(string(dir,"src/GreenDICE_NC_TFP.jl"))
