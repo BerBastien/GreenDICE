@@ -31,7 +31,7 @@
         global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_damage.csv"),Results_uncertainty_damage)
-    set_param!(GreenDICE,:damages,:a4,0.0362)
+    include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
     run(GreenDICE)
     
     global Results_uncertainty_prtp = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
@@ -55,7 +55,6 @@
 
     global Results_uncertainty_cs = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     global mc = 0
-    
     while mc < sens_max
         cs = rand(cs_lnd)
         if cs < 0.01
@@ -142,7 +141,7 @@
 
     global Results_uncertainty_nc = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     global mc = 0
-    while mc < sens_max
+    while mc < sens_max 
         K_NC = rand(k_nc_nd)
         if K_NC < 0
             continue

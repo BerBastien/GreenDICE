@@ -135,7 +135,8 @@
                 Results_ReducedD = Results_inv
             #Reading investment (end)
 
-
+ parametric sensitivity UVnonUV (END)
+        
         # Read parametric sensitivity GreenDICE (START)
             setwd("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/sensitivity")
             files <- list.files(pattern = "\\.csv$")
@@ -155,8 +156,7 @@
             }
             } 
             num_exp_s = length(files)
-        #Read parametric sensitivity UVnonUV (END)
-        
+        #Read
     #####
     #####
     ##### READING FILES (END)
@@ -244,9 +244,8 @@
 
         ###Arrange sensitivity data (START)
             sens = c("cs","damage","gama3","gama4","prtp","ratio","share1","share2","theta1","theta2")
-            #num_exp_ss = c(20,20,20,20,3,20,3,3,16,4)
-            num_exp_ss = c(10,10,10,10,3,10,3,3,16,4)
-            10+2+41+3+6+3+3+16+4+20
+            num_exp_ss = (num_cols-2)/25
+            #num_exp_ss = c(10,10,10,10,3,10,3,3,16,4)
             for (num_exp_s_i in 1:10){
             initial = sum(num_cols[0:(num_exp_s_i-1)])
             final = sum(num_cols[0:num_exp_s_i])
@@ -389,7 +388,6 @@
         # arrange spread of UVnonUV montecarlo simulation optimized (start)
             num_vars = 25
             num_exp = (dim(Results)[2]-2)/(num_vars)
-            num_exp = 1000
             df_t <- Results %>%
             select(names(Results)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
             gather(key = "variable", value = "value_t", -1)
@@ -730,7 +728,6 @@
   theme_set(theme_classic())
   p_t <- ggplot(data = df_r, aes(years)) +
         geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
-        #geom_ribbon(data=qs_t, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) + 
         geom_line(data = df_r, aes(x=years, y=value_t, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="Temperature (Degrees C)", x = "years", color="") +
         coord_cartesian(xlim = c(2020, 2100),ylim=c(0.8,3.25)) +
@@ -769,7 +766,6 @@
   
 
   p_e <- ggplot(data = df_r, aes(years)) +
-        #geom_ribbon(data=qs_e, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
         geom_ribbon(data=qs_e, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) +
         geom_line(data = df_r, aes(x=years, y=value_e, group =neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="Emissions (GtCO2)", x = "years", color="") +
@@ -779,7 +775,6 @@
     p_e
 
   p_scc <- ggplot(data = df_r, aes(years)) +
-        #geom_ribbon(data=qs_scc, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
         geom_ribbon(data=qs_scc, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) +
         geom_line(data = df_r, aes(x=years, y=value_scc, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
         labs(title=" ", y="SCC (2019USD/tCO2)", x = "years", color="") +
@@ -836,7 +831,7 @@
   DF_2020$names <- revalue(DF_2020$names, c("cs"="Climate sensitivity", "damage"="Damage to \n Natural Capital","gama4" = "Elasticity of non-use values \n to Natural Capital","gama3"="Natural Capital-adjusted \n total factor productivity", 
     "prtp"="Pure rate of \n time preference","ratio"="Natural Capital \n initial stock", "share1"="Ecosystem services \n initial value","share2"="Non-use value initial value", "theta1"="Substitutability between \n market and ES goods","theta2"="Substitutability between \n use and non-use values"))
 
-  DF_2020$intensity <- numeric(113)  
+  DF_2020$intensity <- numeric(dim(DF_2020)[1])  
   glimpse(DF_2020)
   variable = c("cs","damage","gama3","gama4","prtp","ratio","share1","share2","theta1","theta2")
   for (i in 1:length(variable)[1]) { #calculating how high is each value
@@ -872,7 +867,7 @@
     #a <- a + scale_fill_manual(values = cbp1, labels=c("production","utilitys","reference"))
     a <- a + labs(fill="Relative value")
     a
-    DF_2100$intensity <- numeric(113)  
+    DF_2100$intensity <-  numeric(dim(DF_2100)[1]) 
   variable = c("cs","damage","gama4","gama3","prtp","ratio","share1","share2","theta1","theta2")
   for (i in 1:length(variable)[1]) { #calculating how high is each value
     value_of_interest = variable[i]
