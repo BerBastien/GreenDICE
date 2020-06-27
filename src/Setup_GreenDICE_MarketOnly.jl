@@ -4,6 +4,7 @@
     set_param!(GreenDICE,:grosseconomy,:share,0.) 
     set_param!(GreenDICE,:welfare,:theta,1) 
     set_param!(GreenDICE,:welfare,:theta2,1)
+    set_param!(GreenDICE,:welfare,:theta2,1)
     run(GreenDICE)
 
 

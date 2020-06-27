@@ -157,7 +157,7 @@ function pricesNC()
         nonUV = GreenDICE[:green_naturalcapital, :nonUV]
         l = GreenDICE[:welfare, :l]
         df = [zeros(ii-1)..., (1/(1+prtp)^(t-year) for (i,t) in enumerate(model_years) if year<=t<=last_year)...]
-        U = ((((1.0).*((1.0 - share).* C .^ theta) + (share .* ES .^ theta)) .^ (theta2 / theta)+ share2 .* (nonUV ^ g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        U = ((((1.0).*((1.0 - share).* C .^ theta) + (share .* ES .^ theta)) .^ (theta2 / theta)+ share2 .* (nonUV .^ g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
         W = sum(U.*df.*l)
 
         ExtraNAsset = fill(0.,60)
@@ -167,7 +167,7 @@ function pricesNC()
         C2 = GreenDICE[:neteconomy, :CPC]
         ES2 = GreenDICE[:neteconomy, :ESPC]
         nonUV2 = GreenDICE[:green_naturalcapital, :nonUV]
-        U2 = ((((1.0).*((1.0 - share).* C2 .^ theta) + (share .* ES2 .^ theta)) .^ (theta2 / theta)+ share2 .* (nonUV2 ^ g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        U2 = ((((1.0).*((1.0 - share).* C2 .^ theta) + (share .* ES2 .^ theta)) .^ (theta2 / theta)+ share2 .* (nonUV2 .^ g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
         W2 = sum(U2.*df .* l)
         dWdN = (W2 - W)
 
@@ -182,7 +182,7 @@ function pricesNC()
         ES3 = GreenDICE[:neteconomy, :ESPC]
         nonUV3 = GreenDICE[:green_naturalcapital, :nonUV]
         C3 = GreenDICE[:neteconomy, :CPC]
-        U3 = ((((1.0).*((1.0 - share).* C3 .^ theta) + (share .* ES3 .^ theta)) .^ (theta2 / theta)+ share2 .* (nonUV3 ^ g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
+        U3 = ((((1.0).*((1.0 - share).* C3 .^ theta) + (share .* ES3 .^ theta)) .^ (theta2 / theta)+ share2 .* (nonUV3 .^ g4) .^ theta2) .^ ((1 - eta) / theta2) .- 1) ./ (1 - eta) .-1 #nested utility function with constant elasticities of substiution
         W3 = sum(U3.*df .* l)
         dWdK = (W3 - W)
         

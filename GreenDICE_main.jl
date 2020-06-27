@@ -46,6 +46,9 @@ include(string(dir,"src/Setup_GreenDICE_AllUseValues.jl"))
 #Setup and optimize GreenDICE - market-only specification
 include(string(dir,"src/Setup_GreenDICE_MarketOnly.jl"))
 
+#Setup and optimize GreenDICE - market-only specification
+include(string(dir,"src/Setup_StandardDICE.jl"))
+
 #Run Main GreenDICE specification with investments in damages reduction
 include(string(dir,"src/Setup_GreenDICE_inv_DamageReduction.jl"))
 

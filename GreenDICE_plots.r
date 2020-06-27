@@ -27,6 +27,7 @@
     library("tidyverse")
     library(plyr)
     library(randomForest)
+    library(randomForestExplainer)
     cbp1 <- c( "#0072B2","#009E73","#E69F00")
 #####
 #####
@@ -135,7 +136,7 @@
                 Results_ReducedD = Results_inv
             #Reading investment (end)
 
- parametric sensitivity UVnonUV (END)
+ 
         
         # Read parametric sensitivity GreenDICE (START)
             setwd("C:/Users/bastien/Documents/GitHub/GreenDICE/Results/sensitivity")
@@ -156,7 +157,7 @@
             }
             } 
             num_exp_s = length(files)
-        #Read
+        #Read parametric sensitivity UVnonUV (END)
     #####
     #####
     ##### READING FILES (END)
@@ -335,7 +336,7 @@
 
         # arrange combination NC_TFP of UVnonUV montecarlo simulation optimized (start)
             num_vars = 25
-            num_exp = 25
+            num_exp = 20
 
             df_t <- Results_nc %>%
             select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+3)]) %>%
@@ -609,7 +610,7 @@
     #####
     ##### GETTING QUANTILES (START)
     #####
-    ##### quantiles spread
+        ##### quantiles spread
             df_t <- df_t[df_prtp$value==0.015,]
             #df_t <- df_t[df_damage$value==0.00480515,]
             qs_t = data.frame(
@@ -643,61 +644,6 @@
             t=1:60)
             qs_scc$t = df_t[1:60,1]
         #
-
-        #for investments
-
-        
-        #df_t_inv <- df_t_inv[df_prtp$value==0.015,]
-        qs_t_inv = data.frame(
-            do.call(
-                rbind,
-                tapply(
-                df_t_inv$value, df_t_inv[1] , function(i){quantile(i)})),
-            t=1:60)
-        qs_t_inv$t = df_t_inv[1:60,1]
-
-
-        #df_e_inv <- df_e_inv[df_prtp$value==0.015,]
-        qs_e_inv = data.frame(
-            do.call(
-                rbind,
-                tapply(
-                df_e_inv$value, df_e_inv[1], function(i){quantile(i)})),
-            t=1:60)
-        qs_e_inv$t = df_t_inv[1:60,1]
-
-
-
-        #df_Y_inv <- df_Y_inv[df_prtp$value==0.015,]
-        qs_Y_inv = data.frame(
-            do.call(
-                rbind,
-                tapply(
-                df_Y_inv$value, df_Y_inv[1], function(i){quantile(i)})),
-            t=1:60)
-        qs_Y_inv$t = df_t_inv[1:60,1]
-
-
-
-        df_scc_inv <- df_scc_inv[df_prtp$value==0.015,]
-        df_scc_inv <- df_scc_inv[!is.infinite(df_scc_inv$value),]
-        df_scc_inv <- df_scc_inv[!is.nan(df_scc_inv$value),]
-        qs_scc_inv = data.frame(
-            do.call(
-                rbind,
-                tapply(
-                df_scc_inv$value, df_scc_inv[1] , function(i){quantile(i)})),
-            t=1:60)
-        qs_scc_inv$t = df_t_inv[1:60,1]
-
-        qs_price_inv = data.frame(
-            do.call(
-                rbind,
-                tapply(
-                df_price_inv$value, df_scc_inv[1] , function(i){quantile(i)})),
-            t=1:60)
-        qs_price_inv$t = df_t_inv[1:60,1]
-
     #####
     #####
     ##### GETTING QUANTILES (END)
@@ -738,33 +684,7 @@
   
   p_t
 
-  p_k <- ggplot(data = df_r, aes(years)) +
-        geom_ribbon(data=qs_t, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.8) +
-        #geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
-        geom_line(data = df_r, aes(x=years, y=value_k, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
-        labs(title=" ", y="Manufactured Capital (USD)", x = "years", color="") +
-        coord_cartesian(xlim = c(2020, 2200),ylim=c(0,4000)) +
-        #scale_linetype_manual("", values=c(4,3,2,2,1), labels=c("non-UV", "standard", "UV", "UV-mkt", "UV & non-UV")) +
-        #scale_colour_manual("",values=c("violet","indianred","turquoise","blue","seagreen3"),labels=c("non-UV", "standard", "UV","UV-mkt","UV & non-UV")) 
-        scale_linetype_manual("", values=c(3,4,2,1), labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) +
-        scale_colour_manual("",values=c("indianred","violet","blue","seagreen3"),labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) 
-  
-  p_k
-  
-  p_s <- ggplot(data = df_r, aes(years)) +
-        #geom_ribbon(data=qs_t, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
-        geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
-        geom_line(data = df_r, aes(x=years, y=value_s, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
-        labs(title=" ", y="Fraction of Gross Output", x = "years", color="") +
-        coord_cartesian(xlim = c(2020, 2200),ylim=c(0.2,0.3)) +
-        #scale_linetype_manual("", values=c(4,3,2,2,1), labels=c("non-UV", "standard", "UV", "UV-mkt", "UV & non-UV")) +
-        #scale_colour_manual("",values=c("violet","indianred","turquoise","blue","seagreen3"),labels=c("non-UV", "standard", "UV","UV-mkt","UV & non-UV")) 
-        scale_linetype_manual("", values=c(3,4,2,1), labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) +
-        scale_colour_manual("",values=c("indianred","violet","blue","seagreen3"),labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) 
-  
-  p_s
-  
-
+ 
   p_e <- ggplot(data = df_r, aes(years)) +
         geom_ribbon(data=qs_e, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) +
         geom_line(data = df_r, aes(x=years, y=value_e, group =neworder, colour = neworder, linetype=neworder),size=1)  + 
@@ -905,10 +825,10 @@
 
 
 
-                      #ggsave("sensitivity_UVnonUV_3.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
+                      #ggsave("sensitivity_UVnonUV_3.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
                       figure <- ggarrange(a,c, labels = c("","",""), ncol = 2, nrow = 1, common.legend = TRUE, legend = "bottom", widths=c(1.5,1))
                       figure
-                      #ggsave("sensitivity_GreenDICE.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
+                      #ggsave("sensitivity_GreenDICE.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
   #PArametric sensitivity UVnonUV (end)
 #####
 #####
@@ -964,7 +884,7 @@
         Results_rf <- randomForest(df_mcs_2020[,2:9], df_mcs_2020[,1], importance = TRUE,tree = TRUE, mtry =mt)
         min_depth_frame <- min_depth_distribution(Results_rf)
         md1 <- plot_min_depth_distribution(min_depth_frame, mean_sample = "relevant_trees", k = 15)
-        #ggsave("RF_SCC2020_minDepth.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
+        #ggsave("RF_SCC2020_minDepth.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
         md1 <- md1 + labs(title="SCC in 2020", y="Number of trees", x = "", color="")
         md1 <- md1 + theme_minimal()
         
@@ -1037,7 +957,7 @@
           scale_linetype_manual("", values=c(4,2,3,1), labels=c( "Asset Investment", "Damage Reduction")) +
           scale_colour_manual("",values=c("firebrick2","darkcyan"),labels=c( "Asset Investment","Damage Reduction")) 
     plot_YGross
-    #ggsave("investment_GrossY.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
+    #ggsave("investment_GrossY.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
 
     plot_YGross <- ggplot(data =  df_r_inv_standard, aes(years)) +
           geom_line(data = df_r_inv_standard, aes(x=years, y=value_YGross, colour = variable, linetype=variable),size=1)  + 
@@ -1109,7 +1029,7 @@
           labs(title="Natural capital stock", y="Value (USD)", x = "years") +
           scale_linetype_manual("", values=c(4,2,1), labels=c( "Asset Investment", "Damage Reduction", "GreenDICE")) +
           scale_colour_manual("",values=c("firebrick2","darkcyan","seagreen3"),labels=c( "Asset Investment","Damage Reduction", "GreenDICE")) +
-          coord_cartesian(xlim = c(2010, 2100),ylim=c(10,70)) 
+          coord_cartesian(xlim = c(2010, 2100),ylim=c(10,150)) 
     plot_nc2
     
     
@@ -1229,7 +1149,7 @@
           geom_line(data = df_inv, aes(x=years, y=value_nc, group = variable, color = id_var),size=1)  + 
           #geom_line(data = df_inv, aes(x=years, y=value_k, group = variable, colour = 'red'),size=1)  + 
           labs(title="Natural Capital stocks", y="USD", x = "years", color="") +
-          coord_cartesian(xlim = c(2010, 2100),ylim=c(20,80)) +
+          coord_cartesian(xlim = c(2010, 2100),ylim=c(20,150)) +
           scale_color_gradientn(colours = cbp1)
           #scale_linetype_manual("", values=c(3,1,2), labels=c( "standard DICE", "GreenDICE","GreenDICE + investment")) +
           #scale_colour_manual("",values=c("indianred","seagreen3","blue"),labels=c("standard DICE", "GreenDICE", "GreenDICE + investment")) + 
@@ -1260,13 +1180,13 @@
     plot_inv2_nc
 
     plot_inv <- ggplot(data = df_inv, aes(years)) +
-          #geom_line(data = df_inv, aes(x=years, y=value_s, group = variable, colour = id_var,alpha=id_var),size=1, linetype=1)  + 
-          geom_line(data = df_inv, aes(x=years, y=value_inv*100, group = variable, colour = id_var),size=1, linetype=1)  + 
+          geom_line(data = df_inv, aes(x=years, y=value_s*100, group = variable, colour = id_var,alpha=id_var),size=1, linetype=1)  + 
+          geom_line(data = df_inv, aes(x=years, y=value_inv*100, group = variable, colour = id_var),size=1, linetype=2)  + 
           #geom_line(data = r_t_inv, aes(x=names(r_t_inv)[1], y=value_t, group = variable, colour = variable, linetype=variable),size=1)  + 
-          labs(title="savings and investments in N (dashed) ", y="Percentage of GWP", x = "years", color="") +
+          labs(title="Savings and investments in N (dashed) ", y="Percentage of GWP", x = "years", color="") +
           coord_cartesian(xlim = c(2010, 2100),ylim=c(0.0001,50)) +
           scale_color_gradientn(colours = cbp1)+
-          #scale_linetype_manual("", values=c(3,1,2), labels=c( "standard DICE", "GreenDICE","GreenDICE + investment")) +
+          scale_linetype_manual("", values=c(3,1,2), labels=c( "standard DICE", "GreenDICE","GreenDICE + investment")) +
           #scale_colour_manual("",values=c("indianred","seagreen3","blue"),labels=c("standard DICE", "GreenDICE", "GreenDICE + investment")) + 
           theme(legend.position="")
     plot_inv
@@ -1300,7 +1220,7 @@
           geom_line(data = df_inv, aes(x=years, y=value_t, group = variable, colour = id_var),size=1)  + 
           #geom_line(data = df_inv, aes(x=years, y=value_inv, group = variable, colour = id_var),size=1)  + 
           #geom_line(data = r_t_inv, aes(x=names(r_t_inv)[1], y=value_t, group = variable, colour = variable, linetype=variable),size=1)  + 
-          labs(title="temperature", y="degrees c", x = "years", color="") +
+          labs(title="Temperature", y="degrees C", x = "years", color="") +
           coord_cartesian(xlim = c(2010, 2100),ylim=c(0.8,1.75)) +
           scale_color_gradientn(colours = cbp1) + labs(color="iterations")+
           #scale_linetype_manual("", values=c(3,1,2), labels=c( "standard DICE", "GreenDICE","GreenDICE + investment")) +
@@ -1317,10 +1237,58 @@
 
     ggarrange(plot_t,plot_scc,plot_inv,plot_inv_nc,ncol=2,nrow=2, common.legend=TRUE)
     
-    #ggsave("investment_NC_iterations.png", path="C:/Users/bastien/Documents/My papers/GreenDICE", dpi=600)
+    #ggsave("investment_NC_iterations.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
   #figures of iterations (end)
 #####
 #####
-##### FIGURE S.2.: Iterations in investments (START)
+##### FIGURE S.2.: Iterations in investments (END)
+#####
+#####
+
+#####
+#####
+##### FIGURE S.3.: Other variables(START)
+#####
+#####
+ p_gwp <- ggplot(data = df_r, aes(years)) +
+        geom_line(data = df_r, aes(x=years, y=value_YGross, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
+        labs(title="Economic Output", y="trill USD", x = "years", color="") +
+        coord_cartesian(xlim = c(2020, 2100),ylim=c(80,500)) +
+        scale_linetype_manual("", values=c(3,4,2,1), labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) +
+        scale_colour_manual("",values=c("indianred","violet","blue","seagreen3"),labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) 
+  
+  p_s <- ggplot(data = df_r, aes(years)) +
+        geom_line(data = df_r, aes(x=years, y=value_s, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
+        labs(title="Capital savings", y="Fraction of Gross Output", x = "years", color="") +
+        coord_cartesian(xlim = c(2020, 2200),ylim=c(0.225,0.275)) +
+        scale_linetype_manual("", values=c(3,4,2,1), labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) +
+        scale_colour_manual("",values=c("indianred","violet","blue","seagreen3"),labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) 
+  
+  
+  p_nc <- ggplot(data = df_r, aes(years)) +
+        geom_line(data = df_r, aes(x=years, y=value_nc, group = neworder, colour = neworder, linetype=neworder),size=1)  + 
+        labs(title="Natural Capital Stock", y="trill USD", x = "years", color="") +
+        coord_cartesian(xlim = c(2020, 2100),ylim=c(0,40)) +
+        scale_linetype_manual("", values=c(3,4,2,1), labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) +
+        scale_colour_manual("",values=c("indianred","violet","blue","seagreen3"),labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) 
+    p_nc
+    p_k <- ggplot(data = df_r, aes(years)) +
+        geom_line(data = df_r, aes(x=years, y=value_k- df_r$value_k[df_r$neworder==1], group = neworder, colour = neworder, linetype=neworder),size=1)  + 
+        labs(title="Manufactured Capital Stock", y="trill USD", x = "years", color="") +
+        coord_cartesian(xlim = c(2020, 2100),ylim=c(-100,1)) +
+        scale_linetype_manual("", values=c(3,4,2,1), labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) +
+        scale_colour_manual("",values=c("indianred","violet","blue","seagreen3"),labels=c("DICE", "Market Only", "All Use Values", "GreenDICE")) 
+    p_k
+
+     figure <- ggarrange(p_s,p_gwp,p_nc,p_k, labels = c("a","b","c","d"), common.legend = TRUE, legend = "bottom")
+  figure
+  ggsave("Savings_GWP.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
+  
+  
+  
+  #fi
+#####
+#####
+##### FIGURE S.3.: Other variables(END)
 #####
 #####
