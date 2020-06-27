@@ -361,9 +361,9 @@
             select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+17)]) %>%
             gather(key = "variable_ratio", value = "value_ratio", -1)
 
-            df_atfp <- Results_nc %>%
-            select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+18)]) %>%
-            gather(key = "variable_ratio", value = "value_atfp", -1)
+            
+            df_atfp <- df_ratio[3]^df_gama[3]
+            names(df_atfp)[1] <- "value_atfp"
 
             df_subs <- Results_nc %>%
             select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
@@ -382,7 +382,7 @@
             select(names(Results_nc)[c(1,num_vars*(0:(num_exp-1))+22)]) %>%
             gather(key = "variable_ratio", value = "value_prtp", -1)
 
-            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_atfp[3],df_share[3],df_subs[3],df_prtp[3],df_cs[3])
+            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_atfp,df_share[3],df_subs[3],df_prtp[3],df_cs[3])
             df_nc <- df
         # arrange  combination NC_TFP of UVnonUV montecarlo simulation optimized (end)
 
@@ -416,6 +416,7 @@
             gather(key = "variable_ratio", value = "value_ratio", -1)
 
             df_atfp <- df_ratio[3]^df_gama[3]
+            names(df_atfp)[1] <- "value_atfp"
 
             df_theta1 <- Results %>%
             select(names(Results)[c(1,num_vars*(0:(num_exp-1))+19)]) %>%
@@ -446,8 +447,9 @@
             select(names(Results)[c(1,num_vars*(0:(num_exp-1))+27)]) %>%
             gather(key = "variable_damage", value = "value_damage", -1)
 
-            df <- cbind(df_t,df_e[3],df_scc[3],df_gama[3],df_ratio[3],df_damage[3],df_share1[3],df_share2[3],df_theta2[3],df_theta1[3],df_atfp,df_prtp[3],df_cs[3])
+            df <- cbind(df_t,df_e[3],df_scc[3],df_atfp,df_ratio[3],df_damage[3],df_share1[3],df_share2[3],df_theta2[3],df_theta1[3],df_gama4[3],df_prtp[3],df_cs[3])
             df_mcs <- df
+            glimpse(df_mcs)
         # arrange spread of UVnonUV montecarlo simulation optimized (end)
 
 
@@ -670,7 +672,9 @@
   df_r$neworder[df_r$variable=='TATM_UVnonUV'] <- 4
   df_r <- df_r[order(df_r$neworder),]
     df_r$value_scc[df_r$years==2020]
+    df_r$value_scc[df_r$years==2020]/df_r$value_scc[df_r$years==2020][1]
     df_r$value_t[df_r$years==2100]
+    df_r$value_e[df_r$years==2100]
   theme_set(theme_classic())
   p_t <- ggplot(data = df_r, aes(years)) +
         geom_ribbon(data=qs_t, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2) + 
@@ -791,10 +795,13 @@
   variable = c("cs","damage","gama4","gama3","prtp","ratio","share1","share2","theta1","theta2")
   for (i in 1:length(variable)[1]) { #calculating how high is each value
     value_of_interest = variable[i]
+    print(value_of_interest)
     column_of_interest = DF_2100[names(DF_2100)==paste('value_',variable[i],sep="")]
     spread = column_of_interest[DF_2100$sensitivity==value_of_interest,1]
     minval = min(spread)
+    print(minval)
     maxval = max(spread)
+    print(maxval)
     intensity_i = (spread - minval) / (maxval-minval)
     length(intensity_i)
     if (i ==1) {
@@ -876,12 +883,12 @@
     #RF for SCC in 2020 (start)
         df_mcs_2020 <- df_mcs[which(df_mcs[1]==2020),]
         glimpse(df_mcs_2020)
-        names(df_mcs_2020) = c("years","model","value_t","value_e","value_scc","gamma3","NC0/K0","damage","share1","share2","theta2","theta1","prtp","cs","gama4")
         names(df_mcs_2020) =c("years","model","value_t","value_e","value_scc","Natural Capital-adjusted \n total factor productivity","Natural Capital \n initial stock","Damage to \n Natural Capital","Ecosystem services \n initial value","Non-use values initial value","Substitutability between \n use and non-use values","Substitutability between \n market and ES goods","Elasticity of non-use \n values to Natural Capital","Pure rate of \n time preference","Climate sensitivity")
         df_mcs_2020 <- df_mcs_2020[,5:13]
         trf <- tuneRF(df_mcs_2020[,2:9], df_mcs_2020[,1])
         mt <- trf[which.min(trf[,2]), 1]
         Results_rf <- randomForest(df_mcs_2020[,2:9], df_mcs_2020[,1], importance = TRUE,tree = TRUE, mtry =mt)
+        Results_rf1 <- Results_rf 
         min_depth_frame <- min_depth_distribution(Results_rf)
         md1 <- plot_min_depth_distribution(min_depth_frame, mean_sample = "relevant_trees", k = 15)
         #ggsave("RF_SCC2020_minDepth.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
@@ -1009,15 +1016,15 @@
      plot_inv2 <- ggplot(data =  df_r_inv_standard, aes(years)) +
           geom_line(data = df_r_inv_standard, aes(x=years, y=value_inv, colour = variable, linetype=variable),size=1)  + 
           geom_line(data = df_r_inv_green, aes(x=years, y=value_inv, colour = variable, linetype=variable),size=1)  + 
-          geom_line(data = df_inv_last, aes(x=years, y=value_inv, colour = variable, linetype=variable),size=1)  + 
-          geom_line(data = df_inv_reduceddamage, aes(x=years, y=value_inv, colour = variable, linetype=variable),size=1)  + 
-          labs(title="Investments", y="Fraction of GWP", x = "years") +
+          geom_line(data = df_inv_last, aes(x=years, y=value_inv*value_YGross*1000, colour = variable, linetype=variable),size=1)  + 
+          geom_line(data = df_inv_reduceddamage, aes(x=years, y=value_inv*value_YGross*1000, colour = variable, linetype=variable),size=1)  + 
+          labs(title="Investments", y="Billions of USD", x = "years") +
           #coord_cartesian(xlim = c(2010, 2100),ylim=c(0,600)) +
           #scale_linetype_manual("", values=c(4,2), labels=c( "Asset Investment", "Damage Reduction")) +
           #scale_colour_manual("",values=c("firebrick2","darkcyan"),labels=c( "Asset Investment","Damage Reduction")) +
           scale_linetype_manual("", values=c(4,2,3,1), labels=c( "Asset Investment", "Damage Reduction", "Standard DICE", "GreenDICE")) +
           scale_colour_manual("",values=c("firebrick2","darkcyan","indianred","seagreen3"),labels=c( "Asset Investment","Damage Reduction", "Standard DICE", "GreenDICE")) +
-          coord_cartesian(xlim = c(2010, 2100),ylim=c(0.000001,1)) +
+          coord_cartesian(xlim = c(2010, 2100),ylim=c(1,10000)) +
           scale_y_log10()
     plot_inv2
 
@@ -1038,7 +1045,7 @@
     comparison_investments
 
 
-    ggsave("investments.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
+    #ggsave("investments.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
   ## Comparison between investments (end)
 
 #####
@@ -1068,26 +1075,26 @@
     newdf_default = newdf_default[which(newdf_default$value_ratio==newdf_default$value_ratio[1]),]
   #Generate new dataframes (end)
 
-    gscc <- ggplot(newdf, aes(x = value_gama3,y = value_scc))
+    gscc <- ggplot(newdf, aes(x = value_atfp,y = value_scc))
     gscc <- gscc + geom_jitter(aes( size = NC_K, fill = NC_K), shape = 21, alpha = 0.7,colour = "transparent")  + 
     scale_fill_gradientn(colours = cbp1, guide = "legend", name = expression(paste( over(NC[0],K[0])))) +
     scale_size_continuous(range = c(1, 8), name = expression(paste(over(NC[0],K[0])))) +
     geom_smooth(method="loess", se=T) +
     labs(title=" ", y="Temperature in 2100", x = "Production elasticity to natural capital", color="") +
     guides(color = FALSE) + 
-    geom_point(aes(x = newdf_default$value_gama3, y = newdf_default$value_scc), shape = "*", color = "red", size = 15)
+    geom_point(aes(x =  1.014353465 , y = df_r$value_scc[which(df_r$variable=="TATM_UVnonUV")[3]]), shape = "*", color = "red", size = 15)
     gscc <- gscc + theme_bw() 
     gscc
 
-    gT <- ggplot(newdf, aes(x = value_gama3,y = value_t2100))
+    gT <- ggplot(newdf, aes(x = value_atfp,y = value_t2100))
         gT <- gT + geom_jitter(aes( size = NC_K, fill = NC_K), shape = 21, alpha = 0.7,colour = "transparent")  + 
         scale_fill_gradientn(colours = cbp1, guide = "legend", name = expression(paste( over(NC[0],K[0])))) +
         scale_size_continuous(range = c(1, 8), name = expression(paste(over(NC[0],K[0])))) +
         geom_smooth(method="loess", se=T) +
         labs(title=" ", y="Temperature in 2100", x = "Production elasticity to natural capital", color="") +
         guides(color = FALSE) + 
-        geom_point(aes(x = newdf_default$value_gama3, y = newdf_default$value_t2100), shape = "*", color = "red", size = 15)
-        gT <- gT + theme_bw() 
+        geom_point(aes(x =  1.014353465 , y = df_r$value_t[which(df_r$variable=="TATM_UVnonUV")[19]]), shape = "*", color = "red", size = 15)
+    gT <- gT + theme_bw() 
         gT
 
     gT <- gT +labs(title=" ", y="Temperature in 2100 (Degrees C)", x = "Production elasticity to natural capital", color="Natural Capital \n initial stock") +
@@ -1290,5 +1297,31 @@
 #####
 #####
 ##### FIGURE S.3.: Other variables(END)
+#####
+#####
+
+
+#####
+#####
+##### FIGURE S.4.: Minimal Depth interactions
+#####
+#####
+  df_mcs_2020 <- df_mcs[which(df_mcs[1]==2020),]
+  glimpse(df_mcs_2020)
+  names(df_mcs_2020) = c("years","model","value_t","value_e","value_scc","atfp","NC0/K0","damage","share1","share2","theta2","theta1","gama4","prtp","cs")
+  df_mcs_2020 <- df_mcs_2020[,5:13]
+  trf <- tuneRF(df_mcs_2020[,2:9], df_mcs_2020[,1])
+  mt <- trf[which.min(trf[,2]), 1]
+  Results_rf <- randomForest(df_mcs_2020[,2:9], df_mcs_2020[,1], importance = TRUE,tree = TRUE, mtry =mt)
+  importance_frame <- measure_importance(Results_rf)
+  (vars <- important_variables(importance_frame, k = 5, measures = c("mean_min_depth", "no_of_trees")))
+  interactions_frame <- min_depth_interactions(Results_rf, vars, mean_sample = "relevant_trees", uncond_mean_sample = "relevant_trees")
+  interactions_frame <- interactions_frame[-which(interactions_frame$interaction %in% c("damage:damage")),]
+  plot_min_depth_interactions(interactions_frame)
+  #ggsave("FS4_interaction.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
+    
+#####
+#####
+##### FIGURE S.4.: Minimal Depth interactions
 #####
 #####

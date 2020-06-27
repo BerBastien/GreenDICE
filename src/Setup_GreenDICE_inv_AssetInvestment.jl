@@ -1,6 +1,6 @@
 include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
 run(GreenDICE)
-mc_max = 60
+mc_max = 200
 global Results_investment_iterations = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
 global mc = 0
 iterations_damagereduction()
