@@ -1016,16 +1016,17 @@
      plot_inv2 <- ggplot(data =  df_r_inv_standard, aes(years)) +
           geom_line(data = df_r_inv_standard, aes(x=years, y=value_inv, colour = variable, linetype=variable),size=1)  + 
           geom_line(data = df_r_inv_green, aes(x=years, y=value_inv, colour = variable, linetype=variable),size=1)  + 
-          geom_line(data = df_inv_last, aes(x=years, y=value_inv*value_YGross*1000, colour = variable, linetype=variable),size=1)  + 
-          geom_line(data = df_inv_reduceddamage, aes(x=years, y=value_inv*value_YGross*1000, colour = variable, linetype=variable),size=1)  + 
-          labs(title="Investments", y="Billions of USD", x = "years") +
+          #geom_line(data = df_inv_last, aes(x=years, y=value_inv*value_YGross*1000, colour = variable, linetype=variable),size=1)  + 
+          #geom_line(data = df_inv_reduceddamage, aes(x=years, y=value_inv*value_YGross*1000, colour = variable, linetype=variable),size=1)  + 
+          geom_line(data = df_inv_last, aes(x=years, y=value_inv, colour = variable, linetype=variable),size=1)  + 
+          geom_line(data = df_inv_reduceddamage, aes(x=years, y=value_inv, colour = variable, linetype=variable),size=1)  + 
+          labs(title="Investments", y="Fraction of GWP", x = "years") +
           #coord_cartesian(xlim = c(2010, 2100),ylim=c(0,600)) +
           #scale_linetype_manual("", values=c(4,2), labels=c( "Asset Investment", "Damage Reduction")) +
           #scale_colour_manual("",values=c("firebrick2","darkcyan"),labels=c( "Asset Investment","Damage Reduction")) +
           scale_linetype_manual("", values=c(4,2,3,1), labels=c( "Asset Investment", "Damage Reduction", "Standard DICE", "GreenDICE")) +
           scale_colour_manual("",values=c("firebrick2","darkcyan","indianred","seagreen3"),labels=c( "Asset Investment","Damage Reduction", "Standard DICE", "GreenDICE")) +
-          coord_cartesian(xlim = c(2010, 2100),ylim=c(1,10000)) +
-          scale_y_log10()
+          coord_cartesian(xlim = c(2010, 2100),ylim=c(0,0.7))
     plot_inv2
 
     
@@ -1037,7 +1038,7 @@
           scale_linetype_manual("", values=c(4,2,1), labels=c( "Asset Investment", "Damage Reduction", "GreenDICE")) +
           scale_colour_manual("",values=c("firebrick2","darkcyan","seagreen3"),labels=c( "Asset Investment","Damage Reduction", "GreenDICE")) +
           coord_cartesian(xlim = c(2010, 2100),ylim=c(10,150)) 
-    plot_nc2
+    plot_nc2 + scale_y_log10()
     
     
     comparison_investments <- ggarrange(plot_inv2,plot_nc2,plot_scc2,plot_t2,ncol=2,nrow=2, 

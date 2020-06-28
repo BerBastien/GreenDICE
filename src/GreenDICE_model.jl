@@ -102,7 +102,7 @@ replace_comp!(GreenDICE,green_damages,:damages)
             v.NC[t] = p.k0 / p.ratioNC + p.ExtraN[1]
             v.nonUV[t] = v.NC[t] ^ p.g4 
         else
-            v.NC[t] = v.NC[t-1] - (v.NC[t-1] - v.NC[t-1] * p.DAMAGES_NC[t]) / (1 + ((5 * p.benefitsNC[t-1] ^ p.damred)))
+            v.NC[t] = v.NC[t-1] - (v.NC[t-1] - v.NC[t-1] * p.DAMAGES_NC[t])* (1 - p.benefitsNC[t-1])
             v.nonUV[t] = v.NC[t] ^ p.g4
         end
     end
@@ -208,7 +208,7 @@ connect_param!(GreenDICE, :welfare, :nonUV, :green_naturalcapital, :nonUV)
     
         #GreenDICE
         #Define function for Investments in natural capital
-        v.InvNC[t] = v.YGreen[t] * p.invNCfrac[t]
+        v.InvNC[t] = v.YGreen[t] * 0.06 * p.invNCfrac[t]^2
 
         v.Y[t] = v.YGreen[t] - v.InvNC[t]
 
@@ -216,7 +216,7 @@ connect_param!(GreenDICE, :welfare, :nonUV, :green_naturalcapital, :nonUV)
         v.I[t] = p.S[t] * v.Y[t]
         #v.I[t] = ( p.S[t] / ( 1 - v.InvNC[t])) * v.Y[t]
         
-        v.benefitsNC[t] =  v.InvNC[t]  * 1000 #in billion dollars
+        v.benefitsNC[t] =  p.invNCfrac[t]
 
 
         #Define function for C
