@@ -7,7 +7,6 @@
 
         #Draw 8 parameters (start)
             D_d = choice(damaged_i)
-            D_k = choice(damagek_i)
             K_NC = rand(k_nc_nd)
             Share = choice(share1_i)
             Share2 = choice(share2_i)
@@ -18,16 +17,14 @@
         #Draw 8 parameters (end)
 
         #choose damage parameters (start)
-            if D_k == 1
-                perck = rand(damagek1_nd)/0.222 #Percentage of damages corresponding to market impacts
+            D_d = choice(damaged_i)
+            perck = rand(damagek1_nd)/0.222 #Percentage of damages corresponding to market impacts
+            if perck < 0
+                continue
             end
-            if D_k == 2
-                perck = rand(damagek2_ud)
+            if perck > 1
+                continue
             end
-            if D_k == 3
-                perck = damagek3
-            end
-            a_k = perck * D_d
         #choose damage parameters (end)
 
             if K_NC < 0

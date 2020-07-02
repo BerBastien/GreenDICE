@@ -14,7 +14,7 @@ theta2_i = [0.63,0.78,0.62,0.27]
 theta1_param = mean(theta1_i)
 theta2_param = mean(theta2_i)
 damagek_i = [1,2,3]
-damaged_i = [0.0026686075,0.0026686075, (0.0026686075/1.25)*2]
+damaged_i = [0.0026686075, (0.0026686075/1.25)*2]
 prtp_i = [0.001,0.015,0.03]
 damagek3 = 0.624 #From Nordhaus 1994 Survey
 #Vectors of estimations (end)
@@ -25,7 +25,6 @@ prtp_ud = Uniform(0.001, 0.03)
 tfp_param = Normal(atfp_param,0.028783366) #based on wighted adjusted TFP by country GDP (see gamma3_computation.R)
 k_nc_nd = Normal(3.87,2.11)
 damagek1_nd = Normal(0.151, 0.147) #From regression using Howard and Sterner (2017) data
-damagek2_ud = Uniform(0.3,0.5) #From Howard and Sylvan (2015)
 atfp_nd =  Normal(atfp_param,0.028783366) #From Brandt et al (2017) weighted mean and standard deviation
 gamma4_ud = Uniform(0.6,1)
 #Distributions (end) 

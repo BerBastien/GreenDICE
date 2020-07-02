@@ -3,15 +3,12 @@
     
     while mc < sens_max
         D_d = choice(damaged_i)
-        D_k = choice(damagek_i)
-        if D_k == 1
-            perck = rand(damagek1_nd)/0.222 #Percentage of damages corresponding to market impacts
+        perck = rand(damagek1_nd)/0.222 #Percentage of damages corresponding to market impacts
+        if perck < 0
+            continue
         end
-        if D_k == 2
-            perck = rand(damagek2_ud)
-        end
-        if D_k == 3
-            perck = damagek3
+        if perck > 1
+            continue
         end
         a_k = perck * D_d
         set_param!(GreenDICE,:damages,:a_d,D_d)
