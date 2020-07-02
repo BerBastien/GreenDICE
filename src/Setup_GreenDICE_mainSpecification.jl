@@ -16,7 +16,7 @@
        
         
         a_d = 0.0026686075 #Corresponding to total aggregated damages Norhaus and Sztorc (2013)
-        k_perc = 0.31  #Percentage Corresponding to market damages only, Howard and Sterner (2017)
+        k_perc = 0.32  #Percentage Corresponding to market damages only, Howard and Sterner (2017)
         mortality_perc = 0.2 #Percentage corresponding to mortality damages
         a_k = a_d * (k_perc + mortality_perc)
         

@@ -18,7 +18,7 @@
 
         #choose damage parameters (start)
             D_d = choice(damaged_i)
-            perck = rand(damagek1_nd)/0.222 #Percentage of damages corresponding to market impacts
+            (0.222-rand(damagek1_nd))/0.222  #Percentage of damages corresponding to market impacts
             if perck < 0
                 continue
             end
