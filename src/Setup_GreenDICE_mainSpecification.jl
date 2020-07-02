@@ -35,4 +35,9 @@
             set_param!(GreenDICE,:damages,:a4,a_4[1])
             set_param!(GreenDICE,:neteconomy,:a4,a_4[1])
         #Finding the damage parameters (end)
+
+        w = log(0.021)/log(0.5)
+        set_param!(GreenDICE,:neteconomy,:w,w) 
+        set_param!(GreenDICE,:green_naturalcapital,:w,w) 
+            
     #set parameters of specification (end)

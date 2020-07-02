@@ -536,7 +536,7 @@
         #arrange plain results with ReducedDamages (start)
             num_vars=25
             Results_ReducedDamages <- Results_ReducedD[,-2]
-            num_exp = 1
+            num_exp = 3
             df_t_inv <- Results_ReducedDamages %>%
                 select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+2)]) %>%
                 gather(key = "variable", value = "value_t", -1)
@@ -585,19 +585,20 @@
             select(names(Results_ReducedDamages)[c(1,num_vars*(0:(num_exp-1))+10)]) %>%
             gather(key = "variable_miu", value = "value_miu", -1)
 
-
+            id_var = rep(1:num_exp, each=60)
 
             df_nc_perc = df_NC_inv[3] / (df_NC_inv[3] + df_k_inv[3])
             
             df_inv_reduceddamages <- cbind(df_t_inv,df_e_inv[3],df_scc_inv[3],df_YGreen[3],df_Y_inv[3],
-                df_NC_inv[3],df_S_inv[3],df_inv_inv[3],df_miu_inv[3],df_k_inv[3],df_YGross[3],df_nc_perc)
+                df_NC_inv[3],df_S_inv[3],df_inv_inv[3],df_miu_inv[3],df_k_inv[3],df_YGross[3],df_nc_perc,id_var)
 
                 names(df_inv_reduceddamages)[1]="years"
-                names(df_inv_reduceddamages)[dim(df_inv_reduceddamages)[2]]="nc_perc"
+                names(df_inv_reduceddamages)[dim(df_inv_reduceddamages)[2]-1]="nc_perc"
 
-            df_inv_reduceddamages <- cbind(df_inv_reduceddamages[1:60,2],aggregate(df_inv_reduceddamages[,3:14], list(df_inv_reduceddamages$years), mean))
-            names(df_inv_reduceddamages)[1:2] <- c("variable","years")
-            
+            #df_inv_reduceddamages <- cbind(df_inv_reduceddamages[1:60,2],aggregate(df_inv_reduceddamages[,3:14], list(df_inv_reduceddamages$years), mean))
+            #names(df_inv_reduceddamages)[1:2] <- c("variable","years")
+            df_inv_reduceddamages_sens <- df_inv_reduceddamages
+            df_inv_reduceddamages <- df_inv_reduceddamages_sens[61:120,]
         #arrange plain results with ReducedDamages (end)
 
 
@@ -1026,7 +1027,7 @@
           #scale_colour_manual("",values=c("firebrick2","darkcyan"),labels=c( "Asset Investment","Damage Reduction")) +
           scale_linetype_manual("", values=c(4,2,3,1), labels=c( "Asset Investment", "Damage Reduction", "Standard DICE", "GreenDICE")) +
           scale_colour_manual("",values=c("firebrick2","darkcyan","indianred","seagreen3"),labels=c( "Asset Investment","Damage Reduction", "Standard DICE", "GreenDICE")) +
-          coord_cartesian(xlim = c(2010, 2100),ylim=c(0,0.7))
+          coord_cartesian(xlim = c(2010, 2100),ylim=c(0,1))
     plot_inv2
 
     
@@ -1324,5 +1325,94 @@
 #####
 #####
 ##### FIGURE S.4.: Minimal Depth interactions
+#####
+#####
+
+
+#####
+#####
+##### FIGURE S.5.: Cost of damages reduction
+#####
+#####
+    theme_set(theme_classic())
+
+
+    plot_inv_nc <- ggplot(data = df_inv_reduceddamages_sens, aes(years)) +
+          geom_line(data = df_inv_reduceddamages_sens, aes(x=years, y=value_nc, group = variable, color = id_var),size=1)  + 
+          #geom_line(data = df_inv, aes(x=years, y=value_k, group = variable, colour = 'red'),size=1)  + 
+          labs(title="Natural Capital stocks", y="USD", x = "years", color="") +
+          coord_cartesian(xlim = c(2010, 2100),ylim=c(10,40)) +
+          scale_color_gradientn(colours = cbp1, labels = c('low','','','','high')) + labs(color="cost of damage reduction") 
+          #scale_linetype_manual("", values=c(3,1,2), labels=c( "standard DICE", "GreenDICE","GreenDICE + investment")) +
+          #scale_colour_manual("",values=c("indianred","seagreen3","blue"),labels=c("standard DICE", "GreenDICE", "GreenDICE + investment")) + 
+          #theme(legend.position="")
+    plot_inv_nc
+    df_r_inv_standard = df_r[which(df_r$variable=="TATM_standard" ),]
+    df_r_inv_green = df_r[which(df_r$variable=="TATM_UVnonUV" ),]
+    plot_inv_nc2 <- plot_inv_nc +
+    #geom_line(data = df_inv_reduceddamages, aes(x=years, y=value_nc, group = variable),size=1,color="red",linetype=2) +
+    geom_line(data = df_r_inv_standard, aes(x=years, y=value_nc, group = variable),size=1,color="darkgray",linetype=3) +
+    geom_line(data = df_r_inv_green, aes(x=years, y=value_nc, group = variable),size=1,color="darkgray",linetype=4) 
+    #scale_colour_manual("",values=c("indianred","seagreen3","blue"),labels=c("standard DICE", "standard GreenDICE")) 
+    plot_inv_nc2
+
+
+    plot_inv <- ggplot(data = df_inv_reduceddamages_sens, aes(years)) +
+          geom_line(data = df_inv_reduceddamages_sens, aes(x=years, y=value_s*100, group = variable, colour = id_var),size=1, linetype=1)  + 
+          geom_line(data = df_inv_reduceddamages_sens, aes(x=years, y=value_inv*100, group = variable, colour = id_var),size=1, linetype=2)  + 
+          #geom_line(data = r_t_inv, aes(x=names(r_t_inv)[1], y=value_t, group = variable, colour = variable, linetype=variable),size=1)  + 
+          labs(title="Investments in damage reduction", y="Percentage of GWP", x = "years", color="") +
+          coord_cartesian(xlim = c(2010, 2100),ylim=c(0.01,0.5)) +
+          scale_color_gradientn(colours = cbp1, labels = c('low','','','','high')) + labs(color="cost of damage reduction") 
+          #scale_colour_manual("",values=c("indianred","seagreen3","blue"),labels=c("standard DICE", "GreenDICE", "GreenDICE + investment")) + 
+          theme(legend.position="")
+    plot_inv + scale_y_log10()
+    plot_inv2 <- plot_inv +
+    #geom_line(data = df_inv_reduceddamages, aes(x=years, y=value_inv*100, group = variable),size=1,color="red",linetype=2) 
+    geom_line(data = df_r_inv_standard, aes(x=years, y=value_s*100, group = variable),size=1,color="darkgray",linetype=3) +
+    geom_line(data = df_r_inv_green, aes(x=years, y=value_s*100, group = variable),size=2,color="darkgray",linetype=4) 
+    plot_inv2 <- plot_inv2
+          plot_inv2
+
+    plot_scc <- ggplot(data = df_inv_reduceddamages_sens, aes(years)) +
+          geom_line(data = df_inv_reduceddamages_sens, aes(x=years, y=value_scc, group = variable, colour = id_var),size=1)  + 
+          #geom_line(data = df_inv, aes(x=years, y=value_inv, group = variable, colour = id_var),size=1)  + 
+          #geom_line(data = r_t_inv, aes(x=names(r_t_inv)[1], y=value_t, group = variable, colour = variable, linetype=variable),size=1)  + 
+          labs(title=" SCC", y="USD/ton", x = "years", color="") +
+          coord_cartesian(xlim = c(2010, 2100),ylim=c(50,750)) +
+          scale_color_gradientn(colours = cbp1, labels = c('low','','','','high')) + labs(color="cost of damage reduction") 
+           #scale_linetype_manual("", values=c(3,1,2), labels=c( "standard DICE", "GreenDICE","GreenDICE + investment")) +
+          #scale_colour_manual("",values=c("indianred","seagreen3","blue"),labels=c("standard DICE", "GreenDICE", "GreenDICE + investment")) + 
+          theme(legend.position="")
+    plot_scc
+    plot_scc2 <- plot_scc +
+    geom_line(data = df_r_inv_standard, aes(x=years, y=value_scc, group = variable),size=1,color="darkgray",linetype=3) +
+    geom_line(data = df_r_inv_green, aes(x=years, y=value_scc, group = variable),size=1,color="darkgray",linetype=4) 
+    plot_scc2
+
+
+    plot_t <- ggplot(data = df_inv_reduceddamages_sens, aes(years)) +
+          geom_line(data = df_inv_reduceddamages_sens, aes(x=years, y=value_t, group = variable, colour = id_var),size=1)  + 
+          #geom_line(data = df_r_inv_standard, aes(x=years, y=value_t, group = variable),size=1,color="indianred",linetype=3) +
+            #geom_line(data = df_r_inv_green, aes(x=years, y=value_t, group = variable),size=1,color="seagreen3",linetype=4) +
+            labs(title="Temperature", y="degrees C", x = "years", color="",linetype="") +
+          coord_cartesian(xlim = c(2010, 2100),ylim=c(0.8,3)) +
+          scale_color_gradientn(colours = cbp1, labels = c('low','','','','high')) + labs(color="cost of damage reduction") 
+          #scale_linetype_manual(values=c(3,1,2,1,1), labels=c( "standard DICE", "GreenDICE","GreenDICE + investment","a","b")) 
+          #scale_colour_manual("",values=c("indianred","seagreen3","blue"),labels=c("standard DICE", "GreenDICE", "GreenDICE + investment")) + 
+          #labels = c('low','','','','high')
+    plot_t
+    plot_t2 <- plot_t +
+    geom_line(data = df_r_inv_standard, aes(x=years, y=value_t, group = variable),size=1,color="darkgray",linetype=3) +
+    geom_line(data = df_r_inv_green, aes(x=years, y=value_t, group = variable),size=1,color="darkgray",linetype=4) 
+          plot_t2
+
+    ggarrange(plot_t2,plot_scc2,plot_inv,plot_inv_nc2,ncol=2,nrow=2, common.legend=TRUE)
+    
+    #ggsave("ReducedDam_NC_sens.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
+  #figures of iterations (end)
+#####
+#####
+##### FIGURE S.5.: Cost of damages reduction
 #####
 #####

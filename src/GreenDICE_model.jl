@@ -94,7 +94,7 @@ replace_comp!(GreenDICE,green_damages,:damages)
     ExtraN = Parameter(index=[time])          #GreenDICE: Year to add an extra asset of N, to compute investments 
     g4 = Parameter()                        #gamma4, elasticity of natural capital
     invNCfrac   = Parameter(index=[time])    #GreenDICE - investment control
-    damred = Parameter()                  #damage reduction parameter
+    w = Parameter()                  #damage reduction parameter
     
     function run_timestep(p, v, d, t)
     
@@ -102,7 +102,7 @@ replace_comp!(GreenDICE,green_damages,:damages)
             v.NC[t] = p.k0 / p.ratioNC + p.ExtraN[1]
             v.nonUV[t] = v.NC[t] ^ p.g4 
         else
-            v.NC[t] = v.NC[t-1] - (v.NC[t-1] - v.NC[t-1] * p.DAMAGES_NC[t])* (1 - p.benefitsNC[t-1])
+            v.NC[t] = v.NC[t-1] - (v.NC[t-1] - v.NC[t-1] * p.DAMAGES_NC[t])* (1 - (p.benefitsNC[t-1])^(1/p.w))
             v.nonUV[t] = v.NC[t] ^ p.g4
         end
     end
@@ -115,6 +115,8 @@ connect_param!(GreenDICE, :damages, :NC, :green_naturalcapital, :NC)
 connect_param!(GreenDICE, :green_naturalcapital, :DAMAGES_NC, :damages, :DAMAGES_NC)
 set_param!(GreenDICE,:green_naturalcapital,:ExtraN,fill(0.,60))
 set_param!(GreenDICE,:green_naturalcapital,:invNCfrac,fill(0.,60))
+set_param!(GreenDICE,:green_naturalcapital,:w,2.8)
+
 
 @defcomp green_welfare begin
     CEMUTOTPER      = Variable(index=[time])    #Period utility
@@ -172,6 +174,7 @@ connect_param!(GreenDICE, :welfare, :nonUV, :green_naturalcapital, :nonUV)
     Y           = Variable(index=[time])    #Gross world product net of abatement and damages (trillions 2005 USD per year)
     YNET        = Variable(index=[time])    #Output net of damages equation (trillions 2005 USD per year)
     YGreen      = Variable(index=[time])    #GreenDICE: a middle step from gross economy to consumption, to subtract investments in NC
+    NCcost     = Variable(index=[time])    #GreenDICE: a middle step from gross economy to consumption, to subtract investments in NC
 
     rr              = Parameter(index=[time])   #Average utility social discount rate
     cost1       = Parameter(index=[time])   #Abatement cost function coefficient
@@ -191,6 +194,7 @@ connect_param!(GreenDICE, :welfare, :nonUV, :green_naturalcapital, :nonUV)
     NC      = Parameter(index=[time])   #GreenDICE: NC
     K      = Parameter(index=[time])   #Capital stock
     priceNC      = Parameter(index=[time])   #exogenous price of NC
+    w      = Parameter()   #exogenous cost of abatement
     
 
     function run_timestep(p, v, d, t)
@@ -206,9 +210,8 @@ connect_param!(GreenDICE, :welfare, :nonUV, :green_naturalcapital, :nonUV)
         #Define function for Y
         v.YGreen[t] = v.YNET[t] - v.ABATECOST[t]
     
-        #GreenDICE
         #Define function for Investments in natural capital
-        v.InvNC[t] = v.YGreen[t] * 0.06 * p.invNCfrac[t]^2
+        v.InvNC[t] = v.YGreen[t] * p.invNCfrac[t]
 
         v.Y[t] = v.YGreen[t] - v.InvNC[t]
 
@@ -244,6 +247,7 @@ set_param!(GreenDICE,:neteconomy,:ExtraC,fill(0.,60))
 set_param!(GreenDICE,:neteconomy,:priceNC,fill(10e100,60))
 RR = [1/(1+0.015)^(t*5) for t in 0:59]
 set_param!(GreenDICE,:neteconomy,:rr,RR)
+set_param!(GreenDICE,:neteconomy,:w,2.8)
 
 
 @defcomp green_emissions begin
