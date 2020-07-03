@@ -13,7 +13,7 @@ function foo()
     for ii in 1:60
         year = 2005 + ii * 5
         last_year = 2305
-        eta = 1.45
+        eta = GreenDICE[:welfare,:elasmu]
         prtp = prtp = round((1/GreenDICE[:welfare, :rr][2])^(1/5)-1,digits = 4)
         theta = GreenDICE[:welfare,:theta]
         share = GreenDICE[:welfare,:share]
@@ -64,7 +64,7 @@ function foo()
                 end
                 A = join(A,scc, on= :time)
                 prtp = round((1/GreenDICE[:welfare, :rr][2])^(1/5)-1,digits = 4)
-                df = DataFrame(time = A.time, gama3 = ones(60).*GreenDICE[:grosseconomy, :gama3], ratioKNC = ones(60).*GreenDICE[:grosseconomy,:ratioNC],g4 = ones(60).*GreenDICE[:green_naturalcapital,:g4],theta1 = ones(60).*GreenDICE[:welfare,:theta],share1 = ones(60).*GreenDICE[:welfare,:share],climsen = ones(60).*GreenDICE[:climatedynamics,:t2xco2],prtp = ones(60)*prtp,share2 = ones(60).*GreenDICE[:welfare,:share2],theta2 = ones(60).*GreenDICE[:welfare,:theta2],YGreen = GreenDICE[:neteconomy,:YGreen],C = GreenDICE[:neteconomy,:C],damageNC = ones(60).*GreenDICE[:damages,:a4])
+                df = DataFrame(time = A.time, gama3 = ones(60).*GreenDICE[:grosseconomy, :gama3], ratioKNC = ones(60).*GreenDICE[:grosseconomy,:ratioNC],g4 = ones(60).*GreenDICE[:green_naturalcapital,:g4],theta1 = ones(60).*GreenDICE[:welfare,:theta],share1 = ones(60).*GreenDICE[:welfare,:share],climsen = ones(60).*GreenDICE[:climatedynamics,:t2xco2],prtp = ones(60)*prtp,share2 = ones(60).*GreenDICE[:welfare,:share2],theta2 = ones(60).*GreenDICE[:welfare,:theta2],YGreen = GreenDICE[:neteconomy,:YGreen],elasmu = ones(60).*GreenDICE[:welfare,:elasmu],damageNC = ones(60).*GreenDICE[:damages,:a4])
                 A = join(A,df, on= :time)
     return A
 end

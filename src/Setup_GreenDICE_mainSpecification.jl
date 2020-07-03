@@ -1,5 +1,6 @@
 ## GreenDICE main specification (START)
         #set parameters of specification (start)
+        set_param!(GreenDICE,:welfare,:elasmu,elasmu_param)
         set_param!(GreenDICE,:welfare,:share,share1_param)
         set_param!(GreenDICE,:welfare,:share2,share2_param)
         set_param!(GreenDICE,:grosseconomy,:share,share1_param)
@@ -36,8 +37,6 @@
             set_param!(GreenDICE,:neteconomy,:a4,a_4[1])
         #Finding the damage parameters (end)
 
-        w = log(0.021)/log(0.5)
-        set_param!(GreenDICE,:neteconomy,:w,w) 
-        set_param!(GreenDICE,:green_naturalcapital,:w,w) 
+
             
     #set parameters of specification (end)

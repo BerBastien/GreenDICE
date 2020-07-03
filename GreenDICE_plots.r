@@ -29,6 +29,7 @@
     library(randomForest)
     library(randomForestExplainer)
     cbp1 <- c( "#0072B2","#009E73","#E69F00")
+    mypath = "C:/Users/bastien/Documents/GitHub/GreenDICE/Results"
 #####
 #####
 ##### Packages (end)
@@ -244,7 +245,7 @@
 
 
         ###Arrange sensitivity data (START)
-            sens = c("cs","damage","gama3","gama4","prtp","ratio","share1","share2","theta1","theta2")
+            sens = c("cs","damage","elasmu","gama3","gama4","prtp","ratio","share1","share2","theta1","theta2")
             num_exp_ss = (num_cols-2)/25
             #num_exp_ss = c(10,10,10,10,3,10,3,3,16,4)
             for (num_exp_s_i in 1:10){
@@ -313,6 +314,10 @@
             df_damage <- Results_s_i %>%
             select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+27)]) %>%
             gather(key = "variable_damage", value = "value_damage", -1)
+            
+            df_elasmu <- Results_s_i %>%
+            select(names(Results_s_i)[c(1,num_vars*(0:(num_exp-1))+26)]) %>%
+            gather(key = "variable_elasmu", value = "value_elasmu", -1)
 
 
             
@@ -322,7 +327,7 @@
             id = rep((1+(num_exp_s_i-1)*num_exp):((num_exp_s_i)*num_exp), each = dim(df_t)[1]/num_exp)
             df_id = data.frame("id" = id)
 
-            df <- cbind(df_t,df_e[3],df_scc[3],df_atfp,df_ratio[3],df_share[3],df_theta1[3],df_prtp[3],df_cs[3],df_share2[3],df_theta2[3],df_damage[3],df_gama4[3],df_id)
+            df <- cbind(df_t,df_e[3],df_scc[3],df_atfp,df_ratio[3],df_share[3],df_theta1[3],df_prtp[3],df_cs[3],df_share2[3],df_theta2[3],df_damage[3],df_gama4[3],df_elasmu[3],df_id)
             df$sensitivity = sens[num_exp_s_i]
 
             names(df)[1] = "years"
@@ -397,6 +402,10 @@
             select(names(Results)[c(1,num_vars*(0:(num_exp-1))+4)]) %>%
             gather(key = "variable_e", value = "value_e", -1)
 
+            df_cpc <- Results %>%
+            select(names(Results)[c(1,num_vars*(0:(num_exp-1))+12)]) %>%
+            gather(key = "variable_cpc", value = "value_cpc", -1)
+
             df_scc <- Results %>%
             select(names(Results)[c(1,num_vars*(0:(num_exp-1))+15)]) %>%
             gather(key = "variable_scc", value = "value_scc", -1)
@@ -447,7 +456,7 @@
             select(names(Results)[c(1,num_vars*(0:(num_exp-1))+27)]) %>%
             gather(key = "variable_damage", value = "value_damage", -1)
 
-            df <- cbind(df_t,df_e[3],df_scc[3],df_atfp,df_ratio[3],df_damage[3],df_share1[3],df_share2[3],df_theta2[3],df_theta1[3],df_gama4[3],df_prtp[3],df_cs[3])
+            df <- cbind(df_t,df_e[3],df_scc[3],df_atfp,df_ratio[3],df_damage[3],df_share1[3],df_share2[3],df_theta2[3],df_theta1[3],df_gama4[3],df_prtp[3],df_cs[3],df_cpc[3])
             df_mcs <- df
             glimpse(df_mcs)
         # arrange spread of UVnonUV montecarlo simulation optimized (end)
@@ -646,6 +655,18 @@
                     df_scc$value, df_scc[1] , function(i){quantile(i)})),
             t=1:60)
             qs_scc$t = df_t[1:60,1]
+
+            df_cpc <- df_cpc[df_prtp$value==0.015,]
+            df_cpc <- df_cpc[!is.infinite(df_cpc$value),]
+            df_cpc <- df_cpc[!is.nan(df_cpc$value),]
+            #df_scc <- df_scc[df_damage$value==0.00480515,]
+            qs_cpc = data.frame(
+            do.call(
+                rbind,
+                tapply(
+                    df_cpc$value, df_cpc[1] , function(i){quantile(i)})),
+            t=1:60)
+            qs_cpc$t = df_t[1:60,1]
         #
     #####
     #####
@@ -713,6 +734,10 @@
   figure
   #ggsave("F2_T_E_SCC.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
 
+  pdf(file = paste(mypath,"/Figures/F2_T_E_SCC.pdf", sep=""))
+  figure
+  dev.off()
+
 #####
 #####
 ##### FIGURE 2: SCC, T, E WITH QUANTILES (END)
@@ -735,15 +760,15 @@
   #order sensitivity (start)
     factor(DF_2020$sensitivity)
     DF_2020$value_gama3
-    DF_2020$sensitivity <- factor(DF_2020$sensitivity, levels = c("prtp","cs","damage","gama3","gama4","ratio","share2","theta2","share1","theta1"))
-    type = cbind(c("reference","reference","production","production","production","production","utility","utility","utility","utility"),c("prtp","cs","damage","gama3","gama4","ratio","share2","theta2","share1","theta1"))
+    DF_2020$sensitivity <- factor(DF_2020$sensitivity, levels = c("elasmu","prtp","cs","damage","gama3","gama4","ratio","share2","theta2","share1","theta1"))
+    type = cbind(c("reference","reference","reference","production","production","production","production","utility","utility","utility","utility"),c("elasmu","prtp","cs","damage","gama3","gama4","ratio","share2","theta2","share1","theta1"))
     type = data.frame(type)
     names(type)[2] = "sensitivity"
     DF_2020 <- merge(DF_2020, type, by="sensitivity")
     names(DF_2020)[18] = "type"
     head(DF_2100)
 
-    DF_2100$sensitivity <- factor(DF_2100$sensitivity, levels = c("prtp","cs","damage","gama4","gama3","ratio","share2","theta2","share1","theta1"))
+    DF_2100$sensitivity <- factor(DF_2100$sensitivity, levels = c("elasmu","prtp","cs","damage","gama4","gama3","ratio","share2","theta2","share1","theta1"))
     DF_2100 <- merge(DF_2100, type, by="sensitivity")
     names(DF_2100)[19] = "type"
   #order sensitivity (*End)
@@ -753,12 +778,12 @@
   #new names
   DF_2020$names <- DF_2020$sensitivity
   
-  DF_2020$names <- revalue(DF_2020$names, c("cs"="Climate sensitivity", "damage"="Damage to \n Natural Capital","gama4" = "Elasticity of non-use values \n to Natural Capital","gama3"="Natural Capital-adjusted \n total factor productivity", 
+  DF_2020$names <- revalue(DF_2020$names, c("cs"="Climate sensitivity", "damage"="Damage to \n Natural Capital", "elasmu"="Relative risk \n aversion","gama4" = "Elasticity of non-use values \n to Natural Capital","gama3"="Natural Capital-adjusted \n total factor productivity", 
     "prtp"="Pure rate of \n time preference","ratio"="Natural Capital \n initial stock", "share1"="Ecosystem services \n initial value","share2"="Non-use value initial value", "theta1"="Substitutability between \n market and ES goods","theta2"="Substitutability between \n use and non-use values"))
 
   DF_2020$intensity <- numeric(dim(DF_2020)[1])  
   glimpse(DF_2020)
-  variable = c("cs","damage","gama3","gama4","prtp","ratio","share1","share2","theta1","theta2")
+  variable = c("cs","damage","elasmu","gama3","gama4","prtp","ratio","share1","share2","theta1","theta2")
   for (i in 1:length(variable)[1]) { #calculating how high is each value
     value_of_interest = variable[i]
     column_of_interest = DF_2020[names(DF_2020)==paste('value_',variable[i],sep="")]
@@ -793,7 +818,7 @@
     a <- a + labs(fill="Relative value")
     a
     DF_2100$intensity <-  numeric(dim(DF_2100)[1]) 
-  variable = c("cs","damage","gama4","gama3","prtp","ratio","share1","share2","theta1","theta2")
+  variable = c("cs","damage","elasmu","gama4","gama3","prtp","ratio","share1","share2","theta1","theta2")
   for (i in 1:length(variable)[1]) { #calculating how high is each value
     value_of_interest = variable[i]
     print(value_of_interest)
@@ -1379,9 +1404,18 @@
 
      figure <- ggarrange(p_s,p_gwp,p_nc,p_k, labels = c("a","b","c","d"), common.legend = TRUE, legend = "bottom")
   figure
-  ggsave("Savings_GWP.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
+  #ggsave("Savings_GWP.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
   
+  p_cpc <- ggplot(data = df_cpc, aes(years)) +
+        geom_ribbon(data=qs_cpc, aes(x=t, ymin=X25., ymax=X75.),fill="gray30", alpha=0.2)  +
+        geom_ribbon(data=qs_cpc, aes(x=t, ymin=X0., ymax=X100.),fill="gray30", alpha=0.2) +
+        labs(title="Consumption per Capita", y="thousand USD/ person", x = "years", color="") +
+        coord_cartesian(xlim = c(2020, 2100),ylim=c(5,40)) 
+  p_cpc        
   
+  min_cpc <- ddply(df_cpc, "time_nonUV_spread_mcs_opt", summarise, minimum_cpc = min(value_cpc))
+  names(min_cpc)[1] = "year"
+  min_cpc <- min_cpc[1:19,]
   
   #fi
 #####

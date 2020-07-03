@@ -1,4 +1,7 @@
     include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
+    w = log(0.021)/log(0.5)
+    set_param!(GreenDICE,:neteconomy,:w,w) 
+    set_param!(GreenDICE,:green_naturalcapital,:w,w) 
     run(GreenDICE)
 
     global Results_damagereduction = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))

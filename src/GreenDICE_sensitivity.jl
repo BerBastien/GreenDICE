@@ -218,3 +218,20 @@
     include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
     run(GreenDICE)
     
+    
+    global Results_uncertainty_elasmu = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
+    for elasmui in (1:size(elasmus)[1])
+        elasmu1 = elasmus[elasmui]
+        set_param!(GreenDICE,:welfare,:elasmu,elasmu1)   
+        res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
+        best_candidate(res) # optimal vector of miu emissions trajectories
+        set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
+        set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
+        run(GreenDICE)
+        results = foo()
+        global Results_uncertainty_elasmu = join(Results_uncertainty_elasmu,results,on= :time, makeunique = true)
+    end
+    CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_elasmu.csv"),Results_uncertainty_elasmu)
+    include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
+    run(GreenDICE)
+    

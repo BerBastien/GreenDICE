@@ -3,12 +3,14 @@ share1_param = 0.1
 share2_param = 0.1
 k_nc_param = 3.87
 atfp_param = 1.014353465
-gamma4_param = 0.8
+gamma4_param = 0.5
+elasmu_param = 1.45
 
 
 #Vectors of estimations (start)
-share1_i = [0.05, share1_param, 0.15] #invented 
-share2_i = [0.05, share2_param, 0.15] #invented 
+elasmus = [1.08, elasmu_param, 0.15] 
+share1_i = [0.05, share1_param, 1.82] 
+share2_i = [0.05, share2_param, 0.15] 
 theta1_i = [0.74,0.86,0.68,0.69,0.78,0.32,0.62,0.27,0.58,-0.16,0.41,-0.1,0.73,0.79,0.76,0.80]
 theta2_i = [0.63,0.78,0.62,0.27]
 theta1_param = mean(theta1_i)
@@ -26,5 +28,5 @@ tfp_param = Normal(atfp_param,0.028783366) #based on wighted adjusted TFP by cou
 k_nc_nd = Normal(3.87,2.11)
 damagek1_nd = Normal(0.151, 0.147) #From regression using Howard and Sterner (2017) data
 atfp_nd =  Normal(atfp_param,0.028783366) #From Brandt et al (2017) weighted mean and standard deviation
-gamma4_ud = Uniform(0.6,1)
+gamma4_ud = Uniform(0.2,0.8)
 #Distributions (end) 
