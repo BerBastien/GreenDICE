@@ -8,10 +8,10 @@ elasmu_param = 1.45
 
 
 #Vectors of estimations (start)
-elasmus = [1.08, elasmu_param, 0.15] 
-share1_i = [0.05, share1_param, 1.82] 
+elasmus = [1.08, elasmu_param, 1.82] 
+share1_i = [0.05, share1_param, 0.15] 
 share2_i = [0.05, share2_param, 0.15] 
-theta1_i = [0.74,0.86,0.68,0.69,0.78,0.32,0.62,0.27,0.58,-0.16,0.41,-0.1,0.73,0.79,0.76,0.80]
+theta1_i = [0.74, 0.86, 0.68, 0.69, 0.32, 0.58, -0.16, 0.41, -0.1, 0.73, 0.79, 0.76, 0.80]
 theta2_i = [0.63,0.78,0.62,0.27]
 theta1_param = mean(theta1_i)
 theta2_param = mean(theta2_i)

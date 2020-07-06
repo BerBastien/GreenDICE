@@ -166,6 +166,7 @@
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_ratio.csv"),Results_uncertainty_nc)
     include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
     run(GreenDICE)
+    global mc = 0
     
 
 

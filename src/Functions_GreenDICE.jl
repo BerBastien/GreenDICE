@@ -119,7 +119,7 @@ function damage_params(x)
     s = GreenDICE[:neteconomy, :S][1]
     tfp = GreenDICE[:grosseconomy, :al][1]
     #Utility parameters
-    eta = 1.45
+    eta = GreenDICE[:welfare,:elasmu]
     #Consumption
     #C0 = (tfp * L ^ 0.7 + K ^ g2 + (r*K)^g3) * 1000 / L #consumption per capita 
     theta = GreenDICE[:welfare,:theta]
@@ -142,7 +142,7 @@ function pricesNC()
     for ii in 1:60
         year = 2005 + ii * 5
         last_year = 2305
-        eta = 1.45
+        eta = GreenDICE[:welfare,:elasmu]
         prtp = prtp = round((1/GreenDICE[:welfare, :rr][2])^(1/5)-1,digits = 4)
         theta = GreenDICE[:welfare,:theta]
         share = GreenDICE[:welfare,:share]
