@@ -987,40 +987,6 @@
     df_inv_reduceddamage <- cbind(df_inv_reduceddamages,dif)
 
 
-    plot_YGross <- ggplot(data =  df_inv_reduceddamage, aes(years)) +
-          geom_line(data = df_inv_last, aes(x=years, y=dif, colour = variable, linetype=variable),size=1)  + 
-          geom_line(data = df_inv_reduceddamage, aes(x=years, y=dif, colour = variable, linetype=variable),size=1)  + 
-          labs(title="Gross Economic Output (w.r.t. GreenDICE)", y="trill USD", x = "years") +
-          coord_cartesian(xlim = c(2010, 2100),ylim=c(-15,15)) +
-          scale_linetype_manual("", values=c(4,2,3,1), labels=c( "Asset Investment", "Damage Reduction")) +
-          scale_colour_manual("",values=c("firebrick2","darkcyan"),labels=c( "Asset Investment","Damage Reduction")) 
-    plot_YGross
-    #ggsave("investment_GrossY.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
-
-    plot_YGross <- ggplot(data =  df_r_inv_standard, aes(years)) +
-          geom_line(data = df_r_inv_standard, aes(x=years, y=value_YGross, colour = variable, linetype=variable),size=1)  + 
-          geom_line(data = df_r_inv_green, aes(x=years, y=value_YGross, colour = variable, linetype=variable),size=1)  + 
-          geom_line(data = df_inv_last, aes(x=years, y=value_YGross, colour = variable, linetype=variable),size=1)  + 
-          geom_line(data = df_inv_reduceddamage, aes(x=years, y=value_YGross, colour = variable, linetype=variable),size=1)  + 
-          labs(title="YGross", y="USD", x = "years") +
-          coord_cartesian(xlim = c(2010, 2100),ylim=c(50,500)) +
-          scale_linetype_manual("", values=c(4,2,3,1), labels=c( "Asset Investment", "Damage Reduction", "Standard DICE", "GreenDICE")) +
-          scale_colour_manual("",values=c("firebrick2","darkcyan","indianred","seagreen3"),labels=c( "Asset Investment","Damage Reduction", "Standard DICE", "GreenDICE")) 
-    plot_YGross
-    
-    
-    
-    plot_k <- ggplot(data =  df_r_inv_standard, aes(years)) +
-          geom_line(data = df_r_inv_standard, aes(x=years, y=value_k, colour = variable, linetype=variable),size=1)  + 
-          geom_line(data = df_r_inv_green, aes(x=years, y=value_k, colour = variable, linetype=variable),size=1)  + 
-          geom_line(data = df_inv_last, aes(x=years, y=value_k, colour = variable, linetype=variable),size=1)  + 
-          geom_line(data = df_inv_reduceddamage, aes(x=years, y=value_k, colour = variable, linetype=variable),size=1)  + 
-          labs(title="Temperature", y="Degrees C", x = "years") +
-          #coord_cartesian(xlim = c(2010, 2100),ylim=c(50,1000)) +
-          scale_linetype_manual("", values=c(4,2,3,1), labels=c( "Asset Investment", "Damage Reduction", "Standard DICE", "GreenDICE")) +
-          scale_colour_manual("",values=c("firebrick2","darkcyan","indianred","seagreen3"),labels=c( "Asset Investment","Damage Reduction", "Standard DICE", "GreenDICE")) 
-    plot_k 
-    
     
     plot_t2 <- ggplot(data =  df_r_inv_standard, aes(years)) +
           geom_line(data = df_r_inv_standard, aes(x=years, y=value_t, colour = variable, linetype=variable),size=1)  + 
@@ -1055,7 +1021,7 @@
           #geom_line(data = df_inv_reduceddamage, aes(x=years, y=value_inv*value_YGross*1000, colour = variable, linetype=variable),size=1)  + 
           #geom_line(data = df_inv_last, aes(x=years, y=value_inv, colour = variable, linetype=variable),size=1)  + 
           geom_line(data = df_inv_reduceddamage, aes(x=years, y=value_inv*100, colour = variable, linetype=variable),size=1)  + 
-          labs(title="Adaptive investments", y="Percentage of GWP", x = "years") +
+          labs(title="Adaptive investments", y="Percent of GWP", x = "years") +
           #coord_cartesian(xlim = c(2010, 2100),ylim=c(0,600)) +
           #scale_linetype_manual("", values=c(4,2), labels=c( "Asset Investment", "Damage Reduction")) +
           #scale_colour_manual("",values=c("firebrick2","darkcyan"),labels=c( "Asset Investment","Damage Reduction")) +
@@ -1278,116 +1244,54 @@
 ##### FIGURE S.3.: Iterations in investments (START)
 #####
 #####
-  # figures of iterations (start)
-    theme_set(theme_classic())
-    plot_inv_nc <- ggplot(data = df_inv, aes(years)) +
-          geom_line(data = df_inv, aes(x=years, y=value_nc, group = variable, colour = 'black'),size=1)  + 
-          geom_line(data = df_inv, aes(x=years, y=value_k, group = variable, colour = 'red'),size=1)  + 
-          labs(title=" ", y="Stock", x = "years", color="") +
-          coord_cartesian(xlim = c(2020, 2100),ylim=c(0,1000)) +
-          #scale_linetype_manual("", values=c(3,1,2), labels=c( "standard DICE", "GreenDICE","GreenDICE + investment")) +
-          #scale_colour_manual("",values=c("indianred","seagreen3","blue"),labels=c("standard DICE", "GreenDICE", "GreenDICE + investment")) + 
-          theme(legend.position="")
-    plot_inv_nc
-
-    plot_inv_nc <- ggplot(data = df_inv, aes(years)) +
-          geom_line(data = df_inv, aes(x=years, y=value_nc, group = variable, color = id_var),size=1)  + 
-          #geom_line(data = df_inv, aes(x=years, y=value_k, group = variable, colour = 'red'),size=1)  + 
-          labs(title="Natural Capital stocks", y="USD", x = "years", color="") +
-          coord_cartesian(xlim = c(2010, 2100),ylim=c(0,320)) +
-          scale_color_gradientn(colours = cbp1)
-          #scale_linetype_manual("", values=c(3,1,2), labels=c( "standard DICE", "GreenDICE","GreenDICE + investment")) +
-          #scale_colour_manual("",values=c("indianred","seagreen3","blue"),labels=c("standard DICE", "GreenDICE", "GreenDICE + investment")) + 
-          #theme(legend.position="")
-    plot_inv_nc
-    df_r_inv_standard = df_r[which(df_r$variable=="TATM_standard" ),]
-    df_r_inv_green = df_r[which(df_r$variable=="TATM_UVnonUV" ),]
-
-         plot_inv_nc2 <- plot_inv_nc +
-    #geom_line(data = df_inv_reduceddamages, aes(x=years, y=value_inv*100, group = variable),size=1,color="red",linetype=2) 
-    geom_line(data = df_r_inv_standard, aes(x=years, y=value_nc, group = variable),size=2,color="darkgray",linetype=3) +
-    geom_line(data = df_r_inv_green, aes(x=years, y=value_nc, group = variable),size=2,color="darkgray",linetype=4) 
-    plot_inv_nc2
-
-    # plot_inv_nc2 <- plot_inv_nc +
-    # geom_line(data = df_inv_reduceddamages, aes(x=years, y=value_nc, group = variable),size=1,color="red",linetype=2) +
-    # #geom_line(data = df_r_inv_standard, aes(x=years, y=value_nc, group = variable),size=1,color="indianred",linetype=3) +
-    # geom_line(data = df_r_inv_green, aes(x=years, y=value_nc, group = variable),size=1,color="seagreen3",linetype=4) 
-    # #scale_colour_manual("",values=c("indianred","seagreen3","blue"),labels=c("standard DICE", "standard GreenDICE")) 
-    # plot_inv_nc2
-
-    plot_inv_nck <- ggplot(data = df_inv, aes(years)) +
-          geom_line(data = df_inv, aes(x=years, y=nc_perc, group = variable, colour = id_var),size=1)  + 
-          #geom_line(data = df_inv, aes(x=years, y=value_k, group = variable, colour = 'red'),size=1)  + 
-          labs(title="Natural Capital stocks", y="USD", x = "years", color="") +
-          #coord_cartesian(xlim = c(2010, 2100),ylim=c(40,80)) +
-          scale_colour_gradient() +
-          #scale_linetype_manual("", values=c(3,1,2), labels=c( "standard DICE", "GreenDICE","GreenDICE + investment")) +
-          #scale_colour_manual("",values=c("indianred","seagreen3","blue"),labels=c("standard DICE", "GreenDICE", "GreenDICE + investment")) + 
-          theme(legend.position="")
-    plot_inv_nck
-    plot_inv2_nc <- plot_inv_nck +
-    #geom_line(data = df_inv_reduceddamages, aes(x=years, y=nc_perc, group = variable),size=1,color="red",linetype=2) +
-    geom_line(data = df_r, aes(x=years, y=r_nc_perc, group = variable))
-    plot_inv2_nc
-
-    plot_inv <- ggplot(data = df_inv, aes(years)) +
-          #geom_line(data = df_inv, aes(x=years, y=value_s*100, group = variable, colour = id_var,alpha=id_var),size=1, linetype=1)  + 
-          geom_line(data = df_inv, aes(x=years, y=value_inv*100, group = variable, colour = id_var),size=1, linetype=1)  + 
-          #geom_line(data = r_t_inv, aes(x=names(r_t_inv)[1], y=value_t, group = variable, colour = variable, linetype=variable),size=1)  + 
-          labs(title="Investments in natural capital assets", y="Percentage of GWP", x = "years", color="") +
-          coord_cartesian(xlim = c(2010, 2100),ylim=c(0.0001,50)) +
-          scale_color_gradientn(colours = cbp1)+
-          scale_linetype_manual("", values=c(3,1,2), labels=c( "standard DICE", "GreenDICE","GreenDICE + investment")) +
-          #scale_colour_manual("",values=c("indianred","seagreen3","blue"),labels=c("standard DICE", "GreenDICE", "GreenDICE + investment")) + 
-          theme(legend.position="")
-    plot_inv
-    plot_inv2 <- plot_inv +
-    geom_line(data = df_inv_reduceddamages, aes(x=years, y=value_inv*100, group = variable),size=1,color="red",linetype=2) 
-    #geom_line(data = df_r_inv_standard, aes(x=years, y=value_inv*100, group = variable),size=1,color="indianred",linetype=3) +
-    #geom_line(data = df_r_inv_green, aes(x=years, y=value_inv*100, group = variable),size=2,color="seagreen3",linetype=4) 
-    plot_inv2 <- plot_inv2 +
-      scale_y_log10()
-      plot_inv2
-
-    plot_scc <- ggplot(data = df_inv, aes(years)) +
-          geom_line(data = df_inv, aes(x=years, y=value_scc, group = variable, colour = id_var),size=1)  + 
-          #geom_line(data = df_inv, aes(x=years, y=value_inv, group = variable, colour = id_var),size=1)  + 
-          #geom_line(data = r_t_inv, aes(x=names(r_t_inv)[1], y=value_t, group = variable, colour = variable, linetype=variable),size=1)  + 
-          labs(title="Optimal carbon tax", y="USD/tonCO2", x = "years", color="") +
-          coord_cartesian(xlim = c(2010, 2100),ylim=c(50,750)) +
-          scale_color_gradientn(colours = cbp1)+
-          #scale_linetype_manual("", values=c(3,1,2), labels=c( "standard DICE", "GreenDICE","GreenDICE + investment")) +
-          #scale_colour_manual("",values=c("indianred","seagreen3","blue"),labels=c("standard DICE", "GreenDICE", "GreenDICE + investment")) + 
-          theme(legend.position="")
-    plot_scc
-    plot_scc2 <- plot_scc +
-    #geom_line(data = df_inv_reduceddamages, aes(x=years, y=value_inv*100, group = variable),size=1,color="red",linetype=2) 
-    geom_line(data = df_r_inv_standard, aes(x=years, y=value_scc, group = variable),size=2,color="darkgray",linetype=3) +
-    geom_line(data = df_r_inv_green, aes(x=years, y=value_scc, group = variable),size=2,color="darkgray",linetype=4) 
-    plot_scc2
 
 
-    plot_t <- ggplot(data = df_inv, aes(years)) +
-          geom_line(data = df_inv, aes(x=years, y=value_t, group = variable, colour = id_var),size=1)  + 
-          #geom_line(data = df_inv, aes(x=years, y=value_inv, group = variable, colour = id_var),size=1)  + 
-          #geom_line(data = r_t_inv, aes(x=names(r_t_inv)[1], y=value_t, group = variable, colour = variable, linetype=variable),size=1)  + 
-          labs(title="Temperature", y="Degrees C", x = "years", color="") +
-          coord_cartesian(xlim = c(2010, 2100),ylim=c(0.8,3)) +
-          scale_color_gradientn(colours = cbp1) + labs(color="iterations")+
-          #scale_linetype_manual("", values=c(3,1,2), labels=c( "standard DICE", "GreenDICE","GreenDICE + investment")) +
-          #scale_colour_manual("",values=c("indianred","seagreen3","blue"),labels=c("standard DICE", "GreenDICE", "GreenDICE + investment")) + 
-          theme(legend.position="")
-    plot_t
-    plot_t2 <- plot_t +
-    geom_line(data = df_r_inv_standard, aes(x=years, y=value_t, group = variable),size=2,color="darkgray",linetype=3) +
-    geom_line(data = df_r_inv_green, aes(x=years, y=value_t, group = variable),size=2,color="darkgray",linetype=4) 
-    plot_t2
 
-    #scale_colour_manual("",labels=c("standard DICE", "GreenDICE", "GreenDICE + investment")) 
-    plot_t2
+     plot_t2 <- ggplot(data =  df_r_inv_standard, aes(years)) +
+          geom_line(data = df_r_inv_standard, aes(x=years, y=value_t, colour = variable, linetype=variable),size=1)  + 
+          geom_line(data = df_r_inv_green, aes(x=years, y=value_t, colour = variable, linetype=variable),size=1)  + 
+          geom_line(data = df_inv_last, aes(x=years, y=value_t, colour = variable, linetype=variable),size=1)  + 
+          labs(title="Temperature", y="Degrees C", x = "years") +
+          coord_cartesian(xlim = c(2010, 2100),ylim=c(0.8,3.2)) +
+          scale_linetype_manual("", values=c(2,3,1), labels=c("Asset investments", "Standard DICE", "GreenDICE")) +
+          scale_colour_manual("",values=c("darkcyan","indianred","seagreen3"),labels=c( "Asset investments", "Standard DICE", "GreenDICE")) 
+         plot_t2
 
-    fig <- ggarrange(plot_t2,plot_scc2,plot_inv,plot_inv_nc2,ncol=2,nrow=2, common.legend=TRUE)
+    plot_scc2 <- ggplot(data =  df_r_inv_standard, aes(years)) +
+          geom_line(data = df_r_inv_standard, aes(x=years, y=value_scc, colour = variable, linetype=variable),size=1)  + 
+          geom_line(data = df_r_inv_green, aes(x=years, y=value_scc, colour = variable, linetype=variable),size=1)  + 
+          geom_line(data = df_inv_last, aes(x=years, y=value_scc, colour = variable, linetype=variable),size=1)  + 
+          labs(title="Opt. Carbon tax", y="USD/tonCO2", x = "years") +
+          coord_cartesian(xlim = c(2010, 2100),ylim=c(0,700)) +
+          #scale_linetype_manual("", values=c(4,2,3,1), labels=c( "Asset Investment", "Damage Reduction", "Standard DICE", "GreenDICE")) +
+          #scale_colour_manual("",values=c("firebrick2","darkcyan","indianred","seagreen3"),labels=c( "Asset Investment","Damage Reduction", "Standard DICE", "GreenDICE")) +
+          scale_linetype_manual("", values=c(2,3,1), labels=c("Asset investments", "Standard DICE", "GreenDICE")) +
+          scale_colour_manual("",values=c("darkcyan","indianred","seagreen3"),labels=c( "Asset investments", "Standard DICE", "GreenDICE")) 
+         plot_scc2
+
+     plot_inv2 <- ggplot(data =  df_r_inv_standard, aes(years)) +
+          geom_line(data = df_r_inv_standard, aes(x=years, y=value_inv*100, colour = variable, linetype=variable),size=1)  + 
+          geom_line(data = df_r_inv_green, aes(x=years, y=value_inv*100, colour = variable, linetype=variable),size=1)  + 
+          geom_line(data = df_inv_last, aes(x=years, y=value_inv*100, colour = variable, linetype=variable),size=1)  + 
+          labs(title="Asset investments", y="Percent of GWP", x = "years") +
+          scale_linetype_manual("", values=c(2,3,1), labels=c("Asset investments", "Standard DICE", "GreenDICE")) +
+          scale_colour_manual("",values=c("darkcyan","indianred","seagreen3"),labels=c( "Asset investments", "Standard DICE", "GreenDICE")) +
+          coord_cartesian(xlim = c(2010, 2100),ylim=c(0.01,50))
+    plot_inv2
+
+    
+    plot_nc2 <- ggplot(data =  df_r_inv_standard, aes(years)) +
+          geom_line(data = df_inv_last, aes(x=years, y=value_nc, colour = variable, linetype=variable),size=1)  + 
+          geom_line(data = df_r_inv_standard, aes(x=years, y=value_nc, colour = variable, linetype=variable),size=1)  + 
+          geom_line(data = df_r_inv_green, aes(x=years, y=value_nc, colour = variable, linetype=variable),size=1)  + 
+          labs(title="Natural capital stock", y="Value (USD)", x = "years") +
+          #scale_linetype_manual("", values=c(4,2,3,1), labels=c( "Asset Investment", "Damage Reduction", "Standard DICE", "GreenDICE")) +
+          #scale_colour_manual("",values=c("firebrick2","darkcyan","indianred","seagreen3"),labels=c( "Asset Investment","Damage Reduction", "Standard DICE", "GreenDICE")) +
+          scale_linetype_manual("", values=c(2,3,1), labels=c("Asset investments", "Standard DICE", "GreenDICE")) +
+          scale_colour_manual("",values=c("darkcyan","indianred","seagreen3"),labels=c( "Asset investments", "Standard DICE", "GreenDICE")) +
+         coord_cartesian(xlim = c(2010, 2100),ylim=c(0,250)) 
+    plot_nc2 
+    fig <- ggarrange(plot_t2,plot_scc2,plot_inv2,plot_nc2,ncol=2,nrow=2,legend="bottom", common.legend=TRUE)
     fig    
     ggsave("FS3_investment_NC_iterations.png", path="C:/Users/bastien/Documents/GitHub/GreenDICE/Results/Figures", dpi=600)
     pdf(file = paste(mypath,"/Figures/FS3_investment_NC_iterations.pdf", sep=""))
