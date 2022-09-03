@@ -26,7 +26,7 @@ const model_years = 2010:5:2305 #necesary to compute SCC
 
     function run_timestep(p, v, d, t)
          if is_first(t)
-            v.K[t] = p.k0 + p.ExtraK[1]
+            v.K[t] = p.k0 + p.ExtraK[TimestepIndex(1)] #before: TimestepIndex(1) p.ExtraK[1]
         else
             v.K[t] = (1 - p.dk)^5 * v.K[t-1] + 5 * p.I[t-1]  + p.ExtraK[t]
         end
@@ -44,8 +44,10 @@ const model_years = 2010:5:2305 #necesary to compute SCC
     end
 end
 
-replace_comp!(GreenDICE,green_grosseconomy,:grosseconomy)
-set_param!(GreenDICE,:grosseconomy,:k0,135.)
+#replace_comp!(GreenDICE,green_grosseconomy,:grosseconomy) deprecated
+replace!(GreenDICE,:grosseconomy => green_grosseconomy)
+#set_param!(GreenDICE,:grosseconomy,:k0,135.)
+set_param!(GreenDICE,:k0,135.)
 set_param!(GreenDICE,:grosseconomy,:ExtraK,fill(0.,60))
 
 
@@ -65,7 +67,7 @@ set_param!(GreenDICE,:grosseconomy,:ExtraK,fill(0.,60))
     a4      = Parameter()               #GreenDICE: Damage coefficient for NC
     a5      = Parameter()               #GreenDICE: Damage coefficient for ES
     damadj  = Parameter()               #Adjustment exponent in damage function
-    usedamadj::Bool = Parameter()       # Only the Excel version uses the damadj parameter
+    usedamadj=Parameter{Bool}()       # Only the Excel version uses the damadj parameter
     a_d = Parameter()                   #Total aggregated damages (meta paratameter, used to compute damage parameter a4, using damage_params function)
      
     function run_timestep(p, v, d, t)
@@ -80,7 +82,7 @@ set_param!(GreenDICE,:grosseconomy,:ExtraK,fill(0.,60))
         v.DAMAGES_NC[t] = v.DAMFRAC_NC[t]
     end
 end
-replace_comp!(GreenDICE,green_damages,:damages)
+replace!(GreenDICE,:damages=>green_damages)
 
 #Defining the component of natural capital
 @defcomp green_naturalcapital begin
@@ -99,7 +101,7 @@ replace_comp!(GreenDICE,green_damages,:damages)
     function run_timestep(p, v, d, t)
     
         if is_first(t)
-            v.NC[t] = p.k0 / p.ratioNC + p.ExtraN[1]
+            v.NC[t] = p.k0 / p.ratioNC + p.ExtraN[TimestepIndex(1)]
             v.nonUV[t] = v.NC[t] ^ p.g4 
         else
             v.NC[t] = v.NC[t-1] - (v.NC[t-1] - v.NC[t-1] * p.DAMAGES_NC[t])* (1 - (p.benefitsNC[t-1])^(1/p.w))
@@ -108,7 +110,7 @@ replace_comp!(GreenDICE,green_damages,:damages)
     end
 end
 add_comp!(GreenDICE, green_naturalcapital,:green_naturalcapital, before=:neteconomy)
-set_param!(GreenDICE,:green_naturalcapital,:k0,135.)
+update_param!(GreenDICE,:k0,135.)
 connect_param!(GreenDICE, :grosseconomy, :NC, :green_naturalcapital, :NC)
 connect_param!(GreenDICE, :damages, :NC, :green_naturalcapital, :NC)
 connect_param!(GreenDICE, :green_naturalcapital, :DAMAGES_NC, :damages, :DAMAGES_NC)
@@ -156,7 +158,7 @@ set_param!(GreenDICE,:green_naturalcapital,:w,2.8)
       end
     end
 end
-replace_comp!(GreenDICE,green_welfare,:welfare)
+replace!(GreenDICE,:welfare=>green_welfare)
 connect_param!(GreenDICE, :welfare, :nonUV, :green_naturalcapital, :nonUV)
 
 @defcomp green_neteconomy begin
@@ -233,7 +235,7 @@ connect_param!(GreenDICE, :welfare, :nonUV, :green_naturalcapital, :nonUV)
         v.ESPC[t] = 1000 * p.ES[t] / p.l[t] #ES per capita
     end
 end
-replace_comp!(GreenDICE,green_neteconomy,:neteconomy)
+replace!(GreenDICE,:neteconomy=>green_neteconomy)
 connect_param!(GreenDICE, :green_naturalcapital, :benefitsNC, :neteconomy, :benefitsNC)
 connect_param!(GreenDICE, :neteconomy, :ES, :grosseconomy, :ES)
 connect_param!(GreenDICE, :welfare, :ES, :grosseconomy, :ES)
@@ -241,12 +243,12 @@ connect_param!(GreenDICE, :welfare, :ESPC, :neteconomy, :ESPC)
 connect_param!(GreenDICE, :neteconomy, :K, :grosseconomy, :K)
 connect_param!(GreenDICE, :neteconomy, :NC, :green_naturalcapital, :NC)
 connect_param!(GreenDICE, :green_naturalcapital, :invNCfrac, :neteconomy, :benefitsNC)
-set_param!(GreenDICE,:neteconomy,:invNCfrac,fill(0.,60))
+set_param!(GreenDICE,:invNCfrac,fill(0.,60))
 set_param!(GreenDICE,:neteconomy,:ExtraC,fill(0.,60))
 set_param!(GreenDICE,:neteconomy,:priceNC,fill(10e100,60))
 RR = [1/(1+0.015)^(t*5) for t in 0:59]
-set_param!(GreenDICE,:neteconomy,:rr,RR)
-set_param!(GreenDICE,:neteconomy,:w,2.8)
+set_param!(GreenDICE,:rr,RR)
+set_param!(GreenDICE,:w,2.8)
 
 
 @defcomp green_emissions begin
@@ -280,5 +282,6 @@ set_param!(GreenDICE,:neteconomy,:w,2.8)
 
     end
 end
-replace_comp!(GreenDICE,green_emissions,:emissions)
+replace!(GreenDICE,:emissions=>green_emissions)
 set_param!(GreenDICE,:emissions,:ExtraCO2,fill(0.,60))
+set_param!(GreenDICE,:k0,135.)

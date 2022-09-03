@@ -12,19 +12,19 @@
         end
         a_k = perck * D_d
         set_param!(GreenDICE,:damages,:a_d,D_d)
-        set_param!(GreenDICE,:damages,:a2,a_k)
+        update_param!(GreenDICE,:a2,a_k)
         run(GreenDICE)
         Resd = bboptimize(damage_params;SearchRange=(0.,1.), NumDimensions=1, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=3000)
         a_4 = best_candidate(Resd) 
         set_param!(GreenDICE,:damages,:a4,a_4[1])
-        set_param!(GreenDICE,:neteconomy,:a4,a_4[1]) 
+        update_param!(GreenDICE,:neteconomy,:a4,a_4[1]) 
         res = bboptimize(eval_dice;SearchRange=(0.,1.), NumDimensions=120, Method=:adaptive_de_rand_1_bin_radiuslimited,MaxSteps=49999)
         best_candidate(res) # optimal vector of miu emissions trajectories
-        set_param!(GreenDICE,:emissions,:MIU,best_candidate(res)[1:60])
-        set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
+        update_param!(GreenDICE,:MIU,best_candidate(res)[1:60])
+        update_param!(GreenDICE,:S,best_candidate(res)[61:120])
         run(GreenDICE)
         results = foo()
-        global Results_uncertainty_damage = join(Results_uncertainty_damage,results,on= :time, makeunique = true)
+        global Results_uncertainty_damage = innerjoin(Results_uncertainty_damage,results,on= :time, makeunique = true)
         global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_damage.csv"),Results_uncertainty_damage)
@@ -42,7 +42,7 @@
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
         run(GreenDICE)
         results = foo()
-        global Results_uncertainty_prtp = join(Results_uncertainty_prtp,results,on= :time, makeunique = true)
+        global Results_uncertainty_prtp = innerjoin(Results_uncertainty_prtp,results,on= :time, makeunique = true)
         global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_prtp.csv"),Results_uncertainty_prtp)
@@ -64,7 +64,7 @@
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
         run(GreenDICE)
         results = foo()
-        global Results_uncertainty_cs = join(Results_uncertainty_cs,results,on= :time, makeunique = true)
+        global Results_uncertainty_cs = innerjoin(Results_uncertainty_cs,results,on= :time, makeunique = true)
         global mc = mc + 1
     end
     set_param!(GreenDICE,:climatedynamics,:t2xco2,3.2) 
@@ -90,7 +90,7 @@
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])       
         run(GreenDICE)
         results = foo()
-        global Results_uncertainty_gama3 = join(Results_uncertainty_gama3,results,on= :time, makeunique = true)
+        global Results_uncertainty_gama3 = innerjoin(Results_uncertainty_gama3,results,on= :time, makeunique = true)
         global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_gama3.csv"),Results_uncertainty_gama3)
@@ -110,7 +110,7 @@
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])       
         run(GreenDICE)
         results = foo()
-        global Results_uncertainty_gama4 = join(Results_uncertainty_gama4,results,on= :time, makeunique = true)
+        global Results_uncertainty_gama4 = innerjoin(Results_uncertainty_gama4,results,on= :time, makeunique = true)
         global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_gama4.csv"),Results_uncertainty_gama4)
@@ -127,7 +127,7 @@
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
         run(GreenDICE)
         results = foo()
-        global Results_uncertainty_share2 = join(Results_uncertainty_share2,results,on= :time, makeunique = true)
+        global Results_uncertainty_share2 = innerjoin(Results_uncertainty_share2,results,on= :time, makeunique = true)
         global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_share2.csv"),Results_uncertainty_share2)
@@ -160,7 +160,7 @@
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])   
         run(GreenDICE)
         results = foo()
-        global Results_uncertainty_nc = join(Results_uncertainty_nc,results,on= :time, makeunique = true)
+        global Results_uncertainty_nc = innerjoin(Results_uncertainty_nc,results,on= :time, makeunique = true)
         global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_ratio.csv"),Results_uncertainty_nc)
@@ -180,7 +180,7 @@
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
         run(GreenDICE)
         results = foo()
-        global Results_uncertainty_share = join(Results_uncertainty_share,results,on= :time, makeunique = true)
+        global Results_uncertainty_share = innerjoin(Results_uncertainty_share,results,on= :time, makeunique = true)
         global mc = mc + 1
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_share1.csv"),Results_uncertainty_share)
@@ -197,7 +197,7 @@
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
         run(GreenDICE)
         results = foo()
-        global Results_uncertainty_theta2 = join(Results_uncertainty_theta2,results,on= :time, makeunique = true)
+        global Results_uncertainty_theta2 = innerjoin(Results_uncertainty_theta2,results,on= :time, makeunique = true)
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_theta2.csv"),Results_uncertainty_theta2)
     include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
@@ -213,7 +213,7 @@
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
         run(GreenDICE)
         results = foo()
-        global Results_uncertainty_theta = join(Results_uncertainty_theta,results,on= :time, makeunique = true)
+        global Results_uncertainty_theta = innerjoin(Results_uncertainty_theta,results,on= :time, makeunique = true)
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_theta.csv"),Results_uncertainty_theta)
     include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))
@@ -230,7 +230,7 @@
         set_param!(GreenDICE,:neteconomy,:S,best_candidate(res)[61:120])
         run(GreenDICE)
         results = foo()
-        global Results_uncertainty_elasmu = join(Results_uncertainty_elasmu,results,on= :time, makeunique = true)
+        global Results_uncertainty_elasmu = innerjoin(Results_uncertainty_elasmu,results,on= :time, makeunique = true)
     end
     CSV.write(string(dir,"Results/sensitivity/GreenDICE_UVnonUV_sens_opt_elasmu.csv"),Results_uncertainty_elasmu)
     include(string(dir,"src/Setup_GreenDICE_mainSpecification.jl"))

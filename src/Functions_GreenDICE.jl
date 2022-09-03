@@ -7,7 +7,7 @@ function foo()
     A = getdataframe(GreenDICE,Symbol(d_v[1,1]),Symbol(d_v[1,2]))
     for i = 2:size(d_v)[1]
         B = getdataframe(GreenDICE,Symbol(d_v[i,1]),Symbol(d_v[i,2]))
-        A = join(A, B, on= :time)
+        A = innerjoin(A, B, on= :time)
     end
     scc = DataFrame(time = Int64[], scc = Float64[])
     for ii in 1:60
@@ -21,9 +21,9 @@ function foo()
         share2 = GreenDICE[:welfare,:share2]
         g4 = GreenDICE[:green_naturalcapital,:g4]
         Extraton = fill(0.,60)
-        set_param!(GreenDICE,:emissions,:ExtraCO2,Extraton)        
+        update_param!(GreenDICE,:ExtraCO2,Extraton)        
         Extracons = fill(0.,60)
-        set_param!(GreenDICE,:neteconomy,:ExtraC,Extracons)
+        update_param!(GreenDICE,:ExtraC,Extracons)
         run(GreenDICE)
         C = GreenDICE[:neteconomy, :CPC]
         ES = GreenDICE[:neteconomy, :ESPC]
@@ -35,7 +35,7 @@ function foo()
         W = sum(U.*df.*l)
         Extraton = fill(0.,60)
         Extraton[ii] = 1
-        set_param!(GreenDICE,:emissions,:ExtraCO2,Extraton)
+        update_param!(GreenDICE,:ExtraCO2,Extraton)
         run(GreenDICE)
         C2 = GreenDICE[:neteconomy, :CPC]
         ES2 = GreenDICE[:neteconomy, :ESPC]
@@ -46,10 +46,10 @@ function foo()
         dWdE = - (W2 - W)
         #Now compute dWdC
         Extraton = fill(0.,60)
-        set_param!(GreenDICE,:emissions,:ExtraCO2,Extraton)
+        update_param!(GreenDICE,:ExtraCO2,Extraton)
         Extracons = fill(0.,60)
         Extracons[ii] = 1
-        set_param!(GreenDICE,:neteconomy,:ExtraC,Extracons)
+        update_param!(GreenDICE,:ExtraC,Extracons)
         run(GreenDICE)
         ES3 = GreenDICE[:neteconomy, :ESPC]
         nonUV3 = GreenDICE[:green_naturalcapital, :nonUV]
@@ -62,10 +62,10 @@ function foo()
         year_i = 2005 + ii * 5
                 push!(scc, [year_i, scc_i])
                 end
-                A = join(A,scc, on= :time)
+                A = innerjoin(A,scc, on= :time)
                 prtp = round((1/GreenDICE[:welfare, :rr][2])^(1/5)-1,digits = 4)
                 df = DataFrame(time = A.time, gama3 = ones(60).*GreenDICE[:grosseconomy, :gama3], ratioKNC = ones(60).*GreenDICE[:grosseconomy,:ratioNC],g4 = ones(60).*GreenDICE[:green_naturalcapital,:g4],theta1 = ones(60).*GreenDICE[:welfare,:theta],share1 = ones(60).*GreenDICE[:welfare,:share],climsen = ones(60).*GreenDICE[:climatedynamics,:t2xco2],prtp = ones(60)*prtp,share2 = ones(60).*GreenDICE[:welfare,:share2],theta2 = ones(60).*GreenDICE[:welfare,:theta2],YGreen = GreenDICE[:neteconomy,:YGreen],elasmu = ones(60).*GreenDICE[:welfare,:elasmu],damageNC = ones(60).*GreenDICE[:damages,:a4])
-                A = join(A,df, on= :time)
+                A = innerjoin(A,df, on= :time)
     return A
 end
 
@@ -73,8 +73,8 @@ end
 function eval_dice(x)
     m = x[1:60]
     s = x[61:end]
-    set_param!(GreenDICE,:emissions,:MIU,m)
-    set_param!(GreenDICE,:neteconomy,:S,s)
+    update_param!(GreenDICE,:MIU,m)
+    update_param!(GreenDICE,:S,s)
     run(GreenDICE)
     return -GreenDICE[:welfare, :UTILITY]
 end
@@ -84,9 +84,9 @@ function eval_dice_inv(x)
     m = x[1:60]
     s = x[61:120]
     inv = x[121:180]
-    set_param!(GreenDICE,:emissions,:MIU,m)
-    set_param!(GreenDICE,:neteconomy,:S,s)
-    set_param!(GreenDICE,:neteconomy,:invNCfrac,inv)
+    update_param!(GreenDICE,:MIU,m)
+    update_param!(GreenDICE,:S,s)
+    update_param!(GreenDICE,:invNCfrac,inv)
     run(GreenDICE)
     
     return -GreenDICE[:welfare, :UTILITY]
@@ -150,7 +150,7 @@ function pricesNC()
         share2 = GreenDICE[:welfare,:share2]
         g4 = GreenDICE[:green_naturalcapital,:g4]
         ExtraNAsset = fill(0.,60)
-        set_param!(GreenDICE,:green_naturalcapital,:ExtraN,ExtraNAsset)       
+        update_param!(GreenDICE,:green_naturalcapital,:ExtraN,ExtraNAsset)       
         run(GreenDICE)
         C = GreenDICE[:neteconomy, :CPC]
         ES = GreenDICE[:neteconomy, :ESPC]
@@ -204,7 +204,7 @@ function iterations_damagereduction()
         set_param!(GreenDICE,:neteconomy,:invNCfrac,best_candidate(resinv)[121:180])
         run(GreenDICE)
         results = foo()
-        global Results_investment_iterations = join(Results_investment_iterations,results,on= :time, makeunique = true)
+        global Results_investment_iterations = innerjoin(Results_investment_iterations,results,on= :time, makeunique = true)
         global mc = mc + 1
         #get results (end)
     end
